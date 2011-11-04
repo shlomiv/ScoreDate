@@ -129,7 +129,7 @@ public class RoundedButton extends JButton
 	    	fM = g.getFontMetrics();
 	    	textWidth = fM.stringWidth(titlep2) / 2;
 	    	g.drawString(titlep2, 15 + 25 - textWidth, hCenter + 20);
-	    	g.fillRoundRect(80, hCenter - 25, 70, 50, 8, 8); // 22
+	    	g.fillRoundRect(80, hCenter - 25, 70, 50, 15, 15); // 22
 	    	g.setFont(getFont().deriveFont(27f));
 	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
 	    	String sm = "" + (char)0xF4;

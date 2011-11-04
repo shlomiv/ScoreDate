@@ -36,6 +36,13 @@ public class NotesPanel extends JPanel
 	Image wrongImg = null;
 	Image warnImg = null;
 	
+	int scheduleFlag = -1;
+	int schParam1 = -1;
+	int schParam2 = -1;
+	int schParam3 = -1;
+	int cursorXpos = -1;
+	int cursorYpos = -1;
+	
 	public NotesPanel(Font f, Preferences p, Vector<Note> n, boolean inline)
 	{
 		appFont = f;
@@ -54,7 +61,7 @@ public class NotesPanel extends JPanel
 		setLayout(null);
 		
 		add(learningText);
-		//setDoubleBuffered(true);
+		//setDoubleBuffered(false);
     	//setBackground(Color.blue);
 	}
 
@@ -186,34 +193,45 @@ public class NotesPanel extends JPanel
     
     public void drawCursor(int x, int y, boolean clean)
     {
-    	if (showCursorAndBeats == false)
+    	if (showCursorAndBeats == false || x < 0 || y < 0)
     		return;
+
     	Graphics g = this.getGraphics();
     	if (clean == false)
     		g.setColor(Color.orange);
     	else
     		g.setColor(Color.white);
     	g.fillRect(0, y, x, 3);
+
+/*
+    	scheduleFlag = 3;
+    	schParam1 = x;
+    	schParam2 = y;
+    	schParam3 = (clean == true)?1:0;
+    	this.repaint(0, schParam2, schParam1, 3);
+*/
     }
     
+
     public void drawMetronome(int x, int y)
     {
     	if (showCursorAndBeats == false)
     		return;
-    	Graphics g = this.getGraphics();
-    	g.setColor(Color.black);
-    	g.fillRect(x + 2, y - 8, 5, 8);
+    	scheduleFlag = 1;
+    	schParam1 = x + 2;
+    	schParam2 = y - 8;
+    	this.repaint(schParam1, schParam2, 5, 8);
+    	//Graphics g = this.getGraphics();
     }
     
     public void drawAnswer(int type, int x, int y)
     {
-    	Graphics g = this.getGraphics();
-    	if (type == 0)
-    		g.drawImage(wrongImg, x, y, null);
-    	else if (type == 1)
-    		g.drawImage(rightImg, x, y, null);
-    	else if (type == 2)
-    		g.drawImage(warnImg, x, y, null);
+    	//Graphics g = this.getGraphics();
+    	scheduleFlag = 2;
+    	schParam1 = x;
+    	schParam2 = y;
+    	schParam3 = type;
+    	this.repaint(x, y, 16, 16);
     }
     
     private void drawNote(Graphics g, int index) 
@@ -314,6 +332,40 @@ public class NotesPanel extends JPanel
  	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		//super.paintComponent(g);
+		
+		if (scheduleFlag != -1)
+		{
+			switch (scheduleFlag)
+			{
+				case 1: // Metronome
+					g.setColor(Color.black);
+					g.fillRect(schParam1, schParam2, 5, 8);
+				break;
+				case 2: // answer
+					
+			    	if (schParam3 == 0)
+			    		g.drawImage(wrongImg, schParam1, schParam2, null);
+			    	else if (schParam3 == 1)
+			    		g.drawImage(rightImg, schParam1, schParam2, null);
+			    	else if (schParam3 == 2)
+			    		g.drawImage(warnImg, schParam1, schParam2, null);
+				break;
+				case 3: // cursor
+					/*
+					if (schParam3 == 0)
+			    		g.setColor(Color.orange);
+			    	else
+			    		g.setColor(Color.blue);
+			    	g.fillRect(0, schParam2, schParam1, 3);
+			    	*/
+				break;
+			}
+			scheduleFlag = -1;
+			schParam1 = -1;
+			schParam2 = -1;
+			schParam3 = -1;
+			return;
+		}
     	
     	if (singleNoteIndex == -1)
     	{

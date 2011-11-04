@@ -23,6 +23,7 @@ public class Statistics
 		wrongRhythms = 0;
 
 		totalScore = 0;
+		precisionAmount = 0;
 		avgPrecision = 0;		
 	}
 	

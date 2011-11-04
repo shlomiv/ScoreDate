@@ -267,8 +267,9 @@ public class ScorePanel extends JPanel implements ActionListener
 			{
 				if (gameNotes.size() == 0) return; // security check
 
-				if (pitch == gameNotes.get(lookupIndex).pitch || 
-					gameType == appPrefs.RHTYHM_GAME_USER) // any pitch is OK for rhythm game 
+				if ((pitch == gameNotes.get(lookupIndex).pitch || 
+					gameType == appPrefs.RHTYHM_GAME_USER) && // any pitch is OK for rhythm game 
+					gameNotes.get(lookupIndex).type != 5)  
 					{
 						notesLayer.drawAnswer(1, currPos, cursorY); // pitch and rhythm correct
 						updateGameStats(1);
@@ -437,7 +438,7 @@ public class ScorePanel extends JPanel implements ActionListener
 					gameType = appPrefs.RHTYHM_GAME_USER;
 				else 
 					gameType = appPrefs.SCORE_GAME_USER;
-				notesLayer.repaint();
+				//notesLayer.repaint();
 				stats.reset();
 				gameBar.precisionCnt.setText("");
 				gameBar.scoreCnt.setText("");
@@ -474,7 +475,7 @@ public class ScorePanel extends JPanel implements ActionListener
 		notesLayer.setBounds(0, 0, getWidth() - (staffHMargin * 2), staffHeight);
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 		
-		System.out.println("--------- REFRESH PANEL **********");
+		//System.out.println("--------- REFRESH PANEL **********");
 		/*
 		rowsDistance = scoreNG.getRowsDistance();
 		scoreStaff.setRowsDistance(rowsDistance);

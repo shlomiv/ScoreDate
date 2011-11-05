@@ -426,27 +426,28 @@ public class NoteGenerator
     				Note thirdNote = getTripletRandomNote(tmpNote.pitch);
     				if (isRhythm == true)
     				{
-    					secondNote.level = 10;
-    					thirdNote.level = 10;
-    					secondNote.pitch = getRhythmPitch(secondNote.clef);
-    					thirdNote.pitch = getRhythmPitch(thirdNote.clef);
+    					tmpNote.level = secondNote.level = thirdNote.level = 10;
+    					tmpNote.pitch = secondNote.pitch = thirdNote.pitch = getRhythmPitch(tmpNote.clef);
     				}
     				
     				int tripletLevel = tmpNote.level;
     				int mult = 1;
-    				if (tmpNote.level > 10) // oriented upward. Find the lowest level
+    				if (isRhythm == false)
     				{
+    				  if (tmpNote.level >= 10) // oriented upward. Find the lowest level
+    				  {
     					if (secondNote.level < tripletLevel) tripletLevel = secondNote.level;
     					if (thirdNote.level < tripletLevel) tripletLevel = thirdNote.level;
-    				}
-    				else // oriented downward. Find the highest level
-    				{
+    				  }
+    				  else // oriented downward. Find the highest level
+    			 	  {
     					if (secondNote.level > tripletLevel) tripletLevel = secondNote.level;
     					if (thirdNote.level > tripletLevel) tripletLevel = thirdNote.level;
     					mult = -1; // negative values will tell the renderer to stretch downward
+    				  }
+    				  tripletLevel *= mult;
     				}
     				
-    				tripletLevel *= mult;
     				tmpNote.setTripletValue(tripletLevel);
     				secondNote.setTripletValue(tripletLevel + (mult * 1000));
     				thirdNote.setTripletValue(tripletLevel + (mult * 1000));
@@ -480,7 +481,7 @@ public class NoteGenerator
     			{
     				measureCounter -= tmpNote.duration;
     				seq.add(tmpNote);
-    				if (tmpNote.type == 4)
+    				if (tmpNote.type == 3)
     					eighthPresent = true;
     				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + tmpNote.pitch + ", level: " + tmpNote.level); 
     			}
@@ -555,6 +556,8 @@ public class NoteGenerator
         	int addNoteBasePitch = getPitchFromClefAndLevel(baseNote.clef, level);
         	int addNoteIdx = baseList.indexOf(addNoteBasePitch);
         	int altType = addNotes[i] - alteredList.get(addNoteIdx);
+        	if (altType != 0 && alteredList.get(addNoteIdx) != baseList.get(addNoteIdx))
+        		altType = 2; // there is an accidental on key. Must show a natural 
 
     		//System.out.println("addNotes: " + addNotes[i] + ", idx: " + addIndex + ", lev: " + level);
 

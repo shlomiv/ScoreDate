@@ -135,7 +135,7 @@ public class NotesPanel extends JPanel
     			ypos++;
     		else if (type == 2) // quarter note
     		{
-    			if (note.level <= 10)
+    			if (note.level < 10)
     				ypos += 41;
     		}
     		else if (type == 3) // eigth note
@@ -143,9 +143,9 @@ public class NotesPanel extends JPanel
     			if (note.level <= 10) 
     				ypos += 30;
     		}
-    		else if (type == 4) // quarter note
+    		else if (type == 4) // triplets
     		{
-    			if (note.level <= 10)
+    			if (note.tripletValue < 0)
     				ypos += 41;
     		}    		
     		else if (type == 5) // silence
@@ -259,7 +259,7 @@ public class NotesPanel extends JPanel
 		else if (type == 1) symbol = "h"; // half note 
 		else if (type == 2)
 		{
-			if (note.level > 10) symbol = "q"; // quarter note upward
+			if (note.level >= 10) symbol = "q"; // quarter note upward
 			else symbol = "" + (char)0xF6; // quarter note downward
 		}
 		else if (type == 3)
@@ -270,8 +270,8 @@ public class NotesPanel extends JPanel
 		else if (type == 4)
 		{
 			if (note.tripletValue > 0)
-				symbol = "q"; // quarter note upward
-			else symbol = "" + (char)0xF6; // quarter note downward
+				symbol = "q"; // triplet note upward
+			else symbol = "" + (char)0xF6; // triplet note downward
 		}
 		else if (type == 5) // silence
 		{
@@ -294,8 +294,10 @@ public class NotesPanel extends JPanel
 			g.setFont(appFont.deriveFont(50f));
 			if (note.altType == -1)
 				g.drawString("b", note.xpos - 14, note.ypos);
-			else
+			else if (note.altType == 1)
 				g.drawString("B", note.xpos - 14, note.ypos);
+			else if (note.altType == 2)
+				g.drawString("" + (char)0xBD, note.xpos - 14, note.ypos);
 		}
 
     	if (note.tripletValue != 0) // draw triplets special graphics 
@@ -309,7 +311,7 @@ public class NotesPanel extends JPanel
     			if (note.tripletValue > -1000)
     			{
     				g.setFont(new Font("Arial", Font.BOLD, 15));
-            		g.drawString("3", note.xpos + 20, tripletBarYPos + 5);
+            		g.drawString("3", note.xpos + 22, tripletBarYPos + 3);
     				g.fillRect(note.xpos, tripletBarYPos - 15, 49, 5);
     			}
     		}
@@ -321,10 +323,10 @@ public class NotesPanel extends JPanel
     			if (note.tripletValue < 1000)
     			{
     				g.setFont(new Font("Arial", Font.BOLD, 15));
-            		g.drawString("3", note.xpos + 30, tripletBarYPos - 45);
+            		g.drawString("3", note.xpos + 32, tripletBarYPos - 42);
     				g.fillRect(note.xpos + 11, tripletBarYPos - 40, 49, 5);
     			}
-    		}
+    		}	
     	}
     }
 

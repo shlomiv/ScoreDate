@@ -17,6 +17,8 @@ public class NoteGenerator
 								 { 3 , 6 },   // diminished
 								 { 4 , 8 } }; // augmented
 	
+	int[] intervalNoPerfect = { -2, -1 , 0, 1};
+	int[] intervalPerfect = { -2, 0, 1 };
 	char[] intervals = { 0, 1, 2, 4, 5, 7, 9, 11, 12 };
 	
 	int clefMask = -1;
@@ -498,7 +500,12 @@ public class NoteGenerator
     	if (chord == true) 
     		randType = (int)(Math.random() * 2); // 0 major, 1 minor
     	else
-    		randType = (int)(Math.random() * 2) - 1; // -1 diminished, 0 exact, 1 augmented
+    	{
+    		if (intervalDegree == 4 || intervalDegree == 5 || intervalDegree == 8)
+    			randType = intervalPerfect[(int)(Math.random() * 3)]; // interval without perfect
+    		else
+    			randType = intervalNoPerfect[(int)(Math.random() * 4)]; // interval with perfect
+    	}
     	
     	int[] addNotes = { 0, 0 };
     	Note baseNote = getRandomNote(0);
@@ -519,35 +526,6 @@ public class NoteGenerator
     		{
     			addNotes[i] = baseNote.pitch + intervals[intervalDegree] + randType;
     		}
-    		/*
-    		int newPitch = addNotes[i];
-    		
-    		int altType = 0;
-        	int addIndex = baseList.indexOf(addNotes[i]);
-        	if (addIndex == -1)
-        	{
-        		addIndex = alteredList.indexOf(addNotes[i]);
-        		// worst case. Chord note is not present in any list. Find the closest match
-        		if (addIndex == -1)
-        		{
-        	    	int baseNoteIdx = alteredList.indexOf(baseNote.pitch);
-        			for (int j = baseNoteIdx; j < baseList.size(); j++)
-        			{
-        				if (baseList.get(j) > addNotes[i])
-        				{
-        					addIndex = j - 1;
-        					newPitch = baseList.get(addIndex);
-        					break;
-        				}
-        			}
-        			altType = 1;
-        		}
-        		else
-        			altType = alteredList.get(addIndex) - baseList.get(addIndex);
-        	}
-        	*/
-
-        	//int level = getLevelFromClefAndPitch(baseNote.clef, newPitch);
     		int level = 0;
     		if (chord == true)
     			level = baseNote.level - (2 * (i + 1)); // calculate 3rd and 5th position
@@ -555,12 +533,21 @@ public class NoteGenerator
     			level = baseNote.level - intervalDegree + 1;
         	int addNoteBasePitch = getPitchFromClefAndLevel(baseNote.clef, level);
         	int addNoteIdx = baseList.indexOf(addNoteBasePitch);
+        	int altOnClef = alteredList.get(addNoteIdx) - baseList.get(addNoteIdx);
         	int altType = addNotes[i] - alteredList.get(addNoteIdx);
-        	if (altType != 0 && alteredList.get(addNoteIdx) != baseList.get(addNoteIdx))
-        		altType = 2; // there is an accidental on key. Must show a natural 
+        	System.out.println("BEFORE altType: " + altType + ", altOnClef: " + altOnClef);
+        	if (altType != 0 && altOnClef != 0)
+        	{
+        		if (altType + altOnClef == 0)
+        			altType = 2; // there is an accidental on key. Must show a natural
+        		else
+        			altType += altOnClef;
+        	}
 
     		//System.out.println("addNotes: " + addNotes[i] + ", idx: " + addIndex + ", lev: " + level);
-
+        	System.out.println("AFTER altType: " + altType + ", altOnClef: " + altOnClef);
+        	if (chord == false && intervalDegree == 2)
+        		xpos -= 20;
         	Note newNote = new Note(xpos, baseNote.clef, level, addNotes[i], 0, baseNote.secondRow, altType);
         	seq.add(newNote);
     	}

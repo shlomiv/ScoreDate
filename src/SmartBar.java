@@ -36,11 +36,14 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 	Preferences appPrefs;
 	Font appFont;
 	
+	public RoundedButton homeBtn;
+
+	RoundPanel tempoContainer;
 	public JPanel tempoPanel;
 	public JSlider tempoSlider;
 	private JTextField tempoLabel;
 	public JCheckBox metronomeCheckBox;
-	public RoundedButton homeBtn;
+	
 	private RoundedButton clefNoteBtn;
 	private RoundPanel gameContainer;
 	public JComboBox gameSelector;
@@ -50,6 +53,8 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 	public RoundedButton listenBtn;
 
 	private int buttonSize = 70;
+	private int totalObjWidth = 725;
+	private int upperMargin = 20;
 	private boolean isInline = false;
 
 	private ClefNotesOptionDialog clefNotesDialog;
@@ -63,25 +68,39 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		appPrefs = p;
 		isInline = inline;
 		setSize(d);
+		setLayout(null);
+		
+		if (inline == false)
+		{
+			totalObjWidth = 700;
+			upperMargin = 15;
+		}
+
+		int posX = (d.width - totalObjWidth) / 2;
 
 		// Create home button
 		homeBtn= new RoundedButton("", appBundle);
 		homeBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
-		//homeBtn.setBounds(d.width - 80, 20, buttonSize, buttonSize);
+		homeBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
 		homeBtn.setBackground(Color.decode("0x8FC6E9"));
 		//homeBtn.setBackground(compColor);
 		homeBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/home.png")).getImage());
+		
+		posX += buttonSize + 5;
 
 		// create button to configure clefs and notes levels
 		clefNoteBtn = new RoundedButton("RBL_NOTES", appBundle);
 		clefNoteBtn.setPreferredSize(new Dimension(160, buttonSize));
+		clefNoteBtn.setBounds(posX, upperMargin, 160, buttonSize);
 		clefNoteBtn.setBackground(Color.decode("0x8FC6E9"));
 		clefNoteBtn.setFont(f);
 		clefNoteBtn.setIcon(new ImageIcon(getClass().getResource("/resources/settings.png")));
 		clefNoteBtn.addActionListener(this);
 		
+		posX += 165;
+		
 		// create tempo container with tempo scroller and metronome check box
-		RoundPanel tempoContainer = new RoundPanel();
+		tempoContainer = new RoundPanel();
 		tempoContainer.setBackground(compColor);
 		((FlowLayout)tempoContainer.getLayout()).setHgap(7);
 
@@ -91,12 +110,17 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		tempoPanel.setBackground(compColor);
 		tempoPanel.setPreferredSize(new Dimension(230, 80));
 
-		tempoSlider = new JSlider(JSlider.HORIZONTAL, 40, 200, 80);
-		tempoSlider.addChangeListener(this);
 		if (inline == true)
+		{
+			tempoSlider = new JSlider(JSlider.HORIZONTAL, 30, 250, 60);
 			tempoLabel = new JTextField("80");
+		}
 		else
+		{
+			tempoSlider = new JSlider(JSlider.HORIZONTAL, 40, 200, 80);
 			tempoLabel = new JTextField("80 BPM");
+		}
+		tempoSlider.addChangeListener(this);
 		tempoLabel.setBackground(Color.white);
 		tempoLabel.setPreferredSize(new Dimension(65, 25));
 		tempoLabel.setAlignmentX(LEFT_ALIGNMENT);
@@ -118,6 +142,9 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		tempoPanel.add(tempoSlider);
 		
 		tempoContainer.add(tempoPanel);
+		tempoContainer.setBounds(posX, upperMargin - 10, 240, 90);
+		
+		posX += 245;
 		
 		if (inline == true)
 		{
@@ -140,6 +167,9 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 			
 			gameContainer.add(gameSelector);
 			gameContainer.add(gameType);
+			
+			gameContainer.setBounds(posX, upperMargin, 166, buttonSize);
+			posX += 171;
 		}
 
 		// Create refresh button
@@ -147,23 +177,27 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		{
 			refreshBtn= new RoundedButton("", appBundle);
 			refreshBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
-			refreshBtn.setBounds(d.width - 80, 20, buttonSize, buttonSize);
+			refreshBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
 			refreshBtn.setBackground(Color.decode("0x8FC6E9"));
 			refreshBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/refresh.png")).getImage());
+			
+			posX += buttonSize + 5;
 		}
 		// Create playback button
 		playBtn= new RoundedButton("", appBundle);
 		playBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
-		playBtn.setBounds(d.width - 80, 20, buttonSize, buttonSize);
+		playBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
 		playBtn.setBackground(Color.decode("0x8FC6E9"));
 		playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
+		
+		posX += buttonSize + 5;
 
 		if (inline == false)
 		{
 			// Create playback button
 			listenBtn= new RoundedButton("", appBundle);
 			listenBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
-			listenBtn.setBounds(d.width - 80, 20, buttonSize, buttonSize);
+			listenBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
 			listenBtn.setBackground(Color.decode("0x8FC6E9"));
 			listenBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/listen.png")).getImage());
 		}
@@ -197,6 +231,9 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 			gameSelector.addItem(appBundle.getString("_linegame"));
 			gameSelector.addItem(appBundle.getString("_learninggame"));
 			
+			// TODO: 
+			// WARNING !!!! If you change these entries you must change indexes of 
+			// InlinePanel.setLearningInfo and InlinePanel.setGameType !!!!
 			gameType.addItem(appBundle.getString("_notes"));
 			//gameType.addItem(appBundle.getString("_alterednotes"));
 			//gameType.addItem(appBundle.getString("_customnotes"));
@@ -258,10 +295,35 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 	protected void paintComponent(Graphics g) 
 	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		//System.out.println("SmartBar paintComponent. w: " + getWidth() + ", h: " + getHeight());
 		//g.setColor(Color.decode("0xAFC6E9"));
 		GradientPaint vertGrad = new GradientPaint(0, 0, Color.decode("0xAFC6E9"), 0, getHeight() - 50, Color.decode("0x4D5D8F"));
 		((Graphics2D) g).setPaint(vertGrad);
 		g.fillRoundRect(20, -20, getWidth() - 40, getHeight(), 25, 25);
+		
+		int posX = (getWidth() - totalObjWidth) / 2;
+		homeBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
+		posX += buttonSize + 5;
+		clefNoteBtn.setBounds(posX, upperMargin, 160, buttonSize);
+		posX += 165;
+		tempoContainer.setBounds(posX, upperMargin - 10, 240, 90);
+		posX += 245;
+		if (isInline == true)
+		{
+			gameContainer.setBounds(posX, upperMargin, 166, buttonSize);
+			posX += 171;			
+		}
+		else
+		{
+			refreshBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
+			posX += buttonSize + 5;
+		}
+		
+		playBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
+		posX += buttonSize + 5;
+
+		if (isInline == false)
+			listenBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
 	}
 }
 

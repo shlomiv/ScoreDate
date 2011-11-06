@@ -1,0 +1,11 @@
+November ???, 2011 - 1.0 beta
+
+- fixed intervals on line game including learning info
+- added pauses on double clef score
+- 40 notes are now needed to complete line game
+- fixed SmartBar and GameBar resize when going fullscreen
+- fixed italian translation for intervals
+
+November 5th, 2011 - 1.0 alpha
+
+Initial version of Score Date

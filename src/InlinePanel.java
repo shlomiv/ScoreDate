@@ -221,8 +221,10 @@ public class InlinePanel extends JPanel implements ActionListener
 				if (inlineNG.isAlterated(noteIdx) == true)
 					altInfo = inlineAccidentals.getType();
 			}
-			switch (noteIdx)
+			if (gameSubType != appPrefs.NOTE_INTERVALS)
 			{
+			  switch (noteIdx)
+			  {
 				case 0: noteInfo = appBundle.getString("_do"); break;
 				case 1: noteInfo = appBundle.getString("_re"); break;
 				case 2: noteInfo = appBundle.getString("_mi"); break;
@@ -230,9 +232,9 @@ public class InlinePanel extends JPanel implements ActionListener
 				case 4: noteInfo = appBundle.getString("_sol"); break;
 				case 5: noteInfo = appBundle.getString("_la"); break;
 				case 6: noteInfo = appBundle.getString("_si"); break;
-			}
-			if (gameSubType == appPrefs.NOTE_CHORDS && chordType != -1)
-			{
+			  }
+			  if (gameSubType == appPrefs.NOTE_CHORDS && chordType != -1)
+			  {
 				chord = " ";
 				switch (chordType)
 				{
@@ -241,16 +243,37 @@ public class InlinePanel extends JPanel implements ActionListener
 					case 2: chord += appBundle.getString("_diminished"); break;
 					case 3: chord += appBundle.getString("_augmented"); break;
 				}
+			  }
 			}
+
 			if (gameSubType == appPrefs.NOTE_INTERVALS)
 			{
 				chord = " ";
+				int intervalType = sBar.gameType.getSelectedIndex() + 1;
+				String keyStr = "";
+				switch (intervalType)
+				{
+					case 2: keyStr = "_second"; break;
+					case 3: keyStr = "_third"; break;
+					case 4: keyStr = "_fourth"; break;
+					case 5: keyStr = "_fifth"; break;
+					case 6: keyStr = "_sixth"; break;
+					case 7: keyStr = "_seventh"; break;
+					case 8: keyStr = "_octave"; break;
+				}
 				switch (chordType)
 				{
-					case -1: chord += appBundle.getString("_diminished"); break;
-					case 0: chord += appBundle.getString("_perfect"); break;
-					case 1: chord += appBundle.getString("_augmented"); break;
+					case -2: keyStr += "dim"; break; 
+					case -1: keyStr += "min"; break; 
+					case 0:
+						if (intervalType == 4 || intervalType == 5 || intervalType == 8)
+							keyStr += "per";
+						else
+							keyStr += "maj";
+					break;
+					case 1: keyStr += "aug"; break; 
 				}
+				chord += appBundle.getString(keyStr);
 			}
 		}
 		
@@ -416,7 +439,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		if (gameType != appPrefs.INLINE_LEARN_NOTES)
 		{
 			if (answType == 1)
-				gameBar.progress.setValue(gameBar.progress.getValue() + 4);
+				gameBar.progress.setValue(gameBar.progress.getValue() + 2);
 			else
 				gameBar.progress.setValue(gameBar.progress.getValue() - 4);
 			if (gameBar.progress.getValue() == 100)

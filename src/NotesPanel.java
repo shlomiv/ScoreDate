@@ -28,7 +28,7 @@ public class NotesPanel extends JPanel
 	private int staffWidth;
 	
 	private boolean inlineMode = false;
-	private int singleNoteIndex = -1;
+	private int singleNoteIndex = -1; // force the painting of a single note
 	private boolean showCursorAndBeats = false;
 	
 	private JLabel learningText;
@@ -289,13 +289,45 @@ public class NotesPanel extends JPanel
 		}
 
 		g.drawString(symbol, note.xpos, note.ypos);
+		
+		// double clef ? Must draw a pause on the other clef
+		if (inlineMode == false && clefs.size() == 2)
+		{
+			int yPos = (((int)(note.ypos / rowsDistance) *  rowsDistance) + 50);
+			if (note.secondRow == false)
+				yPos += (rowsDistance / 2);
+
+			symbol = "";
+			if (note.duration == 4)
+				g.fillRect(note.xpos + (int)(noteDistance * 1.55), yPos - 5, 14, 6);
+			else if (note.duration == 2)
+				g.fillRect(note.xpos, yPos, 14, 6);
+			else if (note.duration == 1)
+			{
+				symbol = "Q";
+				yPos += 23;
+			}
+			else if (note.duration == 0.5)
+			{
+				g.setFont(appFont.deriveFont(50f));
+				symbol = "E";
+				yPos += 25;
+			}
+			g.drawString(symbol, note.xpos, yPos);
+		}
+
 		if (note.altType != 0)
 		{
 			g.setFont(appFont.deriveFont(50f));
-			if (note.altType == -1)
-				g.drawString("b", note.xpos - 14, note.ypos);
+			if (note.altType == -2)
+			{
+				g.drawString("b", note.xpos - 19, note.ypos);
+				g.drawString("b", note.xpos - 12, note.ypos);
+			}
+			else if (note.altType == -1)
+				g.drawString("b", note.xpos - 12, note.ypos);
 			else if (note.altType == 1)
-				g.drawString("B", note.xpos - 14, note.ypos);
+				g.drawString("B", note.xpos - 12, note.ypos);
 			else if (note.altType == 2)
 				g.drawString("" + (char)0xBD, note.xpos - 14, note.ypos);
 		}

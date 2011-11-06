@@ -1,3 +1,21 @@
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -51,6 +69,7 @@ public class InlinePanel extends JPanel implements ActionListener
 	private int gameType = -1;
 	private int gameSubType = -1;
 	private int gameInterval = -1;
+	private int progressStep = 1;
 	private int currentSpeed = 120;
 	private int noteXStartPos = 0; // X position of the notes appearing on the staff
 	
@@ -126,7 +145,7 @@ public class InlinePanel extends JPanel implements ActionListener
 			});
 		}
 		
-		gameBar = new GameBar(new Dimension(d.width, gBarHeight), b, f, p);
+		gameBar = new GameBar(new Dimension(d.width, gBarHeight), b, f, p, true);
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 		gameBar.progress.setValue(20);
 
@@ -199,6 +218,15 @@ public class InlinePanel extends JPanel implements ActionListener
 				gameSubType = appPrefs.NOTE_CHORDS; 
 			break;
 		}
+		int notesNum = gameBar.notesNumber.getSelectedIndex();
+		switch(notesNum)
+		{
+			case 0: progressStep = 8; break; // 10 notes
+			case 1: progressStep = 4; break; // 20 notes
+			case 2: progressStep = 2; break; // 40 notes
+			case 3: progressStep = 1; break; // 80 notes
+		}
+	
 	}
 	
 	public void setLearningInfo(boolean enable, int chordType)
@@ -301,7 +329,6 @@ public class InlinePanel extends JPanel implements ActionListener
 				currentSpeed = sBar.tempoSlider.getValue();
 				piano.reset(false);
 				gameNotes.clear();
-				stats.reset();
 				gameBar.precisionCnt.setText("");
 				gameBar.scoreCnt.setText("");
 				gameBar.progress.setValue(20);
@@ -309,6 +336,8 @@ public class InlinePanel extends JPanel implements ActionListener
 				noteXStartPos = inlineStaff.getFirstNoteXPosition();
 				notesLayer.setFirstNoteXPosition(noteXStartPos);
 				notesLayer.setStaffWidth(inlineStaff.getStaffWidth());
+				stats.reset();
+				stats.setGameSpeed(currentSpeed);
 				gameThread = new InlineGameThread();
 				gameStarted = true;
 				gameThread.start();
@@ -439,7 +468,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		if (gameType != appPrefs.INLINE_LEARN_NOTES)
 		{
 			if (answType == 1)
-				gameBar.progress.setValue(gameBar.progress.getValue() + 2);
+				gameBar.progress.setValue(gameBar.progress.getValue() + progressStep);
 			else
 				gameBar.progress.setValue(gameBar.progress.getValue() - 4);
 			if (gameBar.progress.getValue() == 100)
@@ -481,7 +510,9 @@ public class InlinePanel extends JPanel implements ActionListener
 					"  "+ stats.getCorrectNumber()+" "+ appBundle.getString("_correct")+
 	                " / " + stats.getWrongNumber() + " " + appBundle.getString("_wrong")+ "  ",
 	                title, type);
-			
+		
+		if (Integer.parseInt(appPrefs.getProperty("saveStats")) == 1)
+			stats.storeData(0);
 	}
 
 	protected void paintComponent(Graphics g) 

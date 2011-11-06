@@ -2,7 +2,7 @@ November ???, 2011 - 1.0 beta
 
 - fixed intervals on line game including learning info
 - added pauses on double clef score
-- 40 notes are now needed to complete line game
+- added combo box to select how many notes to play on line game
 - fixed SmartBar and GameBar resize when going fullscreen
 - fixed italian translation for intervals
 

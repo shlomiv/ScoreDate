@@ -1,3 +1,21 @@
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -123,7 +141,7 @@ public class ScorePanel extends JPanel implements ActionListener
 		layers.add(scoreStaff, new Integer(1));
 		layers.add(notesLayer, new Integer(2));
 		
-		gameBar = new GameBar(new Dimension(d.width, gBarHeight), b, f, p);
+		gameBar = new GameBar(new Dimension(d.width, gBarHeight), b, f, p, false);
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 		
 		add(sBar);
@@ -224,6 +242,14 @@ public class ScorePanel extends JPanel implements ActionListener
                 " / " + stats.getWrongNumber() + " " + appBundle.getString("_wrong") + 
                 " ( " + rhythms + " "+ appBundle.getString("_wrongrhythm") + " )</b></html>",
                 title, type);
+		
+		if (Integer.parseInt(appPrefs.getProperty("saveStats")) == 1)
+		{
+			if (gameType == appPrefs.RHTYHM_GAME_USER)
+				stats.storeData(1);
+			else if (gameType == appPrefs.SCORE_GAME_USER)
+				stats.storeData(2);
+		}
 	}
 
 	private void checkNote(int currPos, int pitch, boolean press)
@@ -439,15 +465,16 @@ public class ScorePanel extends JPanel implements ActionListener
 				else 
 					gameType = appPrefs.SCORE_GAME_USER;
 				//notesLayer.repaint();
-				stats.reset();
 				gameBar.precisionCnt.setText("");
 				gameBar.scoreCnt.setText("");
 				gameBar.progress.setValue(0);
+				stats.reset();
 				gameThread = new ScoreGameThread();
 				gameStarted = true;
 				cursorX = cursorY = 0; 
 				startTime = 0;
 				createPlayback(false);
+				stats.setGameSpeed(currentSpeed);
 				gameThread.start();
 				
 			}

@@ -16,6 +16,7 @@ along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
 
 **********************************************/
 
+import java.awt.BasicStroke; 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -68,7 +69,7 @@ public class RoundedButton extends JButton
 		Color endColor = Color.decode("0x4D5D8F");
 		
 		g.setColor(Color.decode("0x5F8DD3"));
-		g.fillRoundRect(0, 0, getSize().width, getSize().height, 30, 30);
+		g.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
 	    if (getModel().isArmed()) // is button being clicked ?
 	    	bgColor = Color.decode("0x869EBA");
 	    else if (getModel().isRollover()) // rollover effect
@@ -86,6 +87,8 @@ public class RoundedButton extends JButton
 
 	    int textWidth = 0;
 	    g.setColor(Color.black);
+	    int vOffset = getHeight() / 2;
+	    int hOffset = getWidth() / 2;
 	    if (bLabel == "RBL_INLINE")
 	    {
 	    	String title = appBundle.getString("_menuNotereading");
@@ -97,8 +100,8 @@ public class RoundedButton extends JButton
 	    	g.setFont(getFont().deriveFont(75f));
 	    	FontMetrics fM2 = g.getFontMetrics();
 	    	textWidth = fM2.stringWidth(ss);
-	    	g.drawString(ss, (getSize().width - textWidth) / 2, 200);
-	    	g.drawString("w", getSize().width / 2, 164);
+	    	g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
+	    	g.drawString("w", hOffset, vOffset + 24);
 	    }
 	    else if (bLabel == "RBL_RHYTHM")
 	    {
@@ -111,9 +114,9 @@ public class RoundedButton extends JButton
 	    	g.setFont(getFont().deriveFont(75f));
 	    	FontMetrics fM2 = g.getFontMetrics();
 	    	textWidth = fM2.stringWidth(ss);
-	    	g.drawString(ss, (getSize().width - textWidth) / 2, 200);
+	    	g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
 	    	String rs = "" + (char)0xDA;
-	    	g.drawString(rs, getSize().width / 2, 179);
+	    	g.drawString(rs, hOffset, vOffset + 39);
 	    }
 	    else if (bLabel == "RBL_SCORE")
 	    {
@@ -126,38 +129,64 @@ public class RoundedButton extends JButton
 	    	g.setFont(getFont().deriveFont(75f));
 	    	FontMetrics fM2 = g.getFontMetrics();
 	    	textWidth = fM2.stringWidth(ss);
-	    	g.drawString(ss, (getSize().width - textWidth) / 2, 200);
+	    	g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
 	    	String sm = "" + (char)0xF4;
-	    	g.drawString(sm, (getSize().width / 2) - 30, 208);
-	    	g.drawString(sm, (getSize().width / 2) + 15, 178);
+	    	g.drawString(sm, hOffset - 30, vOffset + 68);
+	    	g.drawString(sm, hOffset + 15, vOffset + 38);
 	    }
 	    else if (bLabel == "RBL_NOTES")
 	    {
 	    	String titlep1 = appBundle.getString("_menuClef");
 	    	String titlep2 = appBundle.getString("_menuNotes");
-	    	int hCenter = getHeight() / 2;
 	    	g.setColor(Color.white);
 	    	g.setFont(new Font("Arial", Font.BOLD, 12));
 	    	FontMetrics fM = g.getFontMetrics();
 	    	textWidth = fM.stringWidth(titlep1) / 2;
-	    	g.drawString(titlep1, 15 + 25 - textWidth, hCenter - 10);
+	    	g.drawString(titlep1, 15 + 25 - textWidth, vOffset - 10);
 	    	fM = g.getFontMetrics();
 	    	textWidth = fM.stringWidth("&") / 2;
-	    	g.drawString("&", 15 + 25 - textWidth, hCenter + 5);
+	    	g.drawString("&", 15 + 25 - textWidth, vOffset + 5);
 	    	fM = g.getFontMetrics();
 	    	textWidth = fM.stringWidth(titlep2) / 2;
-	    	g.drawString(titlep2, 15 + 25 - textWidth, hCenter + 20);
-	    	g.fillRoundRect(80, hCenter - 25, 70, 50, 15, 15); // 22
+	    	g.drawString(titlep2, 15 + 25 - textWidth, vOffset + 20);
+	    	g.fillRoundRect(80, vOffset - 25, 70, 50, 15, 15); // 22
 	    	g.setFont(getFont().deriveFont(27f));
 	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
 	    	String sm = "" + (char)0xF4;
 	    	g.setColor(Color.black);
-	    	g.drawString(ss, 87, hCenter + 11);
+	    	g.drawString(ss, 87, vOffset + 11);
 	    	g.setFont(getFont().deriveFont(35f));
-	    	g.drawString("G", 90, hCenter + 12);
-	    	g.drawString(sm, 110, hCenter + 18);
-	    	g.drawString(sm, 130, hCenter + 11);
+	    	g.drawString("G", 90, vOffset + 12);
+	    	g.drawString(sm, 110, vOffset + 18);
+	    	g.drawString(sm, 130, vOffset + 11);
 	    }
+	    else if (bLabel == "RBL_STATS")
+	    {
+	    	String title = appBundle.getString("_menuStatistics");
+	    	g.setFont(new Font("Arial", Font.BOLD, 20));
+	    	FontMetrics fM1 = g.getFontMetrics();
+	    	textWidth = fM1.stringWidth(title);
+	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
+	    	
+	    	((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+	    	g.drawLine(hOffset - 60, vOffset - 10, hOffset - 60, vOffset + 60);
+	    	g.drawLine(hOffset - 65, vOffset + 53, hOffset + 70, vOffset + 53);
+	    	
+	    	g.drawLine(hOffset - 39, vOffset + 40, hOffset - 10, vOffset + 20);
+	    	g.drawLine(hOffset - 10, vOffset + 20, hOffset + 10, vOffset + 30);
+	    	g.drawLine(hOffset + 10, vOffset + 30, hOffset + 40, vOffset - 5);
+	    	
+	    }
+	    else if (bLabel == "RBL_LESSONS")
+	    {
+	    	String title = appBundle.getString("_menuLessons");
+	    	g.setFont(new Font("Arial", Font.BOLD, 20));
+	    	FontMetrics fM1 = g.getFontMetrics();
+	    	textWidth = fM1.stringWidth(title);
+	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
+	    }
+	    
+	    
 	    if (img != null)
 	    {
 	    	g.drawImage(img, (getWidth() - img.getWidth(null)) / 2, (getHeight() - img.getHeight(null)) / 2 , null);

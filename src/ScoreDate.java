@@ -66,6 +66,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	 private InlinePanel inlinePanel = null;
 	 private ScorePanel rhythmPanel = null;
 	 private ScorePanel scorePanel = null;
+	 private StatsPanel statsPanel = null;
 	 
 	 // MIDI Resources
 	 public MidiController midiControl;
@@ -188,6 +189,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		 homePanel.inlineBtn.addActionListener(this);
 		 homePanel.rhythmBtn.addActionListener(this);
 		 homePanel.scoreBtn.addActionListener(this);
+		 homePanel.statsBtn.addActionListener(this);
 	     
 		 currentContext = HOMEPANEL;
 		 transposition = Integer.parseInt(prefs.getProperty("transposition")) - 2;
@@ -235,6 +237,14 @@ public class ScoreDate extends JFrame implements ActionListener
 			 currentContext = SCOREREADING;
 			 scorePanel.sBar.homeBtn.addActionListener(this);
 		 }
+	     else if (ae.getSource() == homePanel.statsBtn)
+	     {
+	    	 Dimension wSize = new Dimension(getWidth(), getHeight());
+			 homePanel.setVisible(false);
+			 statsPanel = new StatsPanel(MusiSync, bundle, prefs, wSize);
+			 getContentPane().add(statsPanel);
+			 statsPanel.setVisible(true);
+	     }
 	     else if (inlinePanel != null && ae.getSource() == inlinePanel.sBar.homeBtn)
 	     {
 	    	 inlinePanel.setVisible(false);

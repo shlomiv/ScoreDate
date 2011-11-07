@@ -346,9 +346,19 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 class RoundPanel extends JPanel
 {
 	private static final long serialVersionUID = 2133404549466988014L;
+	boolean gradientBack = false;
+	Color startColor;
+	Color endColor;
 
 	public RoundPanel()
 	{
+	}
+	
+	public RoundPanel(Color startCol, Color endCol)
+	{
+		gradientBack = true;
+		startColor = startCol;
+		endColor = endCol;
 	}
 	
 	protected void paintComponent(Graphics g) 
@@ -357,7 +367,15 @@ class RoundPanel extends JPanel
 		g.setColor(Color.decode("0x5F8DD3"));
 		//g.setColor(Color.white);
 		g.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
-		g.setColor(getBackground());
+		if (gradientBack == false)
+			g.setColor(getBackground());
+		else
+		{
+			GradientPaint vertGrad = new GradientPaint(0, 0, startColor, 0, getHeight(), endColor);
+			((Graphics2D) g).setPaint(vertGrad);
+		}
 		g.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, 15, 15);
+		
+		
 	}
 }

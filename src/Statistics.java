@@ -131,10 +131,10 @@ public class Statistics
 
 	}
 	
-	/* Store statistics to a file. gameType can be: 0-line, 1-rhtyhm, 2-score
+	/* Store statistics to a file. gameType can be: 0 - line, 1 - rhythm, 2 - score
 	 *
 	 *  File line syntax:
-	 *    <DAY-HOURS-MINUTES-SECOND>gameType,notesPlayed,correctAnswers,wrongAnswers,wrongRhythms,totalScore,avgPrecision,gameSpeed,timeSpent
+	 *    DAY,HOURS,MINUTES,SECOND,gameType,notesPlayed,correctAnswers,wrongAnswers,wrongRhythms,totalScore,avgPrecision,gameSpeed,timeSpent
 	 */
 	public void storeData(int gameType)
 	{
@@ -142,7 +142,7 @@ public class Statistics
 		try
 		{
 			BufferedWriter writer = new BufferedWriter(new FileWriter(fname,true));
-			String data = "<" + getDateTime("dd-HH-mm-ss") + ">" +  Integer.toString(gameType) + ",";
+			String data = "" + getDateTime("dd,HH,mm,ss") + "," +  Integer.toString(gameType) + ",";
 			data += Integer.toString(notesPlayed) + "," + Integer.toString(correctAnswers) + "," + Integer.toString(wrongAnswers) + ",";
 			data += Integer.toString(wrongRhythms) + "," + Integer.toString(totalScore) + "," + Integer.toString(avgPrecision) + ",";
 			data += Integer.toString(gameSpeed) + "," + Integer.toString(timeSpent / 1000);

@@ -34,10 +34,10 @@ public class HomePanel extends JPanel
 	Font appFont;
 	private ResourceBundle appBundle;
 	private BufferedImage MainPic = null;
-	public RoundedButton inlineBtn, rhythmBtn, scoreBtn;
+	public RoundedButton inlineBtn, rhythmBtn, scoreBtn, statsBtn, lessonsBtn;
 	public JPanel homeButtons;
 	private int btnWidth = 220;
-	private int btnsVoffset = 200;
+	private int logoHeight = 160;
 
 	public HomePanel(Font f, ResourceBundle b, Dimension d) 
 	{
@@ -68,15 +68,25 @@ public class HomePanel extends JPanel
 	    scoreBtn.setFont(appFont);
 	    scoreBtn.setBackground(Color.decode("0xAFC6E9"));
 	    scoreBtn.setPreferredSize(new Dimension(btnWidth, 300));
+	    statsBtn = new RoundedButton("RBL_STATS", appBundle);
+	    statsBtn.setFont(appFont);
+	    statsBtn.setBackground(Color.decode("0xAFC6E9"));
+	    statsBtn.setPreferredSize(new Dimension(btnWidth, 300));
+	    lessonsBtn = new RoundedButton("RBL_LESSONS", appBundle);
+	    lessonsBtn.setFont(appFont);
+	    lessonsBtn.setBackground(Color.decode("0xAFC6E9"));
+	    lessonsBtn.setPreferredSize(new Dimension(btnWidth, 300));
 
 	    homeButtons = new JPanel();
 	    homeButtons.setLayout(null);
 	    homeButtons.setBackground(Color.white);
-	    homeButtons.setPreferredSize(new Dimension(d.width, d.height - btnsVoffset));
-	    homeButtons.setBounds(0, btnsVoffset, d.width, d.height - btnsVoffset);
+	    homeButtons.setPreferredSize(new Dimension(d.width, d.height - logoHeight));
+	    homeButtons.setBounds(0, logoHeight, d.width, d.height - logoHeight);
 	    homeButtons.add(inlineBtn);
 	    homeButtons.add(rhythmBtn);
 	    homeButtons.add(scoreBtn);
+	    homeButtons.add(statsBtn);
+	    homeButtons.add(lessonsBtn);
 	    
 	    add(homeButtons);
 	}
@@ -88,13 +98,15 @@ public class HomePanel extends JPanel
 		//System.out.println("[paintComponent] width = "+ this.getWidth());
 		g.setColor(Color.white);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		btnWidth = (this.getWidth() / 3) - 30;
+		btnWidth = (this.getWidth() / 3) - 26;
 		//System.out.println("Buttons width = "+ btnWidth);
 		g.drawImage(MainPic, (this.getWidth() / 2) - 300, 10, null);
-		homeButtons.setBounds(0, btnsVoffset, this.getWidth(), this.getHeight() - btnsVoffset);
-		
-		inlineBtn.setBounds(30, 20, btnWidth, this.getHeight() - btnsVoffset - 40);
-		rhythmBtn.setBounds(40 + btnWidth, 20, btnWidth, this.getHeight() - btnsVoffset - 40);
-		scoreBtn.setBounds(50 + (btnWidth * 2), 20, btnWidth, this.getHeight() - btnsVoffset - 40);
+		homeButtons.setBounds(0, logoHeight, this.getWidth(), this.getHeight() - logoHeight);
+		int btnHeight = (this.getHeight() - logoHeight) / 2 - 16;
+		inlineBtn.setBounds(30, 10, btnWidth, btnHeight);
+		rhythmBtn.setBounds(40 + btnWidth, 10, btnWidth, btnHeight);
+		scoreBtn.setBounds(50 + (btnWidth * 2), 10, btnWidth, btnHeight);
+		statsBtn.setBounds(30 + (btnWidth/2), 20 + btnHeight, btnWidth, btnHeight);
+		lessonsBtn.setBounds(40 + (int)(btnWidth*1.5), 20 + btnHeight, btnWidth, btnHeight);
 	}
 }

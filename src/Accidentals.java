@@ -141,25 +141,39 @@ public class Accidentals {
 	    String sharp = "B"; // # alteration
 	    String flat = "b"; // b alteration
 	    int clefOffset = 0;
+
 	    
-	    // TODO: handle ALTO and TENOR accidentals offsets here
 	    if (clefMask == appPrefs.BASS_CLEF)
 	    	clefOffset = 10;
+	    else if (clefMask == appPrefs.ALTO_CLEF)
+	    	clefOffset = 5;
+	    else if (clefMask == appPrefs.TENOR_CLEF)
+	    	clefOffset = -5;
 
 	    if (type == "#") 
 	    {
 	      if (amount >= 1) // FA#
 	        drawAlteration(g, f, xPos, yPos - 15 + clefOffset, sharp);
 	      if (amount >= 2) // DO#
-	        drawAlteration(g, f, xPos + 10, yPos + clefOffset, sharp);
+   	  		drawAlteration(g, f, xPos + 10, yPos + clefOffset, sharp);
 	      if (amount >= 3) // SOL#
-	        drawAlteration(g, f, xPos + 20, yPos - 20 + clefOffset, sharp);
+	      {
+	    	if (clefMask == appPrefs.TENOR_CLEF)
+	    		drawAlteration(g, f, xPos + 20, yPos + clefOffset + 15, sharp); // shift an octave down
+	    	else	    	  
+	        	drawAlteration(g, f, xPos + 20, yPos - 20 + clefOffset, sharp);
+	      }
 	      if (amount >= 4) // RE#
 	        drawAlteration(g, f, xPos + 30, yPos - 5 + clefOffset, sharp);
 	      if (amount >= 5) // LA#
 	        drawAlteration(g, f, xPos + 40, yPos + 10 + clefOffset, sharp);
 	      if (amount >= 6) // MI#
-	        drawAlteration(g, f, xPos + 50, yPos - 10 + clefOffset, sharp);
+	      {
+	    	if (clefMask == appPrefs.TENOR_CLEF)
+	    		drawAlteration(g, f, xPos + 50, yPos + 25 + clefOffset, sharp);
+	    	else
+	    		drawAlteration(g, f, xPos + 50, yPos - 10 + clefOffset, sharp);
+	      }
 	      if (amount >= 7) // SI#
 	        drawAlteration(g, f, xPos + 60, yPos + 5 + clefOffset, sharp);
 	    }

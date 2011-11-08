@@ -428,6 +428,25 @@ public class ScorePanel extends JPanel implements ActionListener
 		metronome.start();
 		playback.start();
 	}
+	
+	public void stopGame()
+	{
+		if(gameType == appPrefs.GAME_STOPPED)
+			return;
+		appMidi.stopPlayback();
+		appMidi.stopMetronome();
+		if (gameType == appPrefs.SCORE_GAME_LISTEN)
+		{
+			notesLayer.highlightNote(currentNoteIndex, false);
+			currentNoteIndex = -1;
+		}
+		gameBar.scoreCnt.setText("");
+		gameBar.progress.setValue(0);
+		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
+		sBar.playBtn.repaint();
+		gameStarted = false;
+		gameType = appPrefs.GAME_STOPPED;
+	}
 		
 	public void actionPerformed(ActionEvent ae)
 
@@ -436,26 +455,14 @@ public class ScorePanel extends JPanel implements ActionListener
 		{
 			if (gameType == appPrefs.SCORE_GAME_LISTEN)
 			{
-				appMidi.stopPlayback();
-				appMidi.stopMetronome();
-				notesLayer.highlightNote(currentNoteIndex, false);
-				currentNoteIndex = -1;
-				gameBar.scoreCnt.setText("");
-				gameBar.progress.setValue(0);
-				sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
-				sBar.playBtn.repaint();
-				gameType = appPrefs.GAME_STOPPED;
+				stopGame();
 				return;
 			}
 			
 			if (gameThread != null && gameThread.isAlive() == true)
 			{
 				/* ************** STOP CURRENT GAME ***************** */
-				gameStarted = false;
-				sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
-				appMidi.stopMetronome();
-				appMidi.stopPlayback();
-				gameType = appPrefs.GAME_STOPPED;
+				stopGame();
 			}
 			else
 			{

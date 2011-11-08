@@ -80,6 +80,7 @@ public class ScoreDate extends JFrame implements ActionListener
      private static int NOTEREADING = 1;
      private static int RHYTHMREADING = 2;
      private static int SCOREREADING = 3;
+     private static int STATISTICS = 4;
      
      private int transposition = 0;
 
@@ -244,24 +245,35 @@ public class ScoreDate extends JFrame implements ActionListener
 			 statsPanel = new StatsPanel(MusiSync, bundle, prefs, wSize);
 			 getContentPane().add(statsPanel);
 			 statsPanel.setVisible(true);
+			 currentContext = STATISTICS;
+			 statsPanel.homeBtn.addActionListener(this);
 	     }
 	     else if (inlinePanel != null && ae.getSource() == inlinePanel.sBar.homeBtn)
 	     {
+	    	 inlinePanel.stopGame();
 	    	 inlinePanel.setVisible(false);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
 	     }
 	     else if (rhythmPanel != null && ae.getSource() == rhythmPanel.sBar.homeBtn)
 	     {
+	    	 rhythmPanel.stopGame();
 	    	 rhythmPanel.setVisible(false);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
 	     }
 	     else if (scorePanel != null && ae.getSource() == scorePanel.sBar.homeBtn)
 	     {
+	    	 scorePanel.stopGame();
 	    	 scorePanel.setVisible(false);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
+	     }
+	     else if (statsPanel != null && ae.getSource() == statsPanel.homeBtn)
+	     {
+	    	 statsPanel.setVisible(false);
+	    	 homePanel.setVisible(true);
+	    	 currentContext = HOMEPANEL;	    	 
 	     }
 	 }
 	 
@@ -369,6 +381,8 @@ public class ScoreDate extends JFrame implements ActionListener
 		homePanel.inlineBtn.setResBundle(bundle);
 		homePanel.scoreBtn.setResBundle(bundle);
 		homePanel.rhythmBtn.setResBundle(bundle);
+		homePanel.statsBtn.setResBundle(bundle);
+		homePanel.lessonsBtn.setResBundle(bundle);
 
 		if (currentContext == HOMEPANEL)
 		{
@@ -385,6 +399,10 @@ public class ScoreDate extends JFrame implements ActionListener
 	    else if (scorePanel != null && currentContext == SCOREREADING)
 	    {
 	    	 scorePanel.updateLanguage(bundle);
+	    }
+	    else if (statsPanel != null && currentContext == STATISTICS)
+	    {
+	    	statsPanel.updateLanguage(bundle);
 	    }
 	 }
 

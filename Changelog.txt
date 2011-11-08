@@ -3,7 +3,10 @@ November ???, 2011 - 1.0 beta
 - fixed intervals on line game including learning info
 - added pauses on double clef score
 - added combo box to select how many notes to play on line game
+- added accidentals offset for alto and tenor clef 
 - fixed SmartBar and GameBar resize when going fullscreen
+- games are stopped when going to home screen
+- MusiSyncForScoreDate passed FontForge validation + improved sharp symbol 
 - fixed italian translation for intervals
 
 November 5th, 2011 - 1.0 alpha

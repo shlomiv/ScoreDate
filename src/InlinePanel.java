@@ -308,6 +308,23 @@ public class InlinePanel extends JPanel implements ActionListener
 		notesLayer.setLearningTips(noteInfo + altInfo + chord, enable);
 	}
 	
+	public void stopGame()
+	{
+		if (gameType == appPrefs.GAME_STOPPED)
+			return;
+
+		if (gameThread != null && gameThread.isAlive() == true)
+		{
+			/* ************** STOP CURRENT GAME ***************** */
+			gameStarted = false;
+			sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
+			for (int i = 0; i < gameNotes.size(); i++)
+				appMidi.midiChannel.noteOff(gameNotes.get(i).pitch, 0);
+			gameNotes.clear();
+			gameType = appPrefs.GAME_STOPPED;
+		}
+	}
+	
 	public void actionPerformed(ActionEvent ae)
 	{
 		if (ae.getSource() == sBar.playBtn)
@@ -315,13 +332,8 @@ public class InlinePanel extends JPanel implements ActionListener
 			if (gameThread != null && gameThread.isAlive() == true)
 			{
 				/* ************** STOP CURRENT GAME ***************** */
-				gameStarted = false;
-				sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
+				stopGame();
 				refreshPanel();
-				for (int i = 0; i < gameNotes.size(); i++)
-					appMidi.midiChannel.noteOff(gameNotes.get(i).pitch, 0);
-				gameNotes.clear();
-				gameType = appPrefs.GAME_STOPPED;
 			}
 			else
 			{

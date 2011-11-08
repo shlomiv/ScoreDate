@@ -41,8 +41,11 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode; 
+import javax.swing.tree.TreeSelectionModel;
+import javax.swing.event.TreeSelectionEvent; 
+import javax.swing.event.TreeSelectionListener;
 
-public class StatsPanel extends JPanel
+public class StatsPanel extends JPanel implements TreeSelectionListener
 {
 	private static final long serialVersionUID = -3725519060278100632L;
 	Font appFont;
@@ -57,6 +60,12 @@ public class StatsPanel extends JPanel
 	File currDir; // variable that holds ScoreDate directory
 	String[] SDSfiles; // Array of filenames (.sds) of the saved stats
 	Vector<statRecord> currentStats = new Vector<statRecord>(); // Vector of the currently selected statistics
+	private boolean[] showGame = { true, true, true };
+	private int[][] statInfo = { {  -1 , -1, -1 , -1, 0 },   // line game: start day, end day, min, max, count
+			 				   {  -1 , -1, -1 , -1, 0 },   // rhythm game: start day, end day, min, max, count
+			 				   {  -1 , -1, -1 , -1, 0 } }; // score game: start day, end day, min, max, count
+	private int[] globalInfo = {  -1 , -1, -1 , -1, 0 };   // global info: start day, end day, min, max, count
+	
 	
 	int topBarHeight = 80;
 
@@ -129,20 +138,27 @@ public class StatsPanel extends JPanel
 		{
 			DefaultMutableTreeNode mainNode = loadTree();
 			statsList = new JTree(mainNode);
-			readStatsFile(mainNode.getLastLeaf(), currDir, SDSfiles[SDSfiles.length - 1]);			
+			statsList.setSelectionRow(statsList.getRowCount() - 1);
+			statsList.addTreeSelectionListener(this);
+			readStatsFile((DefaultMutableTreeNode)statsList.getLastSelectedPathComponent(), 
+					currDir, SDSfiles[SDSfiles.length - 1]);
 		}
 		else
 		{
 			DefaultMutableTreeNode mainNode = new DefaultMutableTreeNode(appBundle.getString("_noStatistics"));
 			statsList = new JTree(mainNode);
 		}
+		statsList.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		statsList.setBackground(Color.decode("0xFFFFD5"));
 		statsList.setBounds(5, 5, 170, getHeight() - topBarHeight - 30);
-		statsList.setSelectionRow(statsList.getRowCount() - 1);
+		
 		treePanel.add(statsList);
 		
 	}
 	
+	/*
+	 * Function that creates the statistics months nodes 
+	 */
 	private DefaultMutableTreeNode loadTree()
 	{
 		if (statsList != null)
@@ -166,9 +182,24 @@ public class StatsPanel extends JPanel
 		return firstNode;
 	}
 	
+	/*
+	 * Function that creates the statistics days nodes. Read a whole .sds file
+	 */
 	private void readStatsFile(DefaultMutableTreeNode node, File dir, String file)
 	{
 		node.removeAllChildren();
+		statInfo[0][0] = statInfo[0][1] = statInfo[0][3] = -1;
+		statInfo[0][2] = 99999;
+		statInfo[0][4] = 0;
+		statInfo[1][0] = statInfo[1][1] = statInfo[1][3] = -1;
+		statInfo[1][2] = 99999;
+		statInfo[1][4] = 0;
+		statInfo[2][0] = statInfo[2][1] = statInfo[2][3] = -1;
+		statInfo[2][2] = 99999;
+		statInfo[2][4] = 0;
+		globalInfo[0] = globalInfo[1] = globalInfo[3] = -1;
+		globalInfo[2] = 99999;
+		globalInfo[4] = 0;
 
 		try
 		{
@@ -202,14 +233,72 @@ public class StatsPanel extends JPanel
 			  
 			  currentStats.add(record);
 			  DefaultMutableTreeNode day = new DefaultMutableTreeNode(Integer.toString(record.notesPlayed));
-			  node.add(day);
+			  
+			  if (statInfo[record.gameType][0] == -1) // set start day
+				  statInfo[record.gameType][0] = record.day;
+			  if (globalInfo[0] == -1)
+				  globalInfo[0] = record.day;
+			  if (record.day != statInfo[record.gameType][1]) // set end day
+				  statInfo[record.gameType][1] = record.day;
+
+			  if (record.day != globalInfo[1])
+			  {
+				  globalInfo[1] = record.day;
+				  node.add(day);
+			  }
+			  
+			  if (record.totalScore > statInfo[record.gameType][3]) // set max score
+				  statInfo[record.gameType][3] = record.totalScore;
+			  if (record.totalScore > globalInfo[3]) // set global max score
+				  globalInfo[3] = record.totalScore;
+			  
+			  if (record.totalScore < statInfo[record.gameType][2]) // set min score
+				  statInfo[record.gameType][2] = record.totalScore;
+			  if (record.totalScore < globalInfo[2]) // set global min score
+				  globalInfo[2] = record.totalScore;
+			  
+			  statInfo[record.gameType][4]++;
+			  globalInfo[4]++;
 		  }
+		  br.close();
+		  in.close();
+		  fstream.close();
+		  
+		  System.out.println("--INLINE-- done. startDay: " + statInfo[0][0] + ", endDay: " + statInfo[0][1] + ", minScore: " + statInfo[0][2] + ", maxScore: " + statInfo[0][3]);
+		  System.out.println("--RHTYHM-- done. startDay: " + statInfo[1][0] + ", endDay: " + statInfo[1][1] + ", minScore: " + statInfo[1][2] + ", maxScore: " + statInfo[1][3]);
+		  System.out.println("--SCORE-- done. startDay: " + statInfo[2][0] + ", endDay: " + statInfo[2][1] + ", minScore: " + statInfo[2][2] + ", maxScore: " + statInfo[2][3]);
 		}
 		catch (Exception e)
 		{
 		  System.out.println("An exception occured while reading the file !!");	
 		}
 		
+	}
+	
+	public void valueChanged(TreeSelectionEvent e) 
+	{
+		//Returns the last path element of the selection.
+		//This method is useful only when the selection model allows a single selection.
+		    DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+		    		statsList.getLastSelectedPathComponent();
+
+		    if (node == null) //Nothing is selected.     
+		    	return;
+
+		    if (node.getLevel() == 1)
+		    {
+		    	DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
+		        System.out.println("Node slected idx: " + parent.getIndex(node));
+		    }
+		    /*
+		    Object nodeInfo = node.getUserObject();
+		    if (node.isLeaf()) {
+		        BookInfo book = (BookInfo)nodeInfo;
+		        displayURL(book.bookURL);
+		    } else {
+		        displayURL(helpURL); 
+		    }
+		    */
 	}
 	
 	protected void paintComponent(Graphics g) 
@@ -263,6 +352,17 @@ public class StatsPanel extends JPanel
 			
 		}
 		
+		private Color getGameColor(int type)
+		{
+			if (type == 0)
+				return Color.decode("0x389C14");
+			else if (type == 1)
+				return Color.decode("0x2330A3");
+			if (type == 2)
+				return Color.decode("0x9C1313");
+			
+			return Color.black;
+		}
 
 		protected void paintComponent(Graphics g) 
 		{
@@ -270,11 +370,49 @@ public class StatsPanel extends JPanel
 			g.setColor(Color.decode("0x222222"));
 			((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
 			
-			g.drawLine(35, 30, 35, getHeight() - 30);
-			g.drawLine(35, getHeight() - 30, getWidth() - 20, getHeight() - 30);
+			int xPos = 35;
+			int yPos = 30;
+			int graphH = getHeight() - 60;
+			int graphW = getWidth() - 55;
+			
+			// draw axis
+			g.drawLine(xPos, 30, xPos, graphH + 30);
+			g.drawLine(xPos, 30 + graphH, xPos + graphW, 30 + graphH);
+			
+			int scoreDiff = globalInfo[3] - globalInfo[2];
+			int scoreStep = scoreDiff / 10;
+			
+			// draw Y axis labels
+			g.setFont(new Font("Arial", Font.BOLD, 12));
+			for (int y = yPos, c = 0; y < yPos + graphH - 20; y+=((graphH - 20) / 10), c++)
+			{
+				g.drawString(Integer.toString(globalInfo[3] - (c * scoreStep)), 0, y + 10);
+			}
+			
+			for (int i = 0; i < 3; i++)
+			{
+				if ( showGame[i] == false || statInfo[i][2] == -1 || statInfo[i][3] == -1) // if game disabled or min or max score not available 
+					continue;
+				
+				xPos = 37;
+
+				g.setColor(getGameColor(i));
+				if (statInfo[i][0] == statInfo[i][1]) // if same day
+				{
+				  if (statInfo[i][4] == 1)
+				  {
+					int relYPos = ((statInfo[i][3] - globalInfo[2]) * (graphH - 20)) / scoreDiff;
+					System.out.println("relYPos = " + relYPos);
+					g.drawLine(xPos, yPos + relYPos, xPos + graphW, yPos + relYPos);
+				  }
+				  else
+				  {
+					// draw a serious chart here :)
+				  }
+				}
+			}
 		}
 	}
-	
 }
 
 

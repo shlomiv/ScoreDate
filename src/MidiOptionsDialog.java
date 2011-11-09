@@ -63,6 +63,8 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		appBundle = b;
 		appPrefs = p;
 		
+		this.setIconImage(new ImageIcon(getClass().getResource("/resources/midi.png")).getImage());
+		
 		JPanel soundPanel = new JPanel(); // panel midi keyboard
 		soundPanel.setBorder(BorderFactory.createTitledBorder(appBundle.getString("_sound")));
 

@@ -41,6 +41,7 @@ import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -104,6 +105,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		     // If Nimbus is not available, use default look & feel (metal)
 		 }
 
+		 this.setIconImage(new ImageIcon(getClass().getResource("/resources/sdicon.png")).getImage());
 		 prefs = new Preferences();
 		 language = prefs.getProperty("language");
 		 // if no language is set yet, try to set the system one

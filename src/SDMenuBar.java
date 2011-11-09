@@ -27,6 +27,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JCheckBoxMenuItem; 
 import javax.swing.JRadioButtonMenuItem;
 
 public class SDMenuBar extends JMenuBar implements ActionListener
@@ -39,6 +40,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
     //    Settings:
     public JMenu configMenu;
     public JMenuItem midiMenu;
+    public JCheckBoxMenuItem statsCheck;
     public JMenu langMenu;
     public JMenuItem exitMenu;
     
@@ -72,6 +74,12 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         midiMenu = new JMenuItem(new ImageIcon(getClass().getResource("/resources/midi.png")));
         midiMenu.setText(appBundle.getString("_menuMidi"));
         midiMenu.addActionListener(this);
+        
+        statsCheck = new JCheckBoxMenuItem(new ImageIcon(getClass().getResource("/resources/stats.png")));
+        statsCheck.setText(appBundle.getString("_menuSaveStatistics"));
+        statsCheck.addActionListener(this);
+        if (Integer.parseInt(appPrefs.getProperty("saveStats")) == 1)
+        	statsCheck.setSelected(true);
         
         langMenu = new JMenu();
         langMenu.setText(appBundle.getString("_menuLanguage"));
@@ -188,6 +196,8 @@ public class SDMenuBar extends JMenuBar implements ActionListener
 
         configMenu.add(midiMenu);
         configMenu.addSeparator();
+        configMenu.add(statsCheck);
+        configMenu.addSeparator();
         configMenu.add(langMenu);
         configMenu.setMnemonic(KeyEvent.VK_P);
         configMenu.addSeparator();
@@ -262,6 +272,14 @@ public class SDMenuBar extends JMenuBar implements ActionListener
 		
 		else if (ae.getSource() == midiMenu)
 			this.firePropertyChange("midiOptions", false, true);
+		else if (ae.getSource() == statsCheck)
+		{
+			if (statsCheck.isSelected() == true)
+				appPrefs.setProperty("saveStats", "1");
+			else
+				appPrefs.setProperty("saveStats", "0");
+			appPrefs.storeProperties();
+		}
 		else if (ae.getSource() == exitMenu)
 			this.firePropertyChange("exitProgram", false, true);
 		
@@ -276,6 +294,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
 			JOptionPane.showMessageDialog(this.getParent(), text, 
 					appBundle.getString("_menuAbout"), JOptionPane.INFORMATION_MESSAGE);
 		}
+		
     }
     
     public  void openURL(String uristring) 

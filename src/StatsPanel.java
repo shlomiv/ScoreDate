@@ -37,7 +37,6 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JCheckBox;
@@ -45,8 +44,10 @@ import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import javax.swing.tree.DefaultMutableTreeNode; 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.TreePath;
 import javax.swing.event.TreeSelectionEvent; 
 import javax.swing.event.TreeSelectionListener;
 
@@ -63,8 +64,9 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 	public JCheckBox inlineCheckBox, rhythmCheckBox, scoreCheckBox;
 	private JPanel treePanel;
 	private JTree statsList;
+	private DefaultMutableTreeNode selNode; // currently selected node
 	private GraphPanel graphPanel;
-	File currDir; // variable that holds ScoreDate directory
+	File currDir; // the ScoreDate directory path
 	String[] SDSfiles; // Array of filenames (.sds) of the saved stats
 	Vector<statRecord> currentStats = new Vector<statRecord>(); // Vector of the currently selected statistics
 	private boolean[] showGame = { true, true, true };
@@ -168,6 +170,8 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			statsList.addTreeSelectionListener(this);
 			readStatsFile((DefaultMutableTreeNode)statsList.getLastSelectedPathComponent(), 
 					currDir, SDSfiles[SDSfiles.length - 1]);
+			selNode = (DefaultMutableTreeNode)statsList.getLastSelectedPathComponent();
+			statsList.expandPath(new TreePath(selNode.getPath()));
 		}
 		else
 		{
@@ -229,7 +233,13 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 	 */
 	private void readStatsFile(DefaultMutableTreeNode node, File dir, String file)
 	{
-		node.removeAllChildren();
+		DefaultTreeModel treeModel = (DefaultTreeModel)statsList.getModel();
+
+        int leaves = node.getLeafCount();
+        for (int l = 0; l < leaves; l++)
+        	treeModel.removeNodeFromParent(node.getLastLeaf());
+        currentStats.clear();
+
 		statInfo[0][0] = statInfo[0][1] = statInfo[0][3] = -1;
 		statInfo[0][2] = 99999;
 		statInfo[0][4] = 0;
@@ -251,6 +261,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		  BufferedReader br = new BufferedReader(new InputStreamReader(in));
 		  
 		  String strLine;
+		  int daysFound = 0;
 		  //Read File Line By Line
 		  while ((strLine = br.readLine()) != null)   
 		  {
@@ -285,10 +296,11 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			  if (record.day != globalInfo[1])
 			  {
 				  globalInfo[1] = record.day;
-				  DefaultMutableTreeNode day = new DefaultMutableTreeNode(Integer.toString(record.day));
-				  node.add(day);
+				  DefaultMutableTreeNode day = new DefaultMutableTreeNode(appBundle.getString("_day") + " " + Integer.toString(record.day));
+				  treeModel.insertNodeInto(day, node, daysFound);
+				  daysFound++;
 			  }
-			  
+
 			  if (record.totalScore > statInfo[record.gameType][3]) // set max score
 				  statInfo[record.gameType][3] = record.totalScore;
 			  if (record.totalScore > globalInfo[3]) // set global max score
@@ -332,6 +344,22 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		    {
 		    	DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
 		        System.out.println("Node slected idx: " + parent.getIndex(node));
+
+		        DefaultTreeModel treeModel = (DefaultTreeModel)statsList.getModel();
+
+		        int leaves = selNode.getLeafCount();
+		        for (int l = 0; l < leaves; l++)
+		        	treeModel.removeNodeFromParent(selNode.getLastLeaf());
+		        DefaultMutableTreeNode loading = new DefaultMutableTreeNode(appBundle.getString("_statsLoading"));
+		        
+		        treeModel.insertNodeInto(loading, selNode, 0);
+		        //selNode.add(loading);
+		        
+		        readStatsFile(node,	currDir, SDSfiles[parent.getIndex(node)]);
+		        selNode = node;
+		        statsList.expandPath(new TreePath(selNode.getPath()));
+		        graphPanel.repaint();
+		        //statsList.collapsePath(new TreePath(selNode.getPath()));
 		    }
 		    /*
 		    Object nodeInfo = node.getUserObject();

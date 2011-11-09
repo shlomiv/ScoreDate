@@ -168,7 +168,7 @@ public class RoundedButton extends JButton
 	    	textWidth = fM1.stringWidth(title);
 	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
 	    	
-	    	((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+	    	((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
 	    	g.drawLine(hOffset - 60, vOffset - 10, hOffset - 60, vOffset + 60);
 	    	g.drawLine(hOffset - 65, vOffset + 53, hOffset + 70, vOffset + 53);
 	    	
@@ -184,8 +184,14 @@ public class RoundedButton extends JButton
 	    	FontMetrics fM1 = g.getFontMetrics();
 	    	textWidth = fM1.stringWidth(title);
 	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
+	    	
+	    	((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+	    	g.drawRoundRect(hOffset - 50, vOffset - 10, 100, 65, 10, 10);
+	    	g.setFont(new Font("Arial", Font.BOLD, 25));
+	    	g.drawString("A", hOffset - 30, vOffset + 30);
+	    	g.drawString("B", hOffset - 5, vOffset + 20);
+	    	g.drawString("C", hOffset + 20, vOffset + 40);
 	    }
-	    
 	    
 	    if (img != null)
 	    {

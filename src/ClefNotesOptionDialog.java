@@ -201,7 +201,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		accCB.addItem("5 "+ appBundle.getString("_flat"));
 		accCB.addItem("6 "+ appBundle.getString("_flat"));
 		accCB.addItem("7 "+ appBundle.getString("_flat"));
-		//accCB.addItem(appBundle.getString("_random")); // TODO: implement this
+		//accCB.addItem(appBundle.getString("_random")); // TODO: implement random accidentals
 		accidentalsPanel.add(accCB);
 		int accIdx = Integer.parseInt(appPrefs.getProperty("accidentals"));
 		if (accIdx == -1)

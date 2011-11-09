@@ -144,6 +144,8 @@ public class ScorePanel extends JPanel implements ActionListener
 		gameBar = new GameBar(new Dimension(d.width, gBarHeight), b, f, p, false);
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 		
+		gameType = appPrefs.GAME_STOPPED;
+
 		add(sBar);
 		add(layers);
 		add(gameBar);

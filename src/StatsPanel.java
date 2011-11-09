@@ -19,10 +19,13 @@ along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import java.io.File; 
 import java.io.FilenameFilter;
@@ -34,8 +37,10 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.JCheckBox;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -45,7 +50,7 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.swing.event.TreeSelectionEvent; 
 import javax.swing.event.TreeSelectionListener;
 
-public class StatsPanel extends JPanel implements TreeSelectionListener
+public class StatsPanel extends JPanel implements TreeSelectionListener, ActionListener
 {
 	private static final long serialVersionUID = -3725519060278100632L;
 	Font appFont;
@@ -54,6 +59,8 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 	
 	public RoundPanel topBar;
 	public RoundedButton homeBtn;
+	public RoundPanel gameTypePanel;
+	public JCheckBox inlineCheckBox, rhythmCheckBox, scoreCheckBox;
 	private JPanel treePanel;
 	private JTree statsList;
 	private GraphPanel graphPanel;
@@ -65,7 +72,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 			 				   {  -1 , -1, -1 , -1, 0 },   // rhythm game: start day, end day, min, max, count
 			 				   {  -1 , -1, -1 , -1, 0 } }; // score game: start day, end day, min, max, count
 	private int[] globalInfo = {  -1 , -1, -1 , -1, 0 };   // global info: start day, end day, min, max, count
-	
+	private int singleDay = -1;
 	
 	int topBarHeight = 80;
 
@@ -89,8 +96,25 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 		homeBtn.setBounds(10, 5, 70, 70);
 		homeBtn.setBackground(Color.decode("0x8FC6E9"));
 		homeBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/home.png")).getImage());
+
+		gameTypePanel = new RoundPanel();
+		gameTypePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 5));
+		gameTypePanel.setBackground(Color.decode("0xeeeeee"));
+		gameTypePanel.setBounds(90, 5, 600, 30);
+		//gameTypePanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 40, 220));
+		inlineCheckBox = new JCheckBox(appBundle.getString("_menuNotereading"), true);
+		inlineCheckBox.addActionListener(this);
+		rhythmCheckBox = new JCheckBox(appBundle.getString("_menuRythmreading"), true);
+		rhythmCheckBox.addActionListener(this);
+		scoreCheckBox = new JCheckBox(appBundle.getString("_menuScorereading"), true);
+		scoreCheckBox.addActionListener(this);
+		
+		gameTypePanel.add(inlineCheckBox);
+		gameTypePanel.add(rhythmCheckBox);
+		gameTypePanel.add(scoreCheckBox);
 		
 		topBar.add(homeBtn);
+		topBar.add(gameTypePanel);
 		
 		// retrieve the list of stats file saved during exercises
 		currDir = new File(".");
@@ -119,6 +143,8 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 		graphPanel = new GraphPanel();
 		graphPanel.setBackground(Color.white);
 		graphPanel.setBounds(210, topBarHeight + 10, d.width - 220, d.height - topBarHeight - 15);
+		
+
 		
 		add(topBar);
 		add(treePanel);
@@ -156,6 +182,23 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 		
 	}
 	
+	public void actionPerformed(ActionEvent ae)
+	{
+		if (ae.getSource() == inlineCheckBox)
+		{
+			showGame[0] = inlineCheckBox.isSelected();
+		}
+		else if (ae.getSource() == rhythmCheckBox)
+		{
+			showGame[1] = rhythmCheckBox.isSelected();
+		}
+		else if (ae.getSource() == scoreCheckBox)
+		{
+			showGame[2] = scoreCheckBox.isSelected();
+		}
+		graphPanel.repaint();
+	}
+	
 	/*
 	 * Function that creates the statistics months nodes 
 	 */
@@ -174,7 +217,6 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 			int mInt = Integer.parseInt(cutYYMM.substring(4, 6));
 			DefaultMutableTreeNode month = new DefaultMutableTreeNode("" + months[mInt - 1] + " " + year);
 			DefaultMutableTreeNode loading = new DefaultMutableTreeNode(appBundle.getString("_statsLoading"));
-			//DefaultMutableTreeNode month = new DefaultMutableTreeNode(cutYYMM);
 			month.add(loading);
 			firstNode.add(month);
 		}
@@ -232,7 +274,6 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 			  record.timeSpent = Integer.parseInt(recFields[12]);
 			  
 			  currentStats.add(record);
-			  DefaultMutableTreeNode day = new DefaultMutableTreeNode(Integer.toString(record.notesPlayed));
 			  
 			  if (statInfo[record.gameType][0] == -1) // set start day
 				  statInfo[record.gameType][0] = record.day;
@@ -244,6 +285,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 			  if (record.day != globalInfo[1])
 			  {
 				  globalInfo[1] = record.day;
+				  DefaultMutableTreeNode day = new DefaultMutableTreeNode(Integer.toString(record.day));
 				  node.add(day);
 			  }
 			  
@@ -267,6 +309,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 		  System.out.println("--INLINE-- done. startDay: " + statInfo[0][0] + ", endDay: " + statInfo[0][1] + ", minScore: " + statInfo[0][2] + ", maxScore: " + statInfo[0][3]);
 		  System.out.println("--RHTYHM-- done. startDay: " + statInfo[1][0] + ", endDay: " + statInfo[1][1] + ", minScore: " + statInfo[1][2] + ", maxScore: " + statInfo[1][3]);
 		  System.out.println("--SCORE-- done. startDay: " + statInfo[2][0] + ", endDay: " + statInfo[2][1] + ", minScore: " + statInfo[2][2] + ", maxScore: " + statInfo[2][3]);
+		  System.out.println("--GLOBAL-- done. startDay: " + globalInfo[0] + ", endDay: " + globalInfo[1] + ", minScore: " + globalInfo[2] + ", maxScore: " + globalInfo[3]);
 		}
 		catch (Exception e)
 		{
@@ -367,9 +410,14 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 		protected void paintComponent(Graphics g) 
 		{
 			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g.setColor(this.getBackground());
+			g.fillRect(0, 0, getWidth(), getHeight());
 			g.setColor(Color.decode("0x222222"));
 			((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
 			
+			int startDay = -1, endDay = -1; // range of days to display
+			int maxCount = 0;
+			int[] sCount = { 0, 0, 0 };
 			int xPos = 35;
 			int yPos = 30;
 			int graphH = getHeight() - 60;
@@ -381,6 +429,10 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 			
 			int scoreDiff = globalInfo[3] - globalInfo[2];
 			int scoreStep = scoreDiff / 10;
+			int xAxisStep = 0;
+			
+			if (scoreDiff == 0)
+				scoreDiff = 1;
 			
 			// draw Y axis labels
 			g.setFont(new Font("Arial", Font.BOLD, 12));
@@ -389,25 +441,74 @@ public class StatsPanel extends JPanel implements TreeSelectionListener
 				g.drawString(Integer.toString(globalInfo[3] - (c * scoreStep)), 0, y + 10);
 			}
 			
+			if (singleDay == -1)
+			{
+				// pre-parse to identify days bounds
+				for (int d = 0; d < currentStats.size(); d++)
+				{
+					statRecord tmpRec = currentStats.get(d);
+					if (showGame[tmpRec.gameType] == false)
+						continue;
+					
+					if (tmpRec.day > endDay)
+						endDay = tmpRec.day;
+					if (startDay == -1 || tmpRec.day < startDay)
+						startDay = tmpRec.day;
+					sCount[tmpRec.gameType]++;
+					if (sCount[tmpRec.gameType] > maxCount)
+						maxCount = sCount[tmpRec.gameType];
+				}
+				if (maxCount > 1)
+					xAxisStep =  graphW / (maxCount - 1);
+
+				for (int d = 0, tmpX = xPos + xAxisStep; d < maxCount; d++, tmpX += xAxisStep)
+				{
+					g.drawLine(tmpX, 30 + graphH, tmpX, 35 + graphH);
+				}
+			}
+			else
+			{
+				startDay = endDay = singleDay;
+			}
+			
 			for (int i = 0; i < 3; i++)
 			{
-				if ( showGame[i] == false || statInfo[i][2] == -1 || statInfo[i][3] == -1) // if game disabled or min or max score not available 
+				if ( showGame[i] == false || sCount[i] == 0) // if game disabled or no entries 
 					continue;
 				
 				xPos = 37;
+				int lastXpos = xPos;
+				int lastYpos = graphH;
 
 				g.setColor(getGameColor(i));
-				if (statInfo[i][0] == statInfo[i][1]) // if same day
+
+				if (sCount[i] == 1)
 				{
-				  if (statInfo[i][4] == 1)
+				  int relYPos = ((statInfo[i][3] - globalInfo[2]) * (graphH - 20)) / scoreDiff;
+				  relYPos = graphH - 20 - relYPos;
+				  System.out.println("relYPos = " + relYPos);
+				  g.drawLine(xPos, yPos + relYPos, xPos + graphW, yPos + relYPos);
+					
+				}
+				else
+				{
+				  for (int s = 0; s < currentStats.size(); s++)
 				  {
-					int relYPos = ((statInfo[i][3] - globalInfo[2]) * (graphH - 20)) / scoreDiff;
-					System.out.println("relYPos = " + relYPos);
-					g.drawLine(xPos, yPos + relYPos, xPos + graphW, yPos + relYPos);
-				  }
-				  else
-				  {
-					// draw a serious chart here :)
+					  statRecord tmpRec = currentStats.get(s);
+					  if (tmpRec.gameType != i)
+						  continue;
+					  int relYPos = ((tmpRec.totalScore - globalInfo[2]) * (graphH - 20)) / scoreDiff;
+					  relYPos = graphH - 20 - relYPos;
+					  if (s == 0)
+					  {
+						  lastYpos = yPos + relYPos;
+						  continue;
+					  }
+
+					  xPos += xAxisStep;
+					  g.drawLine(lastXpos, lastYpos, xPos, yPos + relYPos);
+					  lastXpos = xPos;
+					  lastYpos = yPos + relYPos;
 				  }
 				}
 			}

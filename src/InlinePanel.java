@@ -148,6 +148,8 @@ public class InlinePanel extends JPanel implements ActionListener
 		gameBar = new GameBar(new Dimension(d.width, gBarHeight), b, f, p, true);
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 		gameBar.progress.setValue(20);
+		
+		gameType = appPrefs.GAME_STOPPED;
 
 		add(sBar);
 		add(layers);

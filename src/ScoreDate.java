@@ -42,6 +42,7 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -191,6 +192,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		 homePanel.rhythmBtn.addActionListener(this);
 		 homePanel.scoreBtn.addActionListener(this);
 		 homePanel.statsBtn.addActionListener(this);
+		 homePanel.lessonsBtn.addActionListener(this);
 	     
 		 currentContext = HOMEPANEL;
 		 transposition = Integer.parseInt(prefs.getProperty("transposition")) - 2;
@@ -204,7 +206,11 @@ public class ScoreDate extends JFrame implements ActionListener
     	 });
 
 		 setVisible(true);
-	 }	 
+	 }
+
+	 /*
+	  * ACTION LISTENER - listens to homePanel buttons and homeBtn of each panel
+	  */
 	 public void actionPerformed(ActionEvent ae)
 	 {
 		 System.out.println("Event received !! (cmd:" + ae.getActionCommand() + ")");
@@ -248,6 +254,11 @@ public class ScoreDate extends JFrame implements ActionListener
 			 currentContext = STATISTICS;
 			 statsPanel.homeBtn.addActionListener(this);
 	     }
+	     else if (ae.getSource() == homePanel.lessonsBtn)
+	     {
+	    	 JOptionPane.showMessageDialog(this.getParent(), "<html><b>Coming soon !</b></html>",
+	    			 bundle.getString("_menuLessons"), JOptionPane.INFORMATION_MESSAGE);
+	     }		 
 	     else if (inlinePanel != null && ae.getSource() == inlinePanel.sBar.homeBtn)
 	     {
 	    	 inlinePanel.stopGame();

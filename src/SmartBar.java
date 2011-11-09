@@ -120,9 +120,9 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		tempoContainer.setBackground(compColor);
 		((FlowLayout)tempoContainer.getLayout()).setHgap(7);
 
-		tempoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, -4));
+		tempoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, -2));
 		Border defBorder = UIManager.getBorder(tempoPanel);
-		tempoPanel.setBorder(BorderFactory.createTitledBorder(defBorder, "Tempo", TitledBorder.LEADING, TitledBorder.TOP));
+		tempoPanel.setBorder(BorderFactory.createTitledBorder(defBorder, appBundle.getString("_speed"), TitledBorder.LEADING, TitledBorder.TOP));
 		tempoPanel.setBackground(compColor);
 		tempoPanel.setPreferredSize(new Dimension(230, 80));
 

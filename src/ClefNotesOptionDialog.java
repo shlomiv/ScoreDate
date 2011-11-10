@@ -100,7 +100,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		else
 			trebleClef.setEnabled(false);
 		
-		NoteGenerator tmpNG = new NoteGenerator(appPrefs, null);
+		NoteGenerator tmpNG = new NoteGenerator(appPrefs, null, false);
 		// retrieve previously saved pitches and convert them into levels 
 		int lowerPitch = Integer.parseInt(appPrefs.getProperty("trebleClefLower"));
 		if (lowerPitch == -1) lowerPitch = 64; // default, set to E3
@@ -329,7 +329,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		if (ae.getSource() == okButton)
 		{
 			int clefsMask = 0;
-			NoteGenerator tmpNG = new NoteGenerator(appPrefs, null);
+			NoteGenerator tmpNG = new NoteGenerator(appPrefs, null, false);
 			if (trebleClef.isEnabled() == true)
 			{
 				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.TREBLE_CLEF_BASEPITCH, 20 - trebleClef.getLowerLevel());

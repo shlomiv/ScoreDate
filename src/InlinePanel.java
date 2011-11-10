@@ -84,7 +84,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		setSize(d);
 		setLayout(null);
 		inlineAccidentals = new Accidentals("", 0, appPrefs);
-		inlineNG = new NoteGenerator(appPrefs, inlineAccidentals);
+		inlineNG = new NoteGenerator(appPrefs, inlineAccidentals, false);
 		stats = new Statistics();
 
 		gameType = appPrefs.GAME_STOPPED;

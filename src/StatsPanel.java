@@ -441,11 +441,12 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			g.setColor(this.getBackground());
 			g.fillRect(0, 0, getWidth(), getHeight());
 			g.setColor(Color.decode("0x222222"));
-			((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+			((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
 			
 			int startDay = -1, endDay = -1; // range of days to display
 			int maxCount = 0;
-			int[] sCount = { 0, 0, 0 };
+			int[] sCount = { 0, 0, 0 }; // keeps the number of played exercises for each game type 
+			int[] sStepOff = { -1, -1, -1 }; // keeps the steps offset to display the chart
 			int xPos = 35;
 			int yPos = 30;
 			int graphH = getHeight() - 60;
@@ -485,6 +486,8 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 					sCount[tmpRec.gameType]++;
 					if (sCount[tmpRec.gameType] > maxCount)
 						maxCount = sCount[tmpRec.gameType];
+					if (sStepOff[tmpRec.gameType] == -1)
+						sStepOff[tmpRec.gameType] = maxCount - 1;
 				}
 				if (maxCount > 1)
 					xAxisStep =  graphW / (maxCount - 1);
@@ -504,7 +507,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				if ( showGame[i] == false || sCount[i] == 0) // if game disabled or no entries 
 					continue;
 				
-				xPos = 37;
+				xPos = 37 + (sStepOff[i] * xAxisStep);
 				int lastXpos = xPos;
 				int lastYpos = graphH;
 
@@ -520,6 +523,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				}
 				else
 				{
+			      int prevDay = 0;
 				  for (int s = 0; s < currentStats.size(); s++)
 				  {
 					  statRecord tmpRec = currentStats.get(s);
@@ -527,10 +531,16 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 						  continue;
 					  int relYPos = ((tmpRec.totalScore - globalInfo[2]) * (graphH - 20)) / scoreDiff;
 					  relYPos = graphH - 20 - relYPos;
-					  if (s == 0)
+					  if (tmpRec.day != prevDay)
 					  {
-						  lastYpos = yPos + relYPos;
-						  continue;
+						  g.drawString(Integer.toString(tmpRec.day), xPos - 4, graphH + 50);
+						  if (prevDay == 0)
+						  {
+							  lastYpos = yPos + relYPos;
+							  prevDay = tmpRec.day;
+							  continue;
+						  }
+						  prevDay = tmpRec.day;
 					  }
 
 					  xPos += xAxisStep;
@@ -542,6 +552,8 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			}
 		}
 	}
+
+	
 }
 
 

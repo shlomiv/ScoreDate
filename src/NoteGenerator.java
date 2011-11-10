@@ -40,6 +40,7 @@ public class NoteGenerator
 	char[] intervals = { 0, 1, 2, 4, 5, 7, 9, 11, 12 };
 	
 	int clefMask = -1;
+	boolean singleClef = false;
 	int baseRangeClef;
 	int addRangeIndex; // index of randomPitchList of a second range (if added)
 	int addRangeClef; // clef mask of a second range (if added)
@@ -76,11 +77,12 @@ public class NoteGenerator
 		     			     {  1,  1,  1,  1,  1,  1,  1 }  // 7 alterations
 		   				   };
     
-    public NoteGenerator(Preferences p, Accidentals acc) 
+    public NoteGenerator(Preferences p, Accidentals acc, boolean oneClef) 
     {
     	this.appPrefs = p;
         this.accidentals = acc;
         
+        singleClef = oneClef;
         baseRangeClef = -1;
     	addRangeIndex = -1;
     	addRangeClef = -1; 
@@ -189,6 +191,7 @@ public class NoteGenerator
 			if (lowerPitch == -1) lowerPitch = 64; // default, set to E3
 			if (higherPitch == -1) higherPitch = 77; // default, set to F4
 			addRange(appPrefs.TREBLE_CLEF, alteredList.get(baseList.indexOf(lowerPitch)), alteredList.get(baseList.indexOf(higherPitch)));
+			if (singleClef == true) clefMask = appPrefs.TREBLE_CLEF;
 		}
 		if ((clefMask & appPrefs.BASS_CLEF) > 0) 
 		{
@@ -197,6 +200,7 @@ public class NoteGenerator
 			if (lowerPitch == -1) lowerPitch = 43; // default, set to G1
 			if (higherPitch == -1) higherPitch = 57; // default, set to A2
 			addRange(appPrefs.BASS_CLEF, alteredList.get(baseList.indexOf(lowerPitch)), alteredList.get(baseList.indexOf(higherPitch)));
+			if (singleClef == true) clefMask = appPrefs.BASS_CLEF;
 		}
 		if ((clefMask & appPrefs.ALTO_CLEF) > 0) 
 		{
@@ -205,6 +209,7 @@ public class NoteGenerator
 			if (lowerPitch == -1) lowerPitch = 53; // default, set to F2
 			if (higherPitch == -1) higherPitch = 67; // default, set to G3
 			addRange(appPrefs.ALTO_CLEF, alteredList.get(baseList.indexOf(lowerPitch)), alteredList.get(baseList.indexOf(higherPitch)));
+			if (singleClef == true) clefMask = appPrefs.ALTO_CLEF;
 		}
 		if ((clefMask & appPrefs.TENOR_CLEF) > 0) 
 		{
@@ -213,6 +218,7 @@ public class NoteGenerator
 			if (lowerPitch == -1) lowerPitch = 50; // default, set to D2
 			if (higherPitch == -1) higherPitch = 64; // default, set to E3
 			addRange(appPrefs.TENOR_CLEF, alteredList.get(baseList.indexOf(lowerPitch)), alteredList.get(baseList.indexOf(higherPitch)));
+			if (singleClef == true) clefMask = appPrefs.TENOR_CLEF;
 		}
 		
 		notesTypeList.clear();
@@ -290,6 +296,8 @@ public class NoteGenerator
     		baseRangeClef = clef;
     	else
     	{
+    		if (singleClef == true)
+    			return;
     		addRangeClef = clef;
     		addRangeIndex = randomPitchList.size();
     		secondRow = true;

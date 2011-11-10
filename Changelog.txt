@@ -6,7 +6,9 @@ November ???, 2011 - 1.0 beta
 - added accidentals offset for alto and tenor clef 
 - fixed SmartBar and GameBar resize when going fullscreen
 - games are stopped when going to home screen
-- MusiSyncForScoreDate passed FontForge validation + improved sharp symbol 
+- rhythm game always shows one clef
+- MusiSyncForScoreDate passed FontForge validation + improved sharp symbol
+- added icon to main window 
 - fixed italian translation for intervals
 
 November 5th, 2011 - 1.0 alpha

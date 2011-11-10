@@ -102,7 +102,7 @@ public class ScorePanel extends JPanel implements ActionListener
 		setSize(d);
 		setLayout(null);
 		scoreAccidentals = new Accidentals("", 0, appPrefs);
-		scoreNG = new NoteGenerator(appPrefs, scoreAccidentals);
+		scoreNG = new NoteGenerator(appPrefs, scoreAccidentals, rhythm);
 		stats = new Statistics();
 		
 		sBar = new SmartBar(new Dimension(d.width-8, sBarHeight), b, f, p, false);

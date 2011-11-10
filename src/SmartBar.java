@@ -129,7 +129,7 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		if (inline == true)
 		{
 			tempoSlider = new JSlider(JSlider.HORIZONTAL, 30, 250, 60);
-			tempoLabel = new JTextField("80");
+			tempoLabel = new JTextField("60");
 		}
 		else
 		{

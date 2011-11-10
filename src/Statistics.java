@@ -76,6 +76,8 @@ public class Statistics
 		else
 			wrongAnswers++;
 		totalScore+=score;
+		if (totalScore < 0)
+			totalScore = 0;
 
 		avgPrecision = precisionAmount / notesPlayed;
 		timeSpent = (int)(System.currentTimeMillis() - startTime);

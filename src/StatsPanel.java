@@ -443,22 +443,64 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			g.setColor(Color.decode("0x222222"));
 			((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
 			
-			int startDay = -1, endDay = -1; // range of days to display
-			int maxCount = 0;
+			//int startDay = -1, endDay = -1; // range of days to display
+			int maxCount = 0; // total number of exercises of the selected games
+			int maxScore = 0, minScore = 99999; // maximum and minimum score of the selected games
 			int[] sCount = { 0, 0, 0 }; // keeps the number of played exercises for each game type 
-			int[] sStepOff = { -1, -1, -1 }; // keeps the steps offset to display the chart
+			//int[] sStepOff = { -1, -1, -1 }; // keeps the steps offset to display the chart
 			int xPos = 35;
 			int yPos = 30;
 			int graphH = getHeight() - 60;
 			int graphW = getWidth() - 55;
+			int xAxisStep = 0;
 			
 			// draw axis
 			g.drawLine(xPos, 30, xPos, graphH + 30);
 			g.drawLine(xPos, 30 + graphH, xPos + graphW, 30 + graphH);
 			
-			int scoreDiff = globalInfo[3] - globalInfo[2];
+			// pre-parse to identify days bounds
+			for (int d = 0; d < currentStats.size(); d++)
+			{
+				statRecord tmpRec = currentStats.get(d);
+				if (showGame[tmpRec.gameType] == false)
+					continue;
+				if (singleDay != -1 && tmpRec.day != singleDay)
+					continue;
+				/*
+				if (tmpRec.day > endDay)
+					endDay = tmpRec.day;
+				if (startDay == -1 || tmpRec.day < startDay)
+					startDay = tmpRec.day;
+				
+				sCount[tmpRec.gameType]++;
+				
+				if (sCount[tmpRec.gameType] > maxCount)
+					maxCount = sCount[tmpRec.gameType];
+				
+				if (sStepOff[tmpRec.gameType] == -1)
+					sStepOff[tmpRec.gameType] = maxCount;
+				*/
+				maxCount++;
+				sCount[tmpRec.gameType]++;
+				
+				
+				if (tmpRec.totalScore > maxScore)
+					maxScore = tmpRec.totalScore;
+				if (tmpRec.totalScore < minScore)
+					minScore = tmpRec.totalScore;
+			}
+
+			System.out.println("******* maxCount = " + maxCount);
+			if (maxCount > 1)
+				xAxisStep =  graphW / (maxCount - 1);
+
+			// draw X axis scale lines
+			for (int d = 0, tmpX = xPos + xAxisStep; d < maxCount; d++, tmpX += xAxisStep)
+				g.drawLine(tmpX, 30 + graphH, tmpX, 35 + graphH);
+
+			
+			int scoreDiff = maxScore - minScore;
 			int scoreStep = scoreDiff / 10;
-			int xAxisStep = 0;
 			
 			if (scoreDiff == 0)
 				scoreDiff = 1;
@@ -467,58 +509,68 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			g.setFont(new Font("Arial", Font.BOLD, 12));
 			for (int y = yPos, c = 0; y < yPos + graphH - 20; y+=((graphH - 20) / 10), c++)
 			{
-				g.drawString(Integer.toString(globalInfo[3] - (c * scoreStep)), 0, y + 10);
+				g.drawString(Integer.toString(maxScore - (c * scoreStep)), 0, y + 5);
+				g.drawLine(32, y, 35, y);
 			}
 			
-			if (singleDay == -1)
+			xPos = 37;
+			int[][] lastPos = { { 0, 0 }, { 0, 0 }, { 0, 0 } };
+			int prevDay = 0;
+			
+			for (int s = 0; s < currentStats.size(); s++)
 			{
-				// pre-parse to identify days bounds
-				for (int d = 0; d < currentStats.size(); d++)
+				statRecord tmpRec = currentStats.get(s);
+				if ( showGame[tmpRec.gameType] == false || sCount[tmpRec.gameType] == 0) // if game disabled or no entries 
+					continue;
+				
+				int relYPos = ((tmpRec.totalScore - minScore) * (graphH - 20)) / scoreDiff;
+				relYPos = graphH - 20 - relYPos;
+				if (sCount[tmpRec.gameType] == 1)
 				{
-					statRecord tmpRec = currentStats.get(d);
-					if (showGame[tmpRec.gameType] == false)
-						continue;
-					
-					if (tmpRec.day > endDay)
-						endDay = tmpRec.day;
-					if (startDay == -1 || tmpRec.day < startDay)
-						startDay = tmpRec.day;
-					sCount[tmpRec.gameType]++;
-					if (sCount[tmpRec.gameType] > maxCount)
-						maxCount = sCount[tmpRec.gameType];
-					if (sStepOff[tmpRec.gameType] == -1)
-						sStepOff[tmpRec.gameType] = maxCount - 1;
+				  g.setColor(getGameColor(tmpRec.gameType));
+				  g.drawLine(37, yPos + relYPos, 37 + graphW, yPos + relYPos);
+				  continue;
 				}
-				if (maxCount > 1)
-					xAxisStep =  graphW / (maxCount - 1);
+				g.setColor(getGameColor(tmpRec.gameType));
+				if (lastPos[tmpRec.gameType][0] != 0 && lastPos[tmpRec.gameType][1] != 0)
+					g.drawLine(lastPos[tmpRec.gameType][0], lastPos[tmpRec.gameType][1], xPos, yPos + relYPos);
+				else
+					g.drawLine(37, yPos + relYPos, xPos, yPos + relYPos);
 
-				for (int d = 0, tmpX = xPos + xAxisStep; d < maxCount; d++, tmpX += xAxisStep)
+				if (tmpRec.day != prevDay)
 				{
-					g.drawLine(tmpX, 30 + graphH, tmpX, 35 + graphH);
+					g.setColor(Color.black);
+					g.drawString(Integer.toString(tmpRec.day), xPos - 4, graphH + 50);
+					prevDay = tmpRec.day;
 				}
-			}
-			else
-			{
-				startDay = endDay = singleDay;
+				
+				lastPos[tmpRec.gameType][0] = xPos;
+				lastPos[tmpRec.gameType][1] = yPos + relYPos;
+				xPos += xAxisStep;
 			}
 			
+			// draw next day TODO: improve this
+			//g.setColor(Color.black);
+			//g.drawString(Integer.toString(prevDay + 1), xPos - xAxisStep - 4, graphH + 50);
+
+			/*
 			for (int i = 0; i < 3; i++)
 			{
 				if ( showGame[i] == false || sCount[i] == 0) // if game disabled or no entries 
 					continue;
 				
-				xPos = 37 + (sStepOff[i] * xAxisStep);
-				int lastXpos = xPos;
+				xPos = 37; // + (sStepOff[i] * xAxisStep);
+				int lastXpos = 0;
 				int lastYpos = graphH;
 
 				g.setColor(getGameColor(i));
 
 				if (sCount[i] == 1)
 				{
-				  int relYPos = ((statInfo[i][3] - globalInfo[2]) * (graphH - 20)) / scoreDiff;
+				  int relYPos = ((statInfo[i][3] - minScore) * (graphH - 20)) / scoreDiff;
 				  relYPos = graphH - 20 - relYPos;
 				  System.out.println("relYPos = " + relYPos);
-				  g.drawLine(xPos, yPos + relYPos, xPos + graphW, yPos + relYPos);
+				  g.drawLine(37, yPos + relYPos, 37 + graphW, yPos + relYPos);
 					
 				}
 				else
@@ -527,29 +579,32 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				  for (int s = 0; s < currentStats.size(); s++)
 				  {
 					  statRecord tmpRec = currentStats.get(s);
+					  if (s > 0)
+						  xPos += xAxisStep;
+
 					  if (tmpRec.gameType != i)
 						  continue;
-					  int relYPos = ((tmpRec.totalScore - globalInfo[2]) * (graphH - 20)) / scoreDiff;
+					  int relYPos = ((tmpRec.totalScore - minScore) * (graphH - 20)) / scoreDiff;
 					  relYPos = graphH - 20 - relYPos;
 					  if (tmpRec.day != prevDay)
 					  {
 						  g.drawString(Integer.toString(tmpRec.day), xPos - 4, graphH + 50);
-						  if (prevDay == 0)
-						  {
-							  lastYpos = yPos + relYPos;
-							  prevDay = tmpRec.day;
-							  continue;
-						  }
 						  prevDay = tmpRec.day;
 					  }
+					  if (lastXpos == 0)
+					  {
+						  lastYpos = yPos + relYPos;
+						  lastXpos = xPos;
+						  continue;
+					  }
 
-					  xPos += xAxisStep;
 					  g.drawLine(lastXpos, lastYpos, xPos, yPos + relYPos);
 					  lastXpos = xPos;
 					  lastYpos = yPos + relYPos;
 				  }
 				}
 			}
+			*/
 		}
 	}
 

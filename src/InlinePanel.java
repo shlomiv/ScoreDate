@@ -149,6 +149,8 @@ public class InlinePanel extends JPanel implements ActionListener
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 		gameBar.progress.setValue(20);
 		
+		sBar.gameSelector.addActionListener(this);
+	
 		gameType = appPrefs.GAME_STOPPED;
 
 		add(sBar);
@@ -228,7 +230,6 @@ public class InlinePanel extends JPanel implements ActionListener
 			case 2: progressStep = 2; break; // 40 notes
 			case 3: progressStep = 1; break; // 80 notes
 		}
-	
 	}
 	
 	public void setLearningInfo(boolean enable, int chordType)
@@ -310,6 +311,27 @@ public class InlinePanel extends JPanel implements ActionListener
 		notesLayer.setLearningTips(noteInfo + altInfo + chord, enable);
 	}
 	
+	public void startGame()
+	{
+		currentSpeed = sBar.tempoSlider.getValue();
+		piano.reset(false);
+		gameNotes.clear();
+		gameBar.precisionCnt.setText("");
+		gameBar.scoreCnt.setText("");
+		gameBar.progress.setValue(20);
+		setGameType();
+		noteXStartPos = inlineStaff.getFirstNoteXPosition();
+		notesLayer.setFirstNoteXPosition(noteXStartPos);
+		notesLayer.setStaffWidth(inlineStaff.getStaffWidth());
+		stats.reset();
+		stats.setGameSpeed(currentSpeed);
+		gameThread = new InlineGameThread();
+		gameStarted = true;
+		gameThread.start();
+		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/stop.png")).getImage());
+		sBar.playBtn.repaint();
+	}
+	
 	public void stopGame()
 	{
 		if (gameType == appPrefs.GAME_STOPPED)
@@ -340,23 +362,34 @@ public class InlinePanel extends JPanel implements ActionListener
 			else
 			{
 				/* ************** START NEW GAME ***************** */
-				currentSpeed = sBar.tempoSlider.getValue();
-				piano.reset(false);
-				gameNotes.clear();
-				gameBar.precisionCnt.setText("");
-				gameBar.scoreCnt.setText("");
-				gameBar.progress.setValue(20);
-				setGameType();
-				noteXStartPos = inlineStaff.getFirstNoteXPosition();
-				notesLayer.setFirstNoteXPosition(noteXStartPos);
-				notesLayer.setStaffWidth(inlineStaff.getStaffWidth());
-				stats.reset();
-				stats.setGameSpeed(currentSpeed);
-				gameThread = new InlineGameThread();
-				gameStarted = true;
-				gameThread.start();
-				sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/stop.png")).getImage());
+				startGame();
 			}
+		}
+		else if (ae.getSource() == sBar.gameSelector)
+		{
+			int gameIdx = sBar.gameSelector.getSelectedIndex();
+			stopGame();
+			if (gameIdx == 2)
+			{
+				gameBar.notesNumber.setEnabled(false);
+				gameBar.progress.setEnabled(false);
+			}
+			else
+			{
+				gameBar.notesNumber.setEnabled(true);
+				gameBar.progress.setEnabled(true);
+			}
+			if (gameIdx == 1)
+			{
+				staffHMargin = 80;
+				refreshPanel();
+			}
+			else
+			{
+				staffHMargin = 180;
+				refreshPanel();
+			}
+				
 		}
 	}
 	
@@ -383,6 +416,8 @@ public class InlinePanel extends JPanel implements ActionListener
 			appMidi.midiChannel.noteOff(pitch, 0);
 			if (userNotes.size() != 0)
 				userNotes.removeElementAt(userNotes.indexOf(pitch));
+			if (pitch == 60 && gameType == appPrefs.GAME_STOPPED)
+				startGame();
 		}
 		else
 		{
@@ -465,16 +500,17 @@ public class InlinePanel extends JPanel implements ActionListener
 	{
 		if (gameNotes.size() == 0)
 			return;
-		int score = -50;
-		if (gameType == appPrefs.INLINE_LEARN_NOTES)
-			score = 0;
-		else if (answType == 1)
+		int score = 0;
+		if (gameType != appPrefs.INLINE_LEARN_NOTES)
 		{
 			int xdelta = gameNotes.get(0).xpos - noteXStartPos;
 			score = (xdelta * 100) / (getWidth() -  (staffHMargin * 2)); // find linear score based on note position
 			score = 100 - score; // invert it to scale from 0 to 100
 			score *= (currentSpeed / 40); // multiply by speed factor
 		}
+		
+		if (answType == 0)
+			score = score - (score * 2); // turn to negative
 
 		stats.notePlayed(answType, score);
 		gameBar.precisionCnt.setText(Integer.toString(stats.getAveragePrecision()) + "%");
@@ -491,7 +527,7 @@ public class InlinePanel extends JPanel implements ActionListener
 				gameFinished(false);
 		}
 	}
-	
+
 	private void gameFinished(boolean win)
 	{
 		gameStarted = false;

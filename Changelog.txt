@@ -1,12 +1,14 @@
 November ???, 2011 - 1.0 beta
 
-- fixed intervals on line game including learning info
-- added pauses on double clef score
-- added combo box to select how many notes to play on line game
+- line game: fixed intervals and chords including learning info
+- line game: added combo box to select how many notes to play on line game
+- line game: notes number and progress bar are disabled in learning mode
+- line game: can be started by pressing C3
+- score reading: added pauses when double clef is on
+- rhythm game: always shows one clef
 - added accidentals offset for alto and tenor clef 
 - fixed SmartBar and GameBar resize when going fullscreen
 - games are stopped when going to home screen
-- rhythm game always shows one clef
 - MusiSyncForScoreDate passed FontForge validation + improved sharp symbol
 - added icon to main window 
 - fixed italian translation for intervals

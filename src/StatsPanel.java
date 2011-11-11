@@ -343,7 +343,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		    if (node.getLevel() == 1)
 		    {
 		    	DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
-		        System.out.println("Node slected idx: " + parent.getIndex(node));
+		        System.out.println("Node selected idx: " + parent.getIndex(node));
 
 		        DefaultTreeModel treeModel = (DefaultTreeModel)statsList.getModel();
 
@@ -355,23 +355,25 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		        treeModel.insertNodeInto(loading, selNode, 0);
 		        //selNode.add(loading);
 		        
+		        singleDay = -1;
 		        readStatsFile(node,	currDir, SDSfiles[parent.getIndex(node)]);
 		        selNode = node;
 		        statsList.expandPath(new TreePath(selNode.getPath()));
 		        graphPanel.repaint();
 		        //statsList.collapsePath(new TreePath(selNode.getPath()));
 		    }
-		    /*
-		    Object nodeInfo = node.getUserObject();
-		    if (node.isLeaf()) {
-		        BookInfo book = (BookInfo)nodeInfo;
-		        displayURL(book.bookURL);
-		    } else {
-		        displayURL(helpURL); 
+		    else if (node.getLevel() == 2)
+		    {
+		    	String lbl = node.toString();
+		    	System.out.println("Node label: " + lbl);
+		    	String[] lblFields = lbl.split(" ");
+		    	
+		    	System.out.println("Day: " + lblFields[lblFields.length - 1]);
+		    	singleDay = Integer.parseInt(lblFields[lblFields.length - 1]);
+		    	graphPanel.repaint();
 		    }
-		    */
 	}
-	
+
 	protected void paintComponent(Graphics g) 
 	{
 		g.setColor(this.getBackground());
@@ -443,22 +445,27 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			g.setColor(Color.decode("0x222222"));
 			((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
 			
-			//int startDay = -1, endDay = -1; // range of days to display
 			int maxCount = 0; // total number of exercises of the selected games
 			int maxScore = 0, minScore = 99999; // maximum and minimum score of the selected games
 			int[] sCount = { 0, 0, 0 }; // keeps the number of played exercises for each game type 
-			//int[] sStepOff = { -1, -1, -1 }; // keeps the steps offset to display the chart
+
 			int xPos = 35;
 			int yPos = 30;
 			int graphH = getHeight() - 60;
 			int graphW = getWidth() - 55;
 			int xAxisStep = 0;
+			boolean daysView = false;
 			
 			// draw axis
 			g.drawLine(xPos, 30, xPos, graphH + 30);
 			g.drawLine(xPos, 30 + graphH, xPos + graphW, 30 + graphH);
 			
-			// pre-parse to identify days bounds
+			
+			int tmpDay = 0;
+			int tmpExCount = 0;
+			int exerciseMaxCount = 0;
+			int daysPlayed = 0;
+			// pre-parse to identify score bounds and maximum number of exercises in a day
 			for (int d = 0; d < currentStats.size(); d++)
 			{
 				statRecord tmpRec = currentStats.get(d);
@@ -466,38 +473,52 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 					continue;
 				if (singleDay != -1 && tmpRec.day != singleDay)
 					continue;
-				/*
-				if (tmpRec.day > endDay)
-					endDay = tmpRec.day;
-				if (startDay == -1 || tmpRec.day < startDay)
-					startDay = tmpRec.day;
-				
-				sCount[tmpRec.gameType]++;
-				
-				if (sCount[tmpRec.gameType] > maxCount)
-					maxCount = sCount[tmpRec.gameType];
-				
-				if (sStepOff[tmpRec.gameType] == -1)
-					sStepOff[tmpRec.gameType] = maxCount;
-				*/
+
 				maxCount++;
 				sCount[tmpRec.gameType]++;
 				
-				
+				if (singleDay == -1) // count the exercises only in the month view
+				{
+				  
+				  if (tmpRec.day != tmpDay)
+				  {
+					tmpDay = tmpRec.day;
+					tmpExCount = 0;
+					daysPlayed++;
+				  }
+				  tmpExCount++;
+				  if (tmpExCount > exerciseMaxCount)
+					  exerciseMaxCount = tmpExCount;
+				}
+
 				if (tmpRec.totalScore > maxScore)
 					maxScore = tmpRec.totalScore;
 				if (tmpRec.totalScore < minScore)
 					minScore = tmpRec.totalScore;
 			}
 
-			System.out.println("******* maxCount = " + maxCount);
+			System.out.println("[Pre-parse done] maxCount = " + maxCount + ", daysPlayed: "+ daysPlayed + ", exerciseMaxCount: " + exerciseMaxCount);
 			if (maxCount > 1)
 				xAxisStep =  graphW / (maxCount - 1);
+			System.out.println("---> xAxisStep = " + xAxisStep);
 
+			if (xAxisStep < 10)
+			{
+				maxCount = daysPlayed;
+				xAxisStep = graphW / (maxCount - 1);
+				daysView = true;
+			}
+			
 			// draw X axis scale lines
 			for (int d = 0, tmpX = xPos + xAxisStep; d < maxCount; d++, tmpX += xAxisStep)
-				g.drawLine(tmpX, 30 + graphH, tmpX, 35 + graphH);
-
+			{
+				((Graphics2D) g).setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+				g.setColor(Color.lightGray);
+				g.drawLine(tmpX + 2, 30, tmpX + 2, 30 + graphH);
+				((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+				g.setColor(Color.black);
+				g.drawLine(tmpX + 2, 30 + graphH, tmpX + 2, 35 + graphH);
+			}
 			
 			int scoreDiff = maxScore - minScore;
 			int scoreStep = scoreDiff / 10;
@@ -514,97 +535,81 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			}
 			
 			xPos = 37;
-			int[][] lastPos = { { 0, 0 }, { 0, 0 }, { 0, 0 } };
+			int[][] lastPos = { { 0, 0 }, { 0, 0 }, { 0, 0 } }; // keeps last x,y position to trace a line
+			long[][] avgScores = { { 0, 0 }, { 0, 0 }, { 0, 0 } }; // in daysView mode use this to elapse average score (total score, count) 
 			int prevDay = 0;
 			
+			if (daysView == true)
+				prevDay = currentStats.get(0).day;
+			
+			// scan the whole stats list (skipping disabled data) and display the chart
 			for (int s = 0; s < currentStats.size(); s++)
 			{
 				statRecord tmpRec = currentStats.get(s);
 				if ( showGame[tmpRec.gameType] == false || sCount[tmpRec.gameType] == 0) // if game disabled or no entries 
 					continue;
-				
-				int relYPos = ((tmpRec.totalScore - minScore) * (graphH - 20)) / scoreDiff;
-				relYPos = graphH - 20 - relYPos;
-				if (sCount[tmpRec.gameType] == 1)
-				{
-				  g.setColor(getGameColor(tmpRec.gameType));
-				  g.drawLine(37, yPos + relYPos, 37 + graphW, yPos + relYPos);
-				  continue;
-				}
-				g.setColor(getGameColor(tmpRec.gameType));
-				if (lastPos[tmpRec.gameType][0] != 0 && lastPos[tmpRec.gameType][1] != 0)
-					g.drawLine(lastPos[tmpRec.gameType][0], lastPos[tmpRec.gameType][1], xPos, yPos + relYPos);
-				else
-					g.drawLine(37, yPos + relYPos, xPos, yPos + relYPos);
+				if (singleDay != -1 && tmpRec.day != singleDay)
+					continue;
 
-				if (tmpRec.day != prevDay)
+				int relYPos = 0;
+
+				if (daysView == false)
 				{
-					g.setColor(Color.black);
+				  relYPos = ((tmpRec.totalScore - minScore) * (graphH - 20)) / scoreDiff;
+				  relYPos = graphH - 20 - relYPos;
+				  if (sCount[tmpRec.gameType] == 1)
+				  {
+				    g.setColor(getGameColor(tmpRec.gameType));
+				    g.drawLine(37, yPos + relYPos, 37 + graphW, yPos + relYPos);
+				    continue;
+				  }
+				  g.setColor(getGameColor(tmpRec.gameType));
+				  if (lastPos[tmpRec.gameType][0] != 0 && lastPos[tmpRec.gameType][1] != 0)
+					  g.drawLine(lastPos[tmpRec.gameType][0], lastPos[tmpRec.gameType][1], xPos, yPos + relYPos);
+				  else
+					  g.drawLine(37, yPos + relYPos, xPos, yPos + relYPos);
+				  
+				  if (tmpRec.day != prevDay)
+				  {
+					  g.setColor(Color.black);
+					  g.drawString(Integer.toString(tmpRec.day), xPos - 4, graphH + 50);
+					  prevDay = tmpRec.day;
+				  }
+				  lastPos[tmpRec.gameType][0] = xPos;
+				  lastPos[tmpRec.gameType][1] = yPos + relYPos;
+				  xPos += xAxisStep;
+				}
+				else
+				{
+				  // increase the daysView counters here
+				  if (tmpRec.day != prevDay)
+				  {
+					relYPos = (((int)(avgScores[tmpRec.gameType][0]/avgScores[tmpRec.gameType][1]) - minScore) * (graphH - 20)) / scoreDiff;
+					relYPos = graphH - 20 - relYPos;
+				    if (lastPos[tmpRec.gameType][0] != 0 && lastPos[tmpRec.gameType][1] != 0)
+				    {
+				    	g.setColor(getGameColor(tmpRec.gameType));
+				    	g.drawLine(lastPos[tmpRec.gameType][0], lastPos[tmpRec.gameType][1], xPos, yPos + relYPos);
+				    }
+				    g.setColor(Color.black);
 					g.drawString(Integer.toString(tmpRec.day), xPos - 4, graphH + 50);
 					prevDay = tmpRec.day;
+				    
+				    lastPos[tmpRec.gameType][0] = xPos;
+			    	lastPos[tmpRec.gameType][1] = yPos + relYPos;
+			    	// reset counters
+			    	avgScores[tmpRec.gameType][0] = tmpRec.totalScore;
+					avgScores[tmpRec.gameType][1] = 1;
+					xPos += xAxisStep;
+				  }
+				  avgScores[tmpRec.gameType][0] += tmpRec.totalScore;
+				  avgScores[tmpRec.gameType][1]++;
 				}
-				
-				lastPos[tmpRec.gameType][0] = xPos;
-				lastPos[tmpRec.gameType][1] = yPos + relYPos;
-				xPos += xAxisStep;
 			}
 			
 			// draw next day TODO: improve this
 			//g.setColor(Color.black);
 			//g.drawString(Integer.toString(prevDay + 1), xPos - xAxisStep - 4, graphH + 50);
-
-			/*
-			for (int i = 0; i < 3; i++)
-			{
-				if ( showGame[i] == false || sCount[i] == 0) // if game disabled or no entries 
-					continue;
-				
-				xPos = 37; // + (sStepOff[i] * xAxisStep);
-				int lastXpos = 0;
-				int lastYpos = graphH;
-
-				g.setColor(getGameColor(i));
-
-				if (sCount[i] == 1)
-				{
-				  int relYPos = ((statInfo[i][3] - minScore) * (graphH - 20)) / scoreDiff;
-				  relYPos = graphH - 20 - relYPos;
-				  System.out.println("relYPos = " + relYPos);
-				  g.drawLine(37, yPos + relYPos, 37 + graphW, yPos + relYPos);
-					
-				}
-				else
-				{
-			      int prevDay = 0;
-				  for (int s = 0; s < currentStats.size(); s++)
-				  {
-					  statRecord tmpRec = currentStats.get(s);
-					  if (s > 0)
-						  xPos += xAxisStep;
-
-					  if (tmpRec.gameType != i)
-						  continue;
-					  int relYPos = ((tmpRec.totalScore - minScore) * (graphH - 20)) / scoreDiff;
-					  relYPos = graphH - 20 - relYPos;
-					  if (tmpRec.day != prevDay)
-					  {
-						  g.drawString(Integer.toString(tmpRec.day), xPos - 4, graphH + 50);
-						  prevDay = tmpRec.day;
-					  }
-					  if (lastXpos == 0)
-					  {
-						  lastYpos = yPos + relYPos;
-						  lastXpos = xPos;
-						  continue;
-					  }
-
-					  g.drawLine(lastXpos, lastYpos, xPos, yPos + relYPos);
-					  lastXpos = xPos;
-					  lastYpos = yPos + relYPos;
-				  }
-				}
-			}
-			*/
 		}
 	}
 

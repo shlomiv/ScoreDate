@@ -128,7 +128,7 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 
 		if (inline == true)
 		{
-			tempoSlider = new JSlider(JSlider.HORIZONTAL, 30, 250, 60);
+			tempoSlider = new JSlider(JSlider.HORIZONTAL, 30, 200, 60);
 			tempoLabel = new JTextField("60");
 		}
 		else
@@ -349,6 +349,7 @@ class RoundPanel extends JPanel
 	boolean gradientBack = false;
 	Color startColor;
 	Color endColor;
+	Color borderColor = Color.decode("0x5F8DD3");
 
 	public RoundPanel()
 	{
@@ -361,10 +362,15 @@ class RoundPanel extends JPanel
 		endColor = endCol;
 	}
 	
+	public void setBorderColor(Color bc)
+	{
+		borderColor = bc;
+	}
+	
 	protected void paintComponent(Graphics g) 
 	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setColor(Color.decode("0x5F8DD3"));
+		g.setColor(borderColor);
 		//g.setColor(Color.white);
 		g.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
 		if (gradientBack == false)

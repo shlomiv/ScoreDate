@@ -19,7 +19,6 @@ along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -38,7 +37,9 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JCheckBox;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -60,9 +61,15 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 	
 	public RoundPanel topBar;
 	public RoundedButton homeBtn;
-	public RoundPanel gameTypePanel;
+	public RoundPanel linePanel, rtmPanel, scrPanel;
 	public JCheckBox inlineCheckBox, rhythmCheckBox, scoreCheckBox;
+	private JLabel lineAvgScoreLabel, rtmAvgScoreLabel, scrAvgScoreLabel;
+	private JLabel lineAvgScoreResult, rtmAvgScoreResult, scrAvgScoreResult;
+	private JLabel lineAvgGamesLabel, rtmAvgGamesLabel, scrAvgGamesLabel;
+	private JLabel lineAvgGamesResult, rtmAvgGamesResult, scrAvgGamesResult;
+	private JLabel lineAvgPrecLabel, rtmAvgPrecLabel, scrAvgPrecLabel;
 	private JPanel treePanel;
+	private JScrollPane treeScrollPanel;
 	private JTree statsList;
 	private DefaultMutableTreeNode selNode; // currently selected node
 	private GraphPanel graphPanel;
@@ -89,6 +96,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		setLayout(null);
 		
 		topBar = new RoundPanel(Color.decode("0xE7A935"), Color.decode("0xE7E734"));
+		topBar.setBorderColor(Color.decode("0xE7A935"));
 		topBar.setBounds(5, 5, d.width - 10, topBarHeight);
 		topBar.setLayout(null);
 		
@@ -99,24 +107,108 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		homeBtn.setBackground(Color.decode("0x8FC6E9"));
 		homeBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/home.png")).getImage());
 
-		gameTypePanel = new RoundPanel();
-		gameTypePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 5));
-		gameTypePanel.setBackground(Color.decode("0xeeeeee"));
-		gameTypePanel.setBounds(90, 5, 600, 30);
-		//gameTypePanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 40, 220));
-		inlineCheckBox = new JCheckBox(appBundle.getString("_menuNotereading"), true);
-		inlineCheckBox.addActionListener(this);
-		rhythmCheckBox = new JCheckBox(appBundle.getString("_menuRythmreading"), true);
-		rhythmCheckBox.addActionListener(this);
-		scoreCheckBox = new JCheckBox(appBundle.getString("_menuScorereading"), true);
-		scoreCheckBox.addActionListener(this);
+		int panelsWidth = ((d.width - 100) / 3) - 5;
+		int panelXPos = 90;
 		
-		gameTypePanel.add(inlineCheckBox);
-		gameTypePanel.add(rhythmCheckBox);
-		gameTypePanel.add(scoreCheckBox);
+		linePanel = new RoundPanel(Color.decode("0xA1D5A6"), Color.decode("0xC0FFC6"));
+		linePanel.setLayout(null);
+		//linePanel.setBackground(new Color(0xC0, 0xFF, 0xC6));
+		linePanel.setBorderColor(new Color(0x38, 0xC1, 0x14));
+		linePanel.setBounds(panelXPos, 5, panelsWidth, 70);
+		inlineCheckBox = new JCheckBox(appBundle.getString("_menuNotereading"), true);
+		inlineCheckBox.setFont(new Font("Arial", Font.BOLD, 12));
+		inlineCheckBox.setBounds(7, 7, panelsWidth - 14, 14);
+		inlineCheckBox.addActionListener(this);
+		lineAvgScoreLabel = new JLabel(appBundle.getString("_gameScore") + ":");
+		lineAvgScoreLabel.setBounds(7, 26, 100, 14);
+		lineAvgScoreResult = new JLabel("0");
+		lineAvgScoreResult.setFont(new Font("Arial", Font.BOLD, 12));
+		lineAvgScoreResult.setBounds(107, 26, 50, 14);
+		lineAvgGamesLabel = new JLabel(appBundle.getString("_menuExercises") + ":");
+		lineAvgGamesLabel.setBounds(7, 45, 100, 14);
+		lineAvgGamesResult = new JLabel("0");
+		lineAvgGamesResult.setFont(new Font("Arial", Font.BOLD, 12));
+		lineAvgGamesResult.setBounds(107, 45, 50, 14);
+		
+		lineAvgPrecLabel = new JLabel("");
+		lineAvgPrecLabel.setFont(new Font("Arial", Font.BOLD, 25));
+		lineAvgPrecLabel.setBounds(panelsWidth - 70, 26, 50, 35);
+
+		linePanel.add(inlineCheckBox);
+		linePanel.add(lineAvgScoreLabel);
+		linePanel.add(lineAvgScoreResult);
+		linePanel.add(lineAvgGamesLabel);
+		linePanel.add(lineAvgGamesResult);
+		linePanel.add(lineAvgPrecLabel);
+		
+		panelXPos += panelsWidth + 5;
+		rtmPanel = new RoundPanel(Color.decode("0x91AED9"), Color.decode("0xAACCFF"));
+		rtmPanel.setLayout(null);
+		//rtmPanel.setBackground(new Color(0xAA, 0xCC, 0xFF));
+		rtmPanel.setBorderColor(new Color(0x23, 0x30, 0xA3));
+		rtmPanel.setBounds(panelXPos, 5, panelsWidth, 70);
+		rhythmCheckBox = new JCheckBox(appBundle.getString("_menuRythmreading"), true);
+		rhythmCheckBox.setFont(new Font("Arial", Font.BOLD, 12));
+		rhythmCheckBox.setBounds(7, 7, panelsWidth - 14, 14);
+		rhythmCheckBox.addActionListener(this);
+		rtmAvgScoreLabel = new JLabel(appBundle.getString("_gameScore") + ":");
+		rtmAvgScoreLabel.setBounds(7, 25, 100, 14);
+		rtmAvgScoreResult = new JLabel("0");
+		rtmAvgScoreResult.setFont(new Font("Arial", Font.BOLD, 12));
+		rtmAvgScoreResult.setBounds(107, 26, 50, 14);
+		rtmAvgGamesLabel = new JLabel(appBundle.getString("_menuExercises") + ":");
+		rtmAvgGamesLabel.setBounds(7, 42, 100, 14);
+		rtmAvgGamesResult = new JLabel("0");
+		rtmAvgGamesResult.setFont(new Font("Arial", Font.BOLD, 12));
+		rtmAvgGamesResult.setBounds(107, 45, 50, 14);
+		
+		rtmAvgPrecLabel = new JLabel("");
+		rtmAvgPrecLabel.setFont(new Font("Arial", Font.BOLD, 25));
+		rtmAvgPrecLabel.setBounds(panelsWidth - 70, 26, 50, 35);
+
+		rtmPanel.add(rhythmCheckBox);
+		rtmPanel.add(rtmAvgScoreLabel);
+		rtmPanel.add(rtmAvgScoreResult);
+		rtmPanel.add(rtmAvgGamesLabel);
+		rtmPanel.add(rtmAvgGamesResult);
+		rtmPanel.add(rtmAvgPrecLabel);
+		
+		panelXPos += panelsWidth + 5;
+		scrPanel = new RoundPanel(Color.decode("0xDE7373"), Color.decode("0xFF8484"));
+		scrPanel.setLayout(null);
+		//scrPanel.setBackground(new Color(0xFF, 0x84, 0x84));
+		scrPanel.setBorderColor(new Color(0x9C, 0x13, 0x13));
+		scrPanel.setBounds(panelXPos, 5, panelsWidth, 70);
+		scoreCheckBox = new JCheckBox(appBundle.getString("_menuScorereading"), true);
+		scoreCheckBox.setFont(new Font("Arial", Font.BOLD, 12));
+		scoreCheckBox.setBounds(7, 7, panelsWidth - 14, 14);
+		scoreCheckBox.addActionListener(this);
+		scrAvgScoreLabel = new JLabel(appBundle.getString("_gameScore") + ":");
+		scrAvgScoreLabel.setBounds(7, 24, 100, 14);
+		scrAvgScoreResult = new JLabel("0");
+		scrAvgScoreResult.setFont(new Font("Arial", Font.BOLD, 12));
+		scrAvgScoreResult.setBounds(107, 26, 50, 14);
+		scrAvgGamesLabel = new JLabel(appBundle.getString("_menuExercises") + ":");
+		scrAvgGamesLabel.setBounds(7, 42, 100, 14);
+		scrAvgGamesResult = new JLabel("0");
+		scrAvgGamesResult.setFont(new Font("Arial", Font.BOLD, 12));
+		scrAvgGamesResult.setBounds(107, 45, 50, 14);
+		
+		scrAvgPrecLabel = new JLabel("");
+		scrAvgPrecLabel.setFont(new Font("Arial", Font.BOLD, 25));
+		scrAvgPrecLabel.setBounds(panelsWidth - 70, 26, 50, 35);
+		
+		scrPanel.add(scoreCheckBox);
+		scrPanel.add(scrAvgScoreLabel);
+		scrPanel.add(scrAvgScoreResult);
+		scrPanel.add(scrAvgGamesLabel);
+		scrPanel.add(scrAvgGamesResult);
+		scrPanel.add(scrAvgPrecLabel);
 		
 		topBar.add(homeBtn);
-		topBar.add(gameTypePanel);
+		topBar.add(linePanel);
+		topBar.add(rtmPanel);
+		topBar.add(scrPanel);
 		
 		// retrieve the list of stats file saved during exercises
 		currDir = new File(".");
@@ -140,13 +232,16 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		Border defBorder = UIManager.getBorder(treePanel);
 		treePanel.setBorder(BorderFactory.createTitledBorder(defBorder, "", TitledBorder.LEADING, TitledBorder.TOP));
 		treePanel.setBounds(5, topBarHeight + 10, 200, d.height - topBarHeight - 15);
-		//treePanel.add(statsList);
+		
+		//treeScrollPanel = new JScrollPane();
+		//treeScrollPanel.setLayout(null);
+		//treeScrollPanel.setBackground(Color.decode("0xFFFFD5"));
+		//treeScrollPanel.setBounds(5, 5, 190, d.height - topBarHeight - 25);
+		//treePanel.add(treeScrollPanel);
 		
 		graphPanel = new GraphPanel();
 		graphPanel.setBackground(Color.white);
 		graphPanel.setBounds(210, topBarHeight + 10, d.width - 220, d.height - topBarHeight - 15);
-		
-
 		
 		add(topBar);
 		add(treePanel);
@@ -159,8 +254,21 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 	{
 		appBundle = bundle;
 		
+		inlineCheckBox.setText(appBundle.getString("_menuNotereading"));
+		rhythmCheckBox.setText(appBundle.getString("_menuRythmreading"));
+		scoreCheckBox.setText(appBundle.getString("_menuScorereading"));
+		
+		lineAvgScoreLabel.setText(appBundle.getString("_gameScore") + ":");
+		rtmAvgScoreLabel.setText(appBundle.getString("_gameScore") + ":");
+		scrAvgScoreLabel.setText(appBundle.getString("_gameScore") + ":");
+		
+		lineAvgGamesLabel.setText(appBundle.getString("_menuExercises") + ":");
+		rtmAvgGamesLabel.setText(appBundle.getString("_menuExercises") + ":");
+		scrAvgGamesLabel.setText(appBundle.getString("_menuExercises") + ":");
+		
+		
 		if (statsList != null)
-			treePanel.remove(statsList);
+			treePanel.remove(treeScrollPanel);
 
 		if (SDSfiles.length != 0)
 		{
@@ -182,8 +290,11 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		statsList.setBackground(Color.decode("0xFFFFD5"));
 		statsList.setBounds(5, 5, 170, getHeight() - topBarHeight - 30);
 		
-		treePanel.add(statsList);
-		
+		treeScrollPanel = new JScrollPane(statsList);
+		Border border = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+		treeScrollPanel.setBorder(border);
+		treePanel.add(treeScrollPanel);
+		updateResults();
 	}
 	
 	public void actionPerformed(ActionEvent ae)
@@ -201,6 +312,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			showGame[2] = scoreCheckBox.isSelected();
 		}
 		graphPanel.repaint();
+		updateResults();
 	}
 	
 	/*
@@ -327,6 +439,53 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		{
 		  System.out.println("An exception occured while reading the file !!");	
 		}
+	}
+	
+	public void updateResults()
+	{
+		// TODO
+		lineAvgScoreResult.setText("");
+		rtmAvgScoreResult.setText("");
+		scrAvgScoreResult.setText("");
+		lineAvgGamesResult.setText("");
+		rtmAvgGamesResult.setText("");
+		scrAvgGamesResult.setText("");
+		lineAvgPrecLabel.setText("");
+		rtmAvgPrecLabel.setText("");
+		scrAvgPrecLabel.setText("");
+		
+		long[][] AVGvalues = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+		
+		
+		for (int s = 0; s < currentStats.size(); s++)
+		{
+			statRecord tmpRec = currentStats.get(s);
+			if ( showGame[tmpRec.gameType] == false) // if game disabled skip it
+				continue;
+			if (singleDay != -1 && tmpRec.day != singleDay)
+				continue;
+			AVGvalues[tmpRec.gameType][0] += tmpRec.totalScore;
+			AVGvalues[tmpRec.gameType][1] += tmpRec.avgPrecision;
+			AVGvalues[tmpRec.gameType][2]++;
+		}
+		if (AVGvalues[0][2] > 0)
+		{
+			lineAvgScoreResult.setText(Integer.toString((int)(AVGvalues[0][0] / AVGvalues[0][2])));
+			lineAvgPrecLabel.setText(Integer.toString((int)(AVGvalues[0][1] / AVGvalues[0][2])) + "%");
+			lineAvgGamesResult.setText(Integer.toString((int)(AVGvalues[0][2])));
+		}
+		if (AVGvalues[1][2] > 0)
+		{
+			rtmAvgScoreResult.setText(Integer.toString((int)(AVGvalues[1][0] / AVGvalues[1][2])));
+			rtmAvgPrecLabel.setText(Integer.toString((int)(AVGvalues[1][1] / AVGvalues[1][2])) + "%");
+			rtmAvgGamesResult.setText(Integer.toString((int)(AVGvalues[1][2])));
+		}
+		if (AVGvalues[2][2] > 0)
+		{
+			scrAvgScoreResult.setText(Integer.toString((int)(AVGvalues[2][0] / AVGvalues[2][2])));
+			scrAvgPrecLabel.setText(Integer.toString((int)(AVGvalues[2][1] / AVGvalues[2][2])) + "%");
+			scrAvgGamesResult.setText(Integer.toString((int)(AVGvalues[2][2])));
+		}
 		
 	}
 	
@@ -364,11 +523,8 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		    }
 		    else if (node.getLevel() == 2)
 		    {
-		    	String lbl = node.toString();
-		    	System.out.println("Node label: " + lbl);
-		    	String[] lblFields = lbl.split(" ");
-		    	
-		    	System.out.println("Day: " + lblFields[lblFields.length - 1]);
+		    	String[] lblFields = node.toString().split(" ");
+		    	System.out.println("Day: " + lblFields[lblFields.length - 1] + " selected");
 		    	singleDay = Integer.parseInt(lblFields[lblFields.length - 1]);
 		    	graphPanel.repaint();
 		    }
@@ -379,9 +535,21 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 		g.setColor(this.getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
+		int panelsWidth = ((getWidth() - 100) / 3) - 5;
+		int panelXPos = 90;
+		
 		topBar.setBounds(5, 5, getWidth() - 10, topBarHeight);
+		linePanel.setBounds(panelXPos, 5, panelsWidth, 70);
+		lineAvgPrecLabel.setBounds(panelsWidth - 60, 22, 50, 35);
+		panelXPos += panelsWidth + 5;
+		rtmPanel.setBounds(panelXPos, 5, panelsWidth, 70);
+		rtmAvgPrecLabel.setBounds(panelsWidth - 60, 22, 50, 35);
+		panelXPos += panelsWidth + 5;
+		scrPanel.setBounds(panelXPos, 5, panelsWidth, 70);
+		scrAvgPrecLabel.setBounds(panelsWidth - 60, 22, 50, 35);
 		treePanel.setBounds(5, topBarHeight + 10, 210, getHeight() - topBarHeight - 15);
-		statsList.setBounds(10, 10, 190, getHeight() - topBarHeight - 30);
+		treeScrollPanel.setBounds(7, 7, 196, getHeight() - topBarHeight - 30);
+		//statsList.setBounds(10, 10, 180, getHeight() - topBarHeight - 50);
 		graphPanel.setBounds(230, topBarHeight + 10, getWidth() - 250, getHeight() - topBarHeight - 15);
 	}
 	
@@ -460,7 +628,6 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			g.drawLine(xPos, 30, xPos, graphH + 30);
 			g.drawLine(xPos, 30 + graphH, xPos + graphW, 30 + graphH);
 			
-			
 			int tmpDay = 0;
 			int tmpExCount = 0;
 			int exerciseMaxCount = 0;
@@ -479,7 +646,6 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				
 				if (singleDay == -1) // count the exercises only in the month view
 				{
-				  
 				  if (tmpRec.day != tmpDay)
 				  {
 					tmpDay = tmpRec.day;
@@ -502,7 +668,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				xAxisStep =  graphW / (maxCount - 1);
 			System.out.println("---> xAxisStep = " + xAxisStep);
 
-			if (xAxisStep < 10)
+			if (xAxisStep < 10 && xAxisStep != 0)
 			{
 				maxCount = daysPlayed;
 				xAxisStep = graphW / (maxCount - 1);
@@ -527,20 +693,25 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				scoreDiff = 1;
 			
 			// draw Y axis labels
-			g.setFont(new Font("Arial", Font.BOLD, 12));
-			for (int y = yPos, c = 0; y < yPos + graphH - 20; y+=((graphH - 20) / 10), c++)
+			g.setFont(new Font("Arial", Font.PLAIN, 12));
+			if (maxCount == 1)
 			{
+				g.drawString(Integer.toString(maxScore), 0, yPos + (graphH / 2));
+				g.drawLine(32, yPos + (graphH / 2), 35, yPos + (graphH / 2));
+			}
+			else
+			{
+			  for (int y = yPos, c = 0; y < yPos + graphH - 20; y+=((graphH - 20) / 10), c++)
+			  {
 				g.drawString(Integer.toString(maxScore - (c * scoreStep)), 0, y + 5);
 				g.drawLine(32, y, 35, y);
+			  }
 			}
 			
 			xPos = 37;
 			int[][] lastPos = { { 0, 0 }, { 0, 0 }, { 0, 0 } }; // keeps last x,y position to trace a line
 			long[][] avgScores = { { 0, 0 }, { 0, 0 }, { 0, 0 } }; // in daysView mode use this to elapse average score (total score, count) 
 			int prevDay = 0;
-			
-			if (daysView == true)
-				prevDay = currentStats.get(0).day;
 			
 			// scan the whole stats list (skipping disabled data) and display the chart
 			for (int s = 0; s < currentStats.size(); s++)
@@ -557,10 +728,11 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				{
 				  relYPos = ((tmpRec.totalScore - minScore) * (graphH - 20)) / scoreDiff;
 				  relYPos = graphH - 20 - relYPos;
+				  //System.out.println("count = " + sCount[tmpRec.gameType]);
 				  if (sCount[tmpRec.gameType] == 1)
 				  {
 				    g.setColor(getGameColor(tmpRec.gameType));
-				    g.drawLine(37, yPos + relYPos, 37 + graphW, yPos + relYPos);
+				    g.drawLine(37, yPos + (graphH / 2), 37 + graphW, yPos + (graphH / 2));
 				    continue;
 				  }
 				  g.setColor(getGameColor(tmpRec.gameType));
@@ -582,9 +754,17 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				else
 				{
 				  // increase the daysView counters here
-				  if (tmpRec.day != prevDay)
+				  if (prevDay == 0)
 				  {
-					relYPos = (((int)(avgScores[tmpRec.gameType][0]/avgScores[tmpRec.gameType][1]) - minScore) * (graphH - 20)) / scoreDiff;
+				    prevDay = tmpRec.day;
+				  }
+				  else if (tmpRec.day != prevDay)
+				  {
+					System.out.println("totalScore: " + avgScores[tmpRec.gameType][0] + ", count: " + avgScores[tmpRec.gameType][1]);
+					if (avgScores[tmpRec.gameType][0] == 0)
+						relYPos = 0;
+					else
+						relYPos = (((int)(avgScores[tmpRec.gameType][0]/avgScores[tmpRec.gameType][1]) - minScore) * (graphH - 20)) / scoreDiff;
 					relYPos = graphH - 20 - relYPos;
 				    if (lastPos[tmpRec.gameType][0] != 0 && lastPos[tmpRec.gameType][1] != 0)
 				    {
@@ -592,7 +772,7 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				    	g.drawLine(lastPos[tmpRec.gameType][0], lastPos[tmpRec.gameType][1], xPos, yPos + relYPos);
 				    }
 				    g.setColor(Color.black);
-					g.drawString(Integer.toString(tmpRec.day), xPos - 4, graphH + 50);
+					g.drawString(Integer.toString(prevDay), xPos - 4, graphH + 50);
 					prevDay = tmpRec.day;
 				    
 				    lastPos[tmpRec.gameType][0] = xPos;
@@ -607,6 +787,22 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 				}
 			}
 			
+			if (daysView == true)
+			{
+				for (int v = 0; v < 3; v++)
+				{
+					if (lastPos[v][0] != 0 && lastPos[v][1] != 0)
+				    {
+						int relYPos = (((int)(avgScores[v][0]/avgScores[v][1]) - minScore) * (graphH - 20)) / scoreDiff;
+						relYPos = graphH - 20 - relYPos;
+				    	g.setColor(getGameColor(v));
+				    	g.drawLine(lastPos[v][0], lastPos[v][1], xPos, yPos + relYPos);
+				    	g.setColor(Color.black);
+						g.drawString(Integer.toString(prevDay), xPos - 4, graphH + 50);
+				    }
+				}
+			}
+
 			// draw next day TODO: improve this
 			//g.setColor(Color.black);
 			//g.drawString(Integer.toString(prevDay + 1), xPos - xAxisStep - 4, graphH + 50);

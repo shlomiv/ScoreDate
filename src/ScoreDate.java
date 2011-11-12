@@ -122,7 +122,7 @@ public class ScoreDate extends JFrame implements ActionListener
 				 prefs.storeProperties();
 			 }
 		 }
-		 if ("he".equals(language) || "hu".equals(language) || "ru".equals(language))
+		 if ("he".equals(language) || "hu".equals(language) || "ru".equals(language) || "eo".equals(language))
 		 {
 			try 
 			{
@@ -369,7 +369,7 @@ public class ScoreDate extends JFrame implements ActionListener
 
 	 private void updateLanguage()
 	 {
-		if ("iw".equals(language) || "he".equals(language) || "hu".equals(language) || "ru".equals(language))
+		if ("iw".equals(language) || "he".equals(language) || "hu".equals(language) || "ru".equals(language) || "eo".equals(language))
 		{
 			try 
 			{

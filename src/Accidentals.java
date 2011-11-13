@@ -126,6 +126,7 @@ public class Accidentals {
 
     private void drawAlteration(Graphics g, Font f, int x, int y, String altType) 
     {
+    	((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setColor(Color.black);
 		g.setFont(f.deriveFont(54f));
 		if (altType == "B")
@@ -136,12 +137,9 @@ public class Accidentals {
 
 	public void paint(Graphics g, Font f, int xPos, int yPos, int clefMask) 
 	{
-		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
 	    String sharp = "B"; // # alteration
 	    String flat = "b"; // b alteration
 	    int clefOffset = 0;
-
 	    
 	    if (clefMask == appPrefs.BASS_CLEF)
 	    	clefOffset = 10;

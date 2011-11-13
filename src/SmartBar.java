@@ -251,7 +251,7 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 			// WARNING !!!! If you change these entries you must change indexes of 
 			// InlinePanel.setLearningInfo and InlinePanel.setGameType !!!!
 			gameType.addItem(appBundle.getString("_notes"));
-			//gameType.addItem(appBundle.getString("_alterednotes"));
+			gameType.addItem(appBundle.getString("_alterednotes"));
 			//gameType.addItem(appBundle.getString("_customnotes"));
 			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_second"));
 			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_third"));

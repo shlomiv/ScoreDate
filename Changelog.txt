@@ -1,17 +1,20 @@
-November ???, 2011 - 1.0 beta
+November 13th, 2011 - 1.0
 
-- line game: fixed intervals and chords including learning info
+- NEW: added statistics panel showing monthly and daily views
+- line game: added random accidentals exercise
+- line game: fixed intervals and chords display
+- line game: fixed learning info on altered notes
+- line game: fixed accidentals rendering for alto and tenor clef
 - line game: added combo box to select how many notes to play on line game
 - line game: notes number and progress bar are disabled in learning mode
 - line game: can be started by pressing C3
 - score reading: added pauses when double clef is on
 - rhythm game: always shows one clef
-- added accidentals offset for alto and tenor clef 
 - fixed SmartBar and GameBar resize when going fullscreen
 - games are stopped when going to home screen
 - MusiSyncForScoreDate passed FontForge validation + improved sharp symbol
 - added icon to main window 
-- fixed italian translation for intervals
+- fixed italian translation
 
 November 5th, 2011 - 1.0 alpha
 

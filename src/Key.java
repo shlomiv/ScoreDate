@@ -32,7 +32,7 @@ public class Key extends JButton
     int noteState = OFF;
     boolean is_black = false;
     int pitch;
-    int noteIndex; // holds the idex of the seven note scale (A, B, C, D, E, F, G)
+    int noteIndex; // holds the index of the seven note scale (C, D, E, F, G, A, B)
     int offx; // just for black keys since they have an irregular pattern
 
     public Key(int x, int y, int w, int h, int kpitch, int idx, int offset, boolean black) 

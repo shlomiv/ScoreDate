@@ -73,8 +73,9 @@ public class Preferences
 	public int SCORE_GAME_USER     = 6;
 	
 	public int NOTE_NORMAL		   = 0;
-	public int NOTE_INTERVALS      = 1;
-	public int NOTE_CHORDS   	   = 2;
+	public int NOTE_ACCIDENTALS	   = 1;
+	public int NOTE_INTERVALS      = 2;
+	public int NOTE_CHORDS   	   = 3;
 
 	Properties prefs = new Properties();
 

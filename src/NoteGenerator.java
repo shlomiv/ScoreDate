@@ -353,14 +353,12 @@ public class NoteGenerator
     	return randomPitchList.get(randomPitchList.size() - 1).pitch;
     }
     
-    public boolean isAlterated(int noteIdx)
+    public int getAlteration(int pitch)
     {
-    	if (accidentals.getType() == "#" && sharpsMatrix[accidentals.getNumber()][noteIdx] == 1)
-    		return true;
-    	else if (accidentals.getType() == "b" && flatsMatrix[accidentals.getNumber()][noteIdx] == 1)
-    		return true;
-    	return false;
+    	int idx = alteredList.indexOf(pitch);
+    	return alteredList.get(idx) - baseList.get(idx);
     }
+    
     
     private int getRhythmPitch(int clef)
     {
@@ -376,7 +374,7 @@ public class NoteGenerator
 		return 71;
     }
     
-    public Note getRandomNote(int forcedType)
+    public Note getRandomNote(int forcedType, boolean altered)
     {
     	int randIdx = (int) (randomPitchList.size() * Math.random());
     	Note tmpNote  = randomPitchList.get(randIdx);
@@ -386,6 +384,35 @@ public class NoteGenerator
     	Note randNote = new Note(0, tmpNote.clef, tmpNote.level, tmpNote.pitch, type, tmpNote.secondRow, tmpNote.altType);
     	randNote.type = type;
     	randNote.duration = randNote.getDuration(type);
+    	
+    	if (altered == true)
+    	{
+    		int randAlt = (int)(Math.random() * 3) - 1; // get a value between -1 and +1
+    		int altIdx = alteredList.indexOf(randNote.pitch);
+    		int altOffset = alteredList.get(altIdx) - baseList.get(altIdx);
+    		
+    		//System.out.println("[NG getRandomNote] pitch: " + randNote.pitch + ", randAlt: " + randAlt + ", altOffset: " + altOffset);
+    		randNote.pitch += randAlt;
+    		
+    		switch (altOffset)
+    		{
+    			case 0:
+    				randNote.altType = randAlt;
+    			break;
+    			case -1:
+    				if (randAlt == 1)
+    					randNote.altType = 2; // natural needed
+    				else if (randAlt == -1)
+    					randNote.level++;
+    			break;
+    			case 1:
+    				if (randAlt == -1)
+    					randNote.altType = 2; // natural needed
+    				else if (randAlt == 1)
+    					randNote.level--;
+    			break;
+    		}
+    	}
 
     	//System.out.println("[NG getRandomNote] clef: " + baseRangeClef + ", addRangeIndex: " + addRangeIndex);
     	//System.out.println("selClef: " + selClef + ", level: " + level);
@@ -444,7 +471,7 @@ public class NoteGenerator
     		eighthPresent = false;
     		while (measureCounter != 0)
     		{
-    			Note tmpNote = getRandomNote(-1);
+    			Note tmpNote = getRandomNote(-1, false);
     			if (tmpNote.type == 4) // triplet
     			{
     				
@@ -534,7 +561,7 @@ public class NoteGenerator
     	}
     	
     	int[] addNotes = { 0, 0 };
-    	Note baseNote = getRandomNote(0);
+    	Note baseNote = getRandomNote(0, false);
     	
     	System.out.println("[getRandomChordorInterval] randType: " + randType);
     	

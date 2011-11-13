@@ -207,6 +207,8 @@ public class InlinePanel extends JPanel implements ActionListener
 				gameSubType = appPrefs.NOTE_NORMAL; 
 			break;
 			case 1:
+				gameSubType = appPrefs.NOTE_ACCIDENTALS;
+			break;
 			case 2:
 			case 3:
 			case 4:
@@ -215,10 +217,11 @@ public class InlinePanel extends JPanel implements ActionListener
 			case 7:
 			case 8:
 			case 9:
+			case 10:
 				gameSubType = appPrefs.NOTE_INTERVALS;
-				gameInterval = subGameIdx + 1;
+				gameInterval = subGameIdx;
 			break;
-			case 10: 
+			case 11: 
 				gameSubType = appPrefs.NOTE_CHORDS; 
 			break;
 		}
@@ -247,11 +250,29 @@ public class InlinePanel extends JPanel implements ActionListener
 
 		if (enable == true)
 		{
-			if (noteIdx != 2 && noteIdx != 6) // E and B are already OK
+			// find out if there are accidentals first
+			int altType = 0;
+			if (gameSubType == appPrefs.NOTE_ACCIDENTALS)
 			{
-				if (inlineNG.isAlterated(noteIdx) == true)
-					altInfo = inlineAccidentals.getType();
+				altType = gameNotes.get(0).altType;
+				if (altType == 0) // maybe the alteration is on the clef. Check it out
+					altType = inlineNG.getAlteration(gameNotes.get(0).pitch);
 			}
+			else
+				altType = inlineNG.getAlteration(gameNotes.get(0).pitch);
+				
+			if (altType == 1)
+			{
+				if (noteIdx != 2 && noteIdx != 6 && piano.isSelectedBlack() == true) // E and B are already OK
+					altInfo = "#";
+			}
+			else if (gameNotes.get(0).altType == -1)
+			{
+				altInfo = "b";
+				noteIdx++;
+				if (noteIdx == 7) noteIdx = 0;
+			}
+
 			if (gameSubType != appPrefs.NOTE_INTERVALS)
 			{
 			  switch (noteIdx)
@@ -280,7 +301,7 @@ public class InlinePanel extends JPanel implements ActionListener
 			if (gameSubType == appPrefs.NOTE_INTERVALS)
 			{
 				chord = " ";
-				int intervalType = sBar.gameType.getSelectedIndex() + 1;
+				int intervalType = sBar.gameType.getSelectedIndex();
 				String keyStr = "";
 				switch (intervalType)
 				{
@@ -633,7 +654,11 @@ public class InlinePanel extends JPanel implements ActionListener
 						}
 						else
 						{
-							Note newNote = inlineNG.getRandomNote(0);
+							Note newNote;
+							if (gameSubType == appPrefs.NOTE_ACCIDENTALS)
+								newNote = inlineNG.getRandomNote(0, true);
+							else
+								newNote = inlineNG.getRandomNote(0, false);
 							newNote.duration = 0; // set duration to 0 not to mess up X position
 							newNote.xpos = noteXStartPos;
 							gameNotes.add(newNote);

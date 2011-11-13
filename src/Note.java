@@ -24,7 +24,7 @@ public class Note
 	public double duration;
 
 	public int clef; // note clef
-	public int altType; // alteration to be displayed. Can be: -1 = flat, 0 = none, 1 = sharp
+	public int altType; // alteration to be displayed. Can be: -2 = double flat, -1 = flat, 0 = none, 1 = sharp, 2 = natural
 	public boolean secondRow; // indicates whether the note is on the first or second row
 	public int level; // note level as handled in the ClefSelector
 	public int addLinesNumber; // number of additional lines (if present)

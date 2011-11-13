@@ -32,7 +32,6 @@ public class Piano extends JPanel
   Vector<Key> keys = new Vector<Key>(); // Array of whiteKeys + blackKeys
   
   // painting parameters
-  boolean paintArrows = true;
   int currentWidth = 0;
   
   int keysNumber = 73;
@@ -40,16 +39,12 @@ public class Piano extends JPanel
   int firstHighPitch = 42;  
   int secondLowPitch = 70;
   int secondHighPitch = 75;
-  int pitchcourant0 = 0;
-  int pitchcourant1 = 0;
-  int pitchcourant2 = 0;
+  int selectedKeyIndex = -1;
 
   // Keys dimensions and offsets
-  Key prevKey;
   final int kw = 16, kh = 80;
   final int ypos = 5;
   int leftMargin = 43;
-  
 
   public Piano(int l) 
   {
@@ -76,6 +71,7 @@ public class Piano extends JPanel
     setLayout(null);
 
     int whiteIDs[] = { 0, 2, 4, 5, 7, 9, 11 };
+    int blackIDs[] = { 1, 3, 6, 8, 10 };
 
     for (int i = 0, x = 0; i < octavesNumber; i++) 
     {
@@ -89,18 +85,21 @@ public class Piano extends JPanel
     whiteKeys.add(new Key(7 * octavesNumber * kw + leftMargin + 3, ypos, kw, kh, 
 			octavesNumber * 12 + transpose, 0, 0, false));
 
-    for (int i = 0, x = -1; i < octavesNumber; i++, x += kw) 
+    for (int i = 0, x = -1; i < octavesNumber; i++) 
     {
-      int keyPitch = i * 12 + transpose;
-      blackKeys.add(new Key( x += kw + leftMargin, ypos, kw / 2, kh / 2 + 11, keyPitch + 1, 0, offset, true));
-      blackKeys.add(new Key( x += kw + leftMargin, ypos, kw / 2, kh / 2 + 11, keyPitch + 3, 1, offset, true));
-      x += kw;
-      offset +=kw;
-      blackKeys.add(new Key( x += kw + leftMargin, ypos, kw / 2, kh / 2 + 11, keyPitch + 6, 3, offset, true));
-      blackKeys.add(new Key( x += kw + leftMargin, ypos, kw / 2, kh / 2 + 11, keyPitch + 8, 4, offset, true));
-      blackKeys.add(new Key( x += kw + leftMargin, ypos, kw / 2, kh / 2 + 11, keyPitch + 10, 5, offset, true));
-      offset += kw;
+      for (int j = 0, noteIdx = 0; j < 5; j++, x += kw, noteIdx++) 
+      {
+    	  int keyPitch = i * 12 + blackIDs[j] + transpose;
+    	  blackKeys.add(new Key( x += kw + leftMargin, ypos, kw / 2, kh / 2 + 11, keyPitch, noteIdx, offset, true));
+    	  if (j == 1) x += kw;
+    	  if (j == 1 || j == 4) 
+    	  {
+            offset +=kw;
+            noteIdx++;
+    	  }
+      }
     }
+
     keys.addAll(blackKeys);
     keys.addAll(whiteKeys);
     for (int i = 0; i < keys.size(); i++)
@@ -134,18 +133,31 @@ public class Piano extends JPanel
 		  if (keys.get(i).pitch == pitch)
 		  {
 			  if (enable == true)
+			  {
 				  keys.get(i).setBackground(Color.decode("0xB8D8FF"));
+			  	  selectedKeyIndex = i;
+			  }
 			  else
 			  {
 				  if (keys.get(i).is_black == true)
 					  keys.get(i).setBackground(Color.black);
 				  else
 					  keys.get(i).setBackground(Color.white);
+				  selectedKeyIndex = -1;
 			  }
+			  
 		  	  return keys.get(i).noteIndex;
 		  }
 	  }
 	  return 0;
+  }
+  
+  public boolean isSelectedBlack()
+  {
+	  if (selectedKeyIndex == -1)
+		  return false;
+
+	  return keys.get(selectedKeyIndex).is_black;
   }
 
   public boolean is73keys() 
@@ -195,29 +207,6 @@ public class Piano extends JPanel
     else
     	offx = (getWidth()/2) - 325;
 
-/*
-    if (paintArrows)
-    {
-	    // draw arrow buttons to move left hand and right hand bounds
-	    g2.setColor(new Color(152, 251, 152));
-	    g2.fill3DRect(740 + offx, 30, 30,30, true) ;
-	    g2.fill3DRect(5 + offx, 30, 30,30, true) ;
-	    g2.setColor(Color.black);
-	    g2.fillRect(745 + offx, 41, 12, 8);
-	    g2.fillRect(15 + offx, 41, 12, 8);
-	
-	    int[]x = new int[3];
-	    int[]y = new int[3]; 
-	    //     Make a triangle
-	    x[0]=756 + offx; x[1]=766 + offx; x[2]=756 + offx;
-	    y[0]=35; y[1]=45; y[2]=55;
-	    Polygon myTri = new Polygon(x, y, 3); 
-	    g2.fillPolygon(myTri);
-	    x[0]=18 + offx; x[1]=8 + offx; x[2]=18 + offx;
-	    myTri = new Polygon(x, y, 3); 
-	    g2.fillPolygon(myTri);
-    }
- */
     // repaint keys only if piano panel has been resized
     if (currentWidth != getWidth())
     {

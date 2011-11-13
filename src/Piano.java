@@ -134,7 +134,7 @@ public class Piano extends JPanel
 		  {
 			  if (enable == true)
 			  {
-				  keys.get(i).setBackground(Color.decode("0xB8D8FF"));
+				  keys.get(i).setBackground(Color.decode("0xE7A935"));
 			  	  selectedKeyIndex = i;
 			  }
 			  else

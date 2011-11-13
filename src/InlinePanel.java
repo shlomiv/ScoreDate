@@ -421,21 +421,23 @@ public class InlinePanel extends JPanel implements ActionListener
 		{
 			if (gameType == appPrefs.GAME_STOPPED)
 				appMidi.midiChannel.noteOn(k.pitch, 90);
-			noteEvent(k.pitch, 90);
+			noteEvent(k.pitch, 90, true);
 		}
 		else
 		{
 			appMidi.midiChannel.noteOff(k.pitch, 0);
-			noteEvent(k.pitch, 0);
+			noteEvent(k.pitch, 0, true);
 		}
 	}
 	
-	public void noteEvent(int pitch, int velocity)
+	public void noteEvent(int pitch, int velocity, boolean fromPiano)
 	{
 		if (velocity == 0)
 		{
 			appMidi.midiChannel.noteOff(pitch, 0);
-			if (userNotes.size() != 0)
+			if (fromPiano == true && gameSubType != appPrefs.NOTE_CHORDS && gameSubType != appPrefs.NOTE_INTERVALS &&  userNotes.size() != 0)
+				userNotes.removeElementAt(userNotes.indexOf(pitch));
+			else if (fromPiano == false	&& userNotes.size() != 0)
 				userNotes.removeElementAt(userNotes.indexOf(pitch));
 			if (pitch == 60 && gameType == appPrefs.GAME_STOPPED)
 				startGame();
@@ -458,6 +460,7 @@ public class InlinePanel extends JPanel implements ActionListener
 						setLearningInfo(false, -1);
 				  }
 				  gameNotes.clear();
+				  userNotes.clear();
 				}
 				else
 				  gameNotes.remove(0);

@@ -78,11 +78,12 @@ public class Key extends JButton
     	((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
    		//System.out.println("Draw Key: size = " + getSize().width);
     	
+    	g.setColor(Color.black);
     	if (is_black == false)
-    	{
-    		g.setColor(Color.black);
     		g.drawRoundRect(0, -7, getSize().width-1, getSize().height, 7, 7);
-    	}
+    	else
+    		g.drawRect(0, -1, getSize().width-1, getSize().height-6);
+    		
 
     	if (getModel().isArmed()) // is button being clicked ?
   	      g.setColor(Color.decode("0x869EBA"));
@@ -94,7 +95,7 @@ public class Key extends JButton
     	if (is_black == false)
     		g.fillRoundRect(1, -6, getSize().width-2, getSize().height-1, 6, 6);
     	else
-    		g.fillRect(0, 0, getSize().width, getSize().height);
+    		g.fillRect(1, 0, getSize().width-2, getSize().height-7);
     	g.setColor(Color.black);
     	g.drawLine(0,0,getSize().width,0);
 	}

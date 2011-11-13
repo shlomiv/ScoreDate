@@ -8,6 +8,7 @@ November 13th, 2011 - 1.0
 - line game: added combo box to select how many notes to play on line game
 - line game: notes number and progress bar are disabled in learning mode
 - line game: can be started by pressing C3
+- line game: chords and intervals can be played with the virtual piano too
 - score reading: added pauses when double clef is on
 - rhythm game: always shows one clef
 - fixed SmartBar and GameBar resize when going fullscreen

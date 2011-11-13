@@ -437,7 +437,7 @@ public class ScoreDate extends JFrame implements ActionListener
                 	  System.out.println("   Key pressed - Pitch: "+ pitch + " Velocity: " + vel);
 
                 	  if (inlinePanel != null && inlinePanel.isVisible() == true)
-                		  inlinePanel.noteEvent(pitch, vel);
+                		  inlinePanel.noteEvent(pitch, vel, false);
                 	  else if (rhythmPanel != null && rhythmPanel.isVisible() == true)
                 		  rhythmPanel.noteEvent(pitch, vel);
                 	  else if (scorePanel != null &&  scorePanel.isVisible() == true)

@@ -418,7 +418,7 @@ public class ScorePanel extends JPanel implements ActionListener
             	handleAsyncMIDIevent(meta);
             }
 		});
-	    playback = appMidi.createPlayback(appPrefs, currentSpeed, gameNotes, timeDivision, playOnly);
+	    playback = appMidi.createPlayback(appPrefs, currentSpeed, gameNotes, timeDivision, playOnly, false);
 		playback.addMetaEventListener(new MetaEventListener() {
           public void meta(MetaMessage meta) 
           {

@@ -339,10 +339,12 @@ public class MidiController
 		 sequencers[1].close();
 	 }
 	 
-	 public Sequencer createPlayback(Preferences p, int BPM, Vector<Note> notes, int timeDivision, boolean playOnly)
+	 public Sequencer createPlayback(Preferences p, int BPM, Vector<Note> notes, int timeDivision, boolean playOnly, boolean startImmediately)
 	 {
 		 final int metaType = 0x01;
-		 int tick = (4*timeDivision)*ppq; // ticks start after 4 metronome beats 
+		 int tick = 0;
+		 if (startImmediately == false)
+			 tick = (4*timeDivision)*ppq; // ticks start after 4 metronome beats 
 		 createSequencer(0);
 
 		 int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));

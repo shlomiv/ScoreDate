@@ -264,7 +264,7 @@ public class NoteGenerator
     	return 0;
     }
     
-    private int getPitchFromClefAndLevel(int clef, int level)
+    public int getPitchFromClefAndLevel(int clef, int level)
     {
     	if (clef == appPrefs.TREBLE_CLEF)
     		return getPitchFromLevel(TREBLE_CLEF_BASEPITCH, 20 - level);
@@ -360,7 +360,7 @@ public class NoteGenerator
     }
     
     
-    private int getRhythmPitch(int clef)
+    public int getRhythmPitch(int clef)
     {
 		if (clef == appPrefs.TREBLE_CLEF)
 			return baseList.get(baseList.indexOf(TREBLE_CLEF_BASEPITCH) + 10);

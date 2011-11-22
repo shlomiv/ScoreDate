@@ -37,9 +37,6 @@ import javax.swing.JSlider;
 
 public class MidiOptionsDialog extends JDialog implements ActionListener
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private ResourceBundle appBundle;
 	private Preferences appPrefs;

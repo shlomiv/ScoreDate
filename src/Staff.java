@@ -70,6 +70,7 @@ public class Staff extends JPanel
     private int scoreLineWidth;
     
     private boolean inlineMode = false;
+    private int forcedNumberOfMeasures = -1;
     private int clefMask = 1;
     private Vector<Integer> clefs = new Vector<Integer>();
     private Accidentals acc; // accidentals reference used for drawing
@@ -128,6 +129,11 @@ public class Staff extends JPanel
        	return tmpMeas * tmpRows;
     }
     
+    public void setMeasuresNumber(int num)
+    {
+    	forcedNumberOfMeasures = num;
+    }
+    
     public int getNotesDistance()
     {
     	return noteDistance;
@@ -175,7 +181,10 @@ public class Staff extends JPanel
         
         if (inlineMode == false)
         {
-        	numberOfMeasures = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
+        	if (forcedNumberOfMeasures == -1)
+        		numberOfMeasures = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
+        	else
+        		numberOfMeasures = forcedNumberOfMeasures;
         	numberOfRows = getHeight() / rowsDistance;
         	scoreLineWidth += (numberOfMeasures * (timeSignNumerator * noteDistance));
         }
@@ -217,8 +226,6 @@ public class Staff extends JPanel
     		
     		// 2 - Draw accidentals
        		acc.paint(g, appFont, clefWidth, yPos, clefs.get(0));
-        	
-        	// TODO: add ALTO and TENOR accidentals here
         	
         	// 3 - Draw tonality (only on the first row)
         	if (r == 0)

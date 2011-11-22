@@ -43,7 +43,7 @@ import javax.sound.midi.Transmitter;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -69,6 +69,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	 private ScorePanel rhythmPanel = null;
 	 private ScorePanel scorePanel = null;
 	 private StatsPanel statsPanel = null;
+	 private ExercisesPanel exsPanel = null;
 	 
 	 // MIDI Resources
 	 public MidiController midiControl;
@@ -83,6 +84,7 @@ public class ScoreDate extends JFrame implements ActionListener
      private static int RHYTHMREADING = 2;
      private static int SCOREREADING = 3;
      private static int STATISTICS = 4;
+     private static int EXERCISES = 5;
      
      private int transposition = 0;
 
@@ -216,9 +218,9 @@ public class ScoreDate extends JFrame implements ActionListener
 	 public void actionPerformed(ActionEvent ae)
 	 {
 		 System.out.println("Event received !! (cmd:" + ae.getActionCommand() + ")");
+		 Dimension wSize = new Dimension(getWidth(), getHeight());
 		 if (ae.getSource() == homePanel.inlineBtn)
 		 {
-			 Dimension wSize = new Dimension(getWidth(), getHeight());
 			 homePanel.setVisible(false);
 			 inlinePanel = new InlinePanel(MusiSync, bundle, prefs, midiControl, wSize);
 			 getContentPane().add(inlinePanel);
@@ -228,7 +230,6 @@ public class ScoreDate extends JFrame implements ActionListener
 		 }
 		 else if (ae.getSource() == homePanel.rhythmBtn)
 		 {
-			 Dimension wSize = new Dimension(getWidth(), getHeight());
 			 homePanel.setVisible(false);
 			 rhythmPanel = new ScorePanel(MusiSync, bundle, prefs, midiControl, wSize, true);
 			 getContentPane().add(rhythmPanel);
@@ -238,7 +239,6 @@ public class ScoreDate extends JFrame implements ActionListener
 		 }
 	     else if (ae.getSource() == homePanel.scoreBtn)
 		 {
-			 Dimension wSize = new Dimension(getWidth(), getHeight());
 			 homePanel.setVisible(false);
 			 scorePanel = new ScorePanel(MusiSync, bundle, prefs, midiControl, wSize, false);
 			 getContentPane().add(scorePanel);
@@ -248,7 +248,6 @@ public class ScoreDate extends JFrame implements ActionListener
 		 }
 	     else if (ae.getSource() == homePanel.statsBtn)
 	     {
-	    	 Dimension wSize = new Dimension(getWidth(), getHeight());
 			 homePanel.setVisible(false);
 			 statsPanel = new StatsPanel(MusiSync, bundle, prefs, wSize);
 			 getContentPane().add(statsPanel);
@@ -258,35 +257,52 @@ public class ScoreDate extends JFrame implements ActionListener
 	     }
 	     else if (ae.getSource() == homePanel.lessonsBtn)
 	     {
-	    	 JOptionPane.showMessageDialog(this.getParent(), "<html><b>Coming soon !</b></html>",
-	    			 bundle.getString("_menuLessons"), JOptionPane.INFORMATION_MESSAGE);
+	    	// JOptionPane.showMessageDialog(this.getParent(), "<html><b>Coming soon !</b></html>",
+	    	//		 bundle.getString("_menuLessons"), JOptionPane.INFORMATION_MESSAGE);
+			 homePanel.setVisible(false);
+	    	 exsPanel = new ExercisesPanel(MusiSync, bundle, prefs, midiControl, wSize);
+			 getContentPane().add(exsPanel);
+			 exsPanel.setVisible(true);
+			 currentContext = EXERCISES;
+			 exsPanel.homeBtn.addActionListener(this);
 	     }		 
 	     else if (inlinePanel != null && ae.getSource() == inlinePanel.sBar.homeBtn)
 	     {
 	    	 inlinePanel.stopGame();
-	    	 inlinePanel.setVisible(false);
+	    	 this.remove(inlinePanel);
+	    	 inlinePanel = null;
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
 	     }
 	     else if (rhythmPanel != null && ae.getSource() == rhythmPanel.sBar.homeBtn)
 	     {
 	    	 rhythmPanel.stopGame();
-	    	 rhythmPanel.setVisible(false);
+	    	 this.remove(rhythmPanel);
+	    	 rhythmPanel = null;
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
 	     }
 	     else if (scorePanel != null && ae.getSource() == scorePanel.sBar.homeBtn)
 	     {
 	    	 scorePanel.stopGame();
-	    	 scorePanel.setVisible(false);
+	    	 this.remove(scorePanel);
+	    	 scorePanel = null;
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
 	     }
 	     else if (statsPanel != null && ae.getSource() == statsPanel.homeBtn)
 	     {
-	    	 statsPanel.setVisible(false);
+	    	 this.remove(statsPanel);
+	    	 statsPanel = null;
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;	    	 
+	     }
+	     else if (exsPanel != null && ae.getSource() == exsPanel.homeBtn)
+	     {
+	    	 this.remove(exsPanel);
+	    	 exsPanel = null;
+	    	 homePanel.setVisible(true);
+	    	 currentContext = HOMEPANEL;	
 	     }
 	 }
 	 

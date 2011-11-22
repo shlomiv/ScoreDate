@@ -18,7 +18,6 @@ along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
 
 import java.awt.BasicStroke; 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -29,6 +28,7 @@ import java.awt.RenderingHints;
 import java.util.ResourceBundle;
 
 import javax.swing.JButton;
+import javax.swing.JPanel;
 
 public class RoundedButton extends JButton
 {
@@ -37,17 +37,25 @@ public class RoundedButton extends JButton
 	  private ResourceBundle appBundle;
 	  
 	  Image img = null;
+      Color endColor = Color.decode("0x4D5D8F");
+	  int fontSize = 20;
+	  int textOffX = 0, textOffY = 0;
+	  int imgW = -1;
+	  int imgH = -1;
 	  
 	  public RoundedButton(String label, ResourceBundle b) 
 	  {
 	    super(label);
 	    bLabel = label;
 	    appBundle = b;
-
-	    // These statements enlarge the button so that it becomes a square rather than a rectangle.
-	    Dimension size = getPreferredSize();
-	    size.width = size.height = Math.max(size.width, size.height);
-	    setPreferredSize(size);
+	  }
+	  
+	  public RoundedButton(String label, ResourceBundle b, Color eC) 
+	  {
+	    super(label);
+	    bLabel = label;
+	    appBundle = b;
+	    endColor = eC;
 	  }
 	  
 	  public void setResBundle(ResourceBundle b)
@@ -56,9 +64,28 @@ public class RoundedButton extends JButton
 		  repaint();
 	  }
 	  
+	  public void setFontSize(int size)
+	  {
+		  fontSize = size;
+	  }
+	  
+	  public void setTextOffsets(int x, int y)
+	  {
+		  textOffX = x;
+		  textOffY = y;
+		  //repaint();
+	  }
+	  
 	  public void setButtonImage(Image i)
 	  {
 		  img = i;
+	  }
+	  
+	  public void setImagSize(int w, int h)
+	  {
+		  imgW = w;
+		  imgH = h;
+		  repaint();
 	  }
 
 	  // Draw the button
@@ -66,34 +93,45 @@ public class RoundedButton extends JButton
 	  {
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		Color bgColor;
-		Color endColor = Color.decode("0x4D5D8F");
+		Color tmpColor = endColor;
 		
-		g.setColor(Color.decode("0x5F8DD3"));
-		g.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
-	    if (getModel().isArmed()) // is button being clicked ?
+		if (this.isEnabled() == false)
+		{
+			g.setColor(Color.decode("0x666666"));
+			g.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+			g.setColor(Color.decode("0xBBBBBB"));
+			g.fillRoundRect(3, 3, getSize().width-6, getSize().height-6, 27, 27);
+			g.setColor(Color.decode("0x888888"));
+		}
+		else
+		{
+		  g.setColor(Color.decode("0x5F8DD3"));
+		  g.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+	      if (getModel().isArmed()) // is button being clicked ?
 	    	bgColor = Color.decode("0x869EBA");
-	    else if (getModel().isRollover()) // rollover effect
-	    {
+	      else if (getModel().isRollover()) // rollover effect
+	      {
 	    	bgColor = Color.decode("0xB8D8FF");
-	    	endColor = Color.decode("0x667BBD");
-	    }
-	    else
+	    	tmpColor = Color.decode("0x667BBD");
+	      }
+	      else
 	    	bgColor = getBackground(); // normal state
-
-	    // gradient fill: http://www.java2s.com/Code/Java/2D-Graphics-GUI/GradientPaintdemo.htm
-	    GradientPaint vertGrad = new GradientPaint(0, 0, bgColor, 0, getHeight(), endColor);
-		((Graphics2D) g).setPaint(vertGrad);
-		g.fillRoundRect(3, 3, getSize().width-6, getSize().height-6, 27, 27);
+		
+	      // gradient fill: http://www.java2s.com/Code/Java/2D-Graphics-GUI/GradientPaintdemo.htm
+	      GradientPaint vertGrad = new GradientPaint(0, 0, bgColor, 0, getHeight(), tmpColor);
+		  ((Graphics2D) g).setPaint(vertGrad);
+		  g.fillRoundRect(3, 3, getSize().width-6, getSize().height-6, 27, 27);
+		  g.setColor(Color.black);
+		}
 
 	    int textWidth = 0;
-	    g.setColor(Color.black);
 	    int vOffset = getHeight() / 2;
 	    int hOffset = getWidth() / 2;
 	    if (bLabel == "RBL_INLINE")
 	    {
 	    	String title = appBundle.getString("_menuNotereading");
 	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
-	    	g.setFont(new Font("Arial", Font.BOLD, 22));
+	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
 	    	FontMetrics fM1 = g.getFontMetrics();
 	    	textWidth = fM1.stringWidth(title);
 	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
@@ -107,7 +145,7 @@ public class RoundedButton extends JButton
 	    {
 	    	String title = appBundle.getString("_menuRythmreading");
 	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
-	    	g.setFont(new Font("Arial", Font.BOLD, 22));
+	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
 	    	FontMetrics fM1 = g.getFontMetrics();
 	    	textWidth = fM1.stringWidth(title);
 	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
@@ -122,7 +160,7 @@ public class RoundedButton extends JButton
 	    {
 	    	String title = appBundle.getString("_menuScorereading");
 	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
-	    	g.setFont(new Font("Arial", Font.BOLD, 20));
+	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
 	    	FontMetrics fM1 = g.getFontMetrics();
 	    	textWidth = fM1.stringWidth(title);
 	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
@@ -163,7 +201,7 @@ public class RoundedButton extends JButton
 	    else if (bLabel == "RBL_STATS")
 	    {
 	    	String title = appBundle.getString("_menuStatistics");
-	    	g.setFont(new Font("Arial", Font.BOLD, 20));
+	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
 	    	FontMetrics fM1 = g.getFontMetrics();
 	    	textWidth = fM1.stringWidth(title);
 	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
@@ -179,8 +217,8 @@ public class RoundedButton extends JButton
 	    }
 	    else if (bLabel == "RBL_LESSONS")
 	    {
-	    	String title = appBundle.getString("_menuLessons");
-	    	g.setFont(new Font("Arial", Font.BOLD, 20));
+	    	String title = appBundle.getString("_menuExercises");
+	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
 	    	FontMetrics fM1 = g.getFontMetrics();
 	    	textWidth = fM1.stringWidth(title);
 	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
@@ -192,10 +230,65 @@ public class RoundedButton extends JButton
 	    	g.drawString("B", hOffset - 5, vOffset + 20);
 	    	g.drawString("C", hOffset + 20, vOffset + 40);
 	    }
+	    else
+	    {
+	    	
+	    	//g.setFont(new Font("Arial", Font.BOLD, fontSize));
+	    	FontMetrics fM1 = g.getFontMetrics(this.getFont());
+	    	textWidth = fM1.stringWidth(bLabel);
+	    	//System.out.println("------> di qua -- " + bLabel + ", text w: " + textWidth);
+	    	g.drawString(bLabel, textOffX + ((getSize().width - textWidth) / 2), textOffY + 25);
+	    }
 	    
 	    if (img != null)
 	    {
-	    	g.drawImage(img, (getWidth() - img.getWidth(null)) / 2, (getHeight() - img.getHeight(null)) / 2 , null);
+	    	if (imgW != -1)
+	    		g.drawImage(img, (getWidth() - imgW) / 2, (getHeight() - imgH) / 2 , imgW, imgH, this);
+	    	else
+	    		g.drawImage(img, (getWidth() - img.getWidth(null)) / 2, (getHeight() - img.getHeight(null)) / 2 , null);
 	    }
 	  }
 }
+
+class RoundPanel extends JPanel
+{
+	private static final long serialVersionUID = 2133404549466988014L;
+	boolean gradientBack = false;
+	Color startColor;
+	Color endColor;
+	Color borderColor = Color.decode("0x5F8DD3");
+
+	public RoundPanel()
+	{
+	}
+	
+	public RoundPanel(Color startCol, Color endCol)
+	{
+		gradientBack = true;
+		startColor = startCol;
+		endColor = endCol;
+	}
+	
+	public void setBorderColor(Color bc)
+	{
+		borderColor = bc;
+	}
+	
+	protected void paintComponent(Graphics g) 
+	{
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setColor(borderColor);
+		g.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
+		if (gradientBack == false)
+			g.setColor(getBackground());
+		else
+		{
+			GradientPaint vertGrad = new GradientPaint(0, 0, startColor, 0, getHeight(), endColor);
+			((Graphics2D) g).setPaint(vertGrad);
+		}
+		g.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, 15, 15);
+		
+		
+	}
+}
+

@@ -23,6 +23,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -30,7 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 
-public class NotesPanel extends JPanel 
+public class NotesPanel extends JPanel implements MouseListener
 {
 	private static final long serialVersionUID = -1735923156425027329L;
 	Font appFont;
@@ -44,7 +46,10 @@ public class NotesPanel extends JPanel
 	private int firstNoteXPos = 50;
 
 	private int staffWidth;
-	
+	// kinda dirty variables used by setNotesPosition
+	int tmpY = 0;
+	int tmpX = 0;
+
 	private boolean inlineMode = false;
 	private int singleNoteIndex = -1; // force the painting of a single note
 	private boolean showCursorAndBeats = false;
@@ -60,6 +65,11 @@ public class NotesPanel extends JPanel
 	int schParam3 = -1;
 	int cursorXpos = -1;
 	int cursorYpos = -1;
+	
+	// edit mode, activated from the exercise panel
+	boolean editMode = false;
+	int editNoteIndex = -1;
+	NoteGenerator editNG;
 	
 	public NotesPanel(Font f, Preferences p, Vector<Note> n, boolean inline)
 	{
@@ -81,6 +91,7 @@ public class NotesPanel extends JPanel
 		add(learningText);
 		//setDoubleBuffered(false);
     	//setBackground(Color.blue);
+		addMouseListener(this);
 	}
 
     public void setRowsDistance(int dist)
@@ -117,75 +128,94 @@ public class NotesPanel extends JPanel
     	staffWidth = w;
     }
     
+    public void setEditMode(boolean active)
+    {
+    	editMode = active;
+    }
+    
+    public void setEditNoteIndex(int idx)
+    {
+    	editNoteIndex = idx;
+    }
+    
+    public void setEditNoteGenerator(NoteGenerator ng)
+    {
+    	editNG = ng;
+    }
+    
     public void setNotesPositions()
     {
-    	int tmpX = firstNoteXPos;
-    	int tmpY = 0;
-    	
+    	tmpX = firstNoteXPos;
+    	tmpY = 0;
+
     	for (int i = 0; i < notes.size(); i++)
     	{
-    		Note note = notes.get(i);
-    		int type = note.type;
-       		int ypos = (note.level * 5) + 11;
-       		int yOffset = 0;
-    		
-    		if (tmpX >= staffWidth)
-    		{
-    			tmpX = firstNoteXPos;
-    			tmpY += rowsDistance;
-    		}
-    		
-    		if (note.secondRow == true)
-    			yOffset += (rowsDistance / 2);
-    		
-    		if (note.level < 5)
-    		{
-    			note.addLinesNumber = 3 - (note.level / 2);
-    			note.addLinesYpos = ypos + tmpY - 6 + ((note.level%2) * 5); 
-    		}
-    		else if  (note.level > 15)
-    		{
-    			note.addLinesNumber = (note.level / 2) - 7;
-    			note.addLinesYpos = ypos + tmpY - 6 - ((note.level - 16) * 5); 
-    		}
-    		
-    		if (type == 0) // whole note
-    			ypos++;
-    		else if (type == 2) // quarter note
-    		{
-    			if (note.level < 10)
-    				ypos += 41;
-    		}
-    		else if (type == 3) // eigth note
-    		{
-    			if (note.level <= 10) 
-    				ypos += 30;
-    		}
-    		else if (type == 4) // triplets
-    		{
-    			if (note.tripletValue < 0)
-    				ypos += 41;
-    		}    		
-    		else if (type == 5) // silence
-    		{
-    			if (note.duration == 4)
-    				ypos -= 16;
-    			else if (note.duration == 2)
-    				ypos -= 12;
-    			else if (note.duration == 1)
-    				ypos += 13;
-    			else if (note.duration == 0.5)
-    				ypos += 13;
-    		}
-    		
-    		notes.get(i).ypos = ypos + tmpY + yOffset;
-    		if (inlineMode == false) // the inline game controls X position itself
-    		{
-    			notes.get(i).xpos += tmpX;
-    			tmpX += (note.duration * noteDistance);
-    		}
+    		setSingleNotePositions(notes.get(i), true);
     		System.out.println("[Note: #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
     	}
+    }
+    
+    public void setSingleNotePositions(Note note, boolean setXpos)
+    {
+   		int type = note.type;
+   		int ypos = (note.level * 5) + 11;
+   		int yOffset = 0;
+
+		if (tmpX >= staffWidth)
+		{
+			tmpX = firstNoteXPos;
+			tmpY += rowsDistance;
+		}
+
+		if (note.secondRow == true)
+			yOffset += (rowsDistance / 2);
+		
+		if (note.level < 5)
+		{
+			note.addLinesNumber = 3 - (note.level / 2);
+			note.addLinesYpos = ypos + tmpY - 6 + ((note.level%2) * 5); 
+		}
+		else if  (note.level > 15)
+		{
+			note.addLinesNumber = (note.level / 2) - 7;
+			note.addLinesYpos = ypos + tmpY - 6 - ((note.level - 16) * 5); 
+		}
+		
+		if (type == 0) // whole note
+			ypos++;
+		else if (type == 2) // quarter note
+		{
+			if (note.level < 10)
+				ypos += 41;
+		}
+		else if (type == 3) // eigth note
+		{
+			if (note.level <= 10) 
+				ypos += 30;
+		}
+		else if (type == 4) // triplets
+		{
+			if (note.tripletValue < 0)
+				ypos += 41;
+		}    		
+		else if (type == 5) // silence
+		{
+			if (note.duration == 4)
+				ypos -= 16;
+			else if (note.duration == 2)
+				ypos -= 12;
+			else if (note.duration == 1)
+				ypos += 13;
+			else if (note.duration == 0.5)
+				ypos += 13;
+		}
+		
+		note.ypos = ypos + tmpY + yOffset;
+		if (inlineMode == false && setXpos == true) // the inline game controls X position itself
+		{
+			note.xpos = tmpX;
+			tmpX += (note.duration * noteDistance);
+		}
     }
     
     public void setLearningTips(String tip, boolean enable)
@@ -252,12 +282,77 @@ public class NotesPanel extends JPanel
     	this.repaint(x, y, 16, 16);
     }
     
+    public void mouseClicked(MouseEvent e) 
+	{
+		//System.out.println("Mouse clicked (# of clicks: " + e.getClickCount() + ")");
+    	int mouseX = e.getX();
+    	int mouseY = e.getY();
+		System.out.println("X pos: " + mouseX + ", Y pos: " + mouseY);
+		
+		if (editMode == false)
+			return;
+		
+		if (editNoteIndex != -1 && mouseX >= notes.get(editNoteIndex).xpos - 5 &&
+			mouseX < (int)(notes.get(editNoteIndex).xpos + notes.get(editNoteIndex).duration * noteDistance))
+		{
+			// clicked over the currently selected note. Act on the pitch
+			Note tmpNote = notes.get(editNoteIndex);
+			tmpNote.level = (mouseY - 5) / 5;
+			setSingleNotePositions(tmpNote, false); // do not touch X position !
+			tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(0), tmpNote.level);
+			System.out.println("New note pitch = " + tmpNote.pitch);
+			this.firePropertyChange("levelChanged", false, true);
+			repaint();
+		}
+		else
+		{
+			// look for a note to select
+			for (int i = 0; i < notes.size(); i++)
+			{
+				int noteXpos = notes.get(i).xpos;
+				if (mouseX >= noteXpos - 5 && mouseX < (int)(noteXpos + notes.get(i).duration * noteDistance))
+				{
+					this.firePropertyChange("selectionChanged", editNoteIndex, i);
+					editNoteIndex = i;
+					repaint();
+					return;
+				}
+			}
+		}
+		
+	}
+	public void mousePressed(MouseEvent e) 
+	{
+		//System.out.println("Mouse pressed; # of clicks: " + e.getClickCount());
+	}
+
+    public void mouseReleased(MouseEvent e) 
+    {
+    	//System.out.println("Mouse released; # of clicks: " + e.getClickCount());
+    }
+
+    public void mouseEntered(MouseEvent e) 
+    {
+    	//System.out.println("Mouse entered");
+    }
+
+    public void mouseExited(MouseEvent e) 
+    {
+    	//System.out.println("Mouse exited");
+    }
+    
     private void drawNote(Graphics g, int index) 
     {
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     	String symbol = "";
 		Note note = notes.get(index);
 		int type = note.type;
+
+		if (editMode == true && index == editNoteIndex)
+		{
+			g.setColor(new Color(0xA2, 0xDD, 0xFF, 0x7F));
+			g.fillRoundRect(note.xpos - 5, 5, (int)(note.duration * noteDistance), 110, 10, 10);
+		}
 
 		if (note.highlight == true)
 	    	g.setColor(Color.blue);

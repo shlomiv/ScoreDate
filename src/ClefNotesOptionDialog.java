@@ -73,7 +73,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		int clefSelWidth = 170;
 
 		setLayout(null);
-        setSize(700, 530);
+        setSize(700, 510);
 		String title = appBundle.getString("_menuClef") + " & " + appBundle.getString("_menuNotes");
 		setTitle(title);
         setResizable(false);
@@ -171,7 +171,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		  */
 		JPanel notesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
 		notesPanel.setBackground(Color.white);
-		notesPanel.setBounds((clefSelWidth * 2) + 15, 0, getWidth() - (clefSelWidth * 2) - 20, getHeight() - 95);
+		notesPanel.setBounds((clefSelWidth * 2) + 15, 0, getWidth() - (clefSelWidth * 2) - 20, getHeight() - 75);
 		notesPanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 20, getHeight() - 95));
 
 		// ****** Sub panel of notesPanel. Contains accidental selection (label + combobox)

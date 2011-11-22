@@ -822,11 +822,6 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 			    		g.drawLine(lastPos[tmpRec.gameType][0], lastPos[tmpRec.gameType][1], xPos + xAxisStep, yPos + relYPos);
 					}
 
-			    	// reset counters
-			    	prevInfo[tmpRec.gameType][0] = tmpRec.totalScore;
-					prevInfo[tmpRec.gameType][1] = 1;
-					prevInfo[tmpRec.gameType][3] = tmpRec.day;
-
 					if (tmpRec.day != currentDay)
 					{
 				      currentDay = tmpRec.day;
@@ -835,7 +830,12 @@ public class StatsPanel extends JPanel implements TreeSelectionListener, ActionL
 					  g.setColor(Color.black);
 					  g.drawString(Integer.toString(currentDay), xPos - 4, graphH + 50);
 					}
+
+			    	// reset counters
+			    	prevInfo[tmpRec.gameType][0] = tmpRec.totalScore;
+					prevInfo[tmpRec.gameType][1] = 1;
 					prevInfo[tmpRec.gameType][2] = xPos;
+					prevInfo[tmpRec.gameType][3] = tmpRec.day;
 					continue;
 				  }
 				  

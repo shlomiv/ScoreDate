@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
@@ -37,7 +38,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-
+import javax.swing.tree.TreeSelectionModel;
 
 public class ExercisesPanel extends JPanel implements TreeSelectionListener, ActionListener, PropertyChangeListener
 {
@@ -51,13 +52,16 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 	public RoundPanel topBar;
 	public RoundedButton homeBtn;
 	public RoundedButton newExerciseBtn;
-	private JScrollPane treeScrollPanel;
+	private JScrollPane treeScrollPanel = null;
 	private JTree exercisesList;
 	
 	private Exercise newExercise;
+	private Exercise selectedExercise;
 	private ExerciseWizard exerciseTypeDialog;
 	private ExerciseScoreWizard exerciseScoreSetupDialog;
 	private ExerciseScoreEditor exerciseScoreEditorDialog;
+	
+	File exercisesDir; // the ScoreDate directory path
 	
 	public ExercisesPanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d)
 	{
@@ -102,6 +106,87 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		leftPanel.add(topBar);
 		
 		add(leftPanel);
+		
+		updateTreeList();
+	}
+	
+    private class ExNodeInfo 
+    {
+        public String exLabel;
+        public String filePath;
+
+        public ExNodeInfo(String lbl, String path) 
+        {
+        	exLabel = lbl;
+        	filePath = path;
+        }
+
+        public String toString() {
+            return exLabel;
+        }
+    }
+	
+	public void walk( String path, DefaultMutableTreeNode parentNode ) 
+	{
+        File root = new File( path );
+        File[] list = root.listFiles();
+
+        for ( File f : list ) 
+        {
+            if ( f.isDirectory() ) 
+            {
+            	DefaultMutableTreeNode dirNode = new DefaultMutableTreeNode(f.getName());
+            	parentNode.add(dirNode);
+                walk( f.getAbsolutePath(), dirNode );
+                System.out.println( "Dir: " + f.getAbsolutePath() );
+            }
+            else 
+            {
+            	if (f.getAbsolutePath().endsWith(".xml"))
+            	{
+            		ExNodeInfo nInfo = new ExNodeInfo(f.getName(), f.getAbsolutePath());
+            		DefaultMutableTreeNode dirNode = new DefaultMutableTreeNode(nInfo);
+            		dirNode.setUserObject(nInfo);
+            		parentNode.add(dirNode);
+            		System.out.println( "File: " + f.getAbsolutePath() );
+            	}
+            }
+        }
+    }
+
+	private void updateTreeList()
+	{
+		exercisesDir = new File("Exercises");
+		File EXdir = new File(exercisesDir.getAbsolutePath());
+		File[] list = EXdir.listFiles();
+		
+		if (treeScrollPanel != null)
+			leftPanel.remove(treeScrollPanel);
+		
+		if (list.length == 0)
+		{
+			DefaultMutableTreeNode mainNode = new DefaultMutableTreeNode(appBundle.getString("_noStatistics"));
+			exercisesList = new JTree(mainNode);
+		}
+		else
+		{
+			DefaultMutableTreeNode mainNode = new DefaultMutableTreeNode("Exercises");
+			walk(EXdir.getAbsolutePath(), mainNode);
+			exercisesList = new JTree(mainNode);
+			exercisesList.setRootVisible(false);
+			exercisesList.setShowsRootHandles(true);
+			exercisesList.addTreeSelectionListener(this);
+		}
+		
+		exercisesList.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		exercisesList.setBackground(Color.decode("0xCCF5FF"));
+		exercisesList.setBounds(0, 0, 280, leftPanel.getHeight() - 100);
+		
+		treeScrollPanel = new JScrollPane(exercisesList);
+		//Border border = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+		//treeScrollPanel.setBorder(border);
+		treeScrollPanel.setBounds(10, 80, 300, leftPanel.getHeight() - 90);
+		leftPanel.add(treeScrollPanel);
 	}
 	
 	private void showExerciseSetup(int type)
@@ -151,24 +236,22 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		}
 		else if (evt.getPropertyName() == "exerciseSaved")
 		{
-			System.out.println("----> refresh this panel <-----");
+			updateTreeList();
 		}
 	}
 	
 	public void valueChanged(TreeSelectionEvent e) 
 	{
 		//Returns the last path element of the selection.
-		//This method is useful only when the selection model allows a single selection.
-		    DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-		    		exercisesList.getLastSelectedPathComponent();
+	    DefaultMutableTreeNode selNode = (DefaultMutableTreeNode)exercisesList.getLastSelectedPathComponent();
+	    
+	    if (selNode == null || selNode.isLeaf() == false) 
+	    	return;
 
-		    if (node == null) //Nothing is selected.     
-		    	return;
-
-		    if (node.getLevel() == 1)
-		    {
-
-		    }
+	    ExNodeInfo nInfo = (ExNodeInfo)selNode.getUserObject();
+        System.out.println("Tree node clicked. Absolute path: " + nInfo.filePath);
+        selectedExercise = new Exercise(appPrefs);
+        selectedExercise.loadFromFile(nInfo.filePath);
 	}
 	
 	protected void paintComponent(Graphics g) 

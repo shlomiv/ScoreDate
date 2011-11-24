@@ -22,6 +22,7 @@ public class Note
 	public int ypos;
 	public int type; // 0 whole, 1 half, 2 quarter, 3 eighth, 4 triplet, 5 silence
 	public double duration;
+	public double timestamp;
 
 	public int clef; // note clef
 	public int altType; // alteration to be displayed. Can be: -2 = double flat, -1 = flat, 0 = none, 1 = sharp, 2 = natural
@@ -45,6 +46,7 @@ public class Note
 		addLinesNumber = 0;
 		addLinesYpos = 0;
 		highlight = false;
+		timestamp = 0;
 
 		switch(type)
 		{
@@ -78,5 +80,10 @@ public class Note
 	public void setTripletValue(int val)
 	{
 		tripletValue = val;
+	}
+	
+	public void setTimeStamp(double ts)
+	{
+		timestamp = ts;
 	}
 }

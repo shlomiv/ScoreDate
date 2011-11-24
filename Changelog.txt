@@ -1,4 +1,4 @@
-November ???, 2011 - 1.1
+November ???, 2011 - 2.0
 
 - fixed statistics daily view and empty panel
 

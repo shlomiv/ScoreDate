@@ -49,7 +49,7 @@ public class NoteGenerator
 	private int timeSignDenominator = 0;
 
 	Vector<Integer> baseList = new Vector<Integer>();	// list holding the whole list of notes, from C0 to C6
-	Vector<Integer> alteredList = new Vector<Integer>();	// list holding the whole list of laterated notes, from C0 to C6
+	Vector<Integer> alteredList = new Vector<Integer>();	// list holding the whole list of alterated notes, from C0 to C6
 	Vector<Note> randomPitchList = new Vector<Note>(); // list of notes holding the user selected notes
 	Vector<Integer> notesTypeList = new Vector<Integer>(); // list of note types to facilitate random generation
 	
@@ -463,6 +463,7 @@ public class NoteGenerator
     public void getRandomSequence(Vector<Note> seq, int measuresNumber, boolean isRhythm)
     {
     	double measureCounter = 0;
+    	double timeCounter = 0;
     	boolean eighthPresent = false;
     	seq.clear(); // clear sequence in case it was already set
     	for (int i = 0; i < measuresNumber; i++)
@@ -474,7 +475,6 @@ public class NoteGenerator
     			Note tmpNote = getRandomNote(-1, false);
     			if (tmpNote.type == 4) // triplet
     			{
-    				
     				if (measureCounter < 1 || eighthPresent == true)
     					continue;
     				Note secondNote = getTripletRandomNote(tmpNote.pitch);
@@ -507,6 +507,13 @@ public class NoteGenerator
     				secondNote.setTripletValue(tripletLevel + (mult * 1000));
     				thirdNote.setTripletValue(tripletLevel + (mult * 1000));
     				
+    				tmpNote.setTimeStamp(timeCounter);
+    				timeCounter+=tmpNote.duration;
+    				secondNote.setTimeStamp(timeCounter);
+    				timeCounter+=secondNote.duration;
+    				thirdNote.setTimeStamp(timeCounter);
+    				timeCounter+=thirdNote.duration;
+    				
 					measureCounter--; // one quarter for the triplet group
     				seq.add(tmpNote);
     				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + tmpNote.pitch + ", level: " + tmpNote.level);
@@ -538,6 +545,9 @@ public class NoteGenerator
     				seq.add(tmpNote);
     				if (tmpNote.type == 3)
     					eighthPresent = true;
+    				tmpNote.setTimeStamp(timeCounter);
+        			System.out.println("note #" + i + ": timestamp: " + timeCounter);
+        			timeCounter+=tmpNote.duration;
     				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + tmpNote.pitch + ", level: " + tmpNote.level); 
     			}
     			//System.out.println("tempMesCnt: " + measureCounter);

@@ -28,10 +28,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
- 
-import org.w3c.dom.Attr;
+
+//import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class Exercise 
 {
@@ -141,39 +143,46 @@ public class Exercise
 			staff.appendChild(exSpeed);
 			
 			// ************************ SEQUENCE ****************************
-			Element exNotes = doc.createElement("sequence");
-			rootElement.appendChild(exNotes);
+			Element exSequence = doc.createElement("sequence");
+			rootElement.appendChild(exSequence);
 			
 			for (int i = 0; i < notes.size(); i++)
 			{
+				Element exNote = doc.createElement("note");
+				exSequence.appendChild(exNote);
+				
 				Note tmpNote = notes.get(i);
 				Element nType = doc.createElement("t");
 				nType.appendChild(doc.createTextNode(Integer.toString(tmpNote.type)));
-				exNotes.appendChild(nType);		
+				exNote.appendChild(nType);		
 
 				Element nPitch = doc.createElement("p");
 				nPitch.appendChild(doc.createTextNode(Integer.toString(tmpNote.pitch)));
-				exNotes.appendChild(nPitch);
-				
+				exNote.appendChild(nPitch);
+
 				Element nLevel = doc.createElement("l");
 				nLevel.appendChild(doc.createTextNode(Integer.toString(tmpNote.level)));
-				exNotes.appendChild(nLevel);
-				
+				exNote.appendChild(nLevel);
+
+				Element nTime = doc.createElement("ts");
+				nTime.appendChild(doc.createTextNode(Double.toString(tmpNote.timestamp)));
+				exNote.appendChild(nTime);				
+
 				Element nDur = doc.createElement("d");
 				nDur.appendChild(doc.createTextNode(Double.toString(tmpNote.duration)));
-				exNotes.appendChild(nDur);
-				
+				exNote.appendChild(nDur);
+
 				Element nClef = doc.createElement("c");
 				nClef.appendChild(doc.createTextNode(Integer.toString(tmpNote.clef)));
-				exNotes.appendChild(nClef);				
+				exNote.appendChild(nClef);				
 			}
 	 
 			// write the content into xml file
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
-			//transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File(title + ".xml"));
+			StreamResult result = new StreamResult(new File("Exercises\\" + title + ".xml"));
 	 
 			// Output to console for testing
 			// StreamResult result = new StreamResult(System.out);
@@ -186,6 +195,59 @@ public class Exercise
 			pce.printStackTrace();
 		  } catch (TransformerException tfe) {
 			tfe.printStackTrace();
+		  }
+	}
+	
+	
+	private static String getTagValue(String sTag, Element eElement) 
+	{
+		NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
+ 
+        Node nValue = (Node) nlList.item(0);
+ 
+        if (nValue != null)
+        	return nValue.getNodeValue();
+        else
+        	return "";
+	}
+	  
+	public void loadFromFile(String path)
+	{
+		try
+		{
+			File fXmlFile = new File(path);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(fXmlFile);
+			doc.getDocumentElement().normalize();
+	 
+			//System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+			NodeList nList = doc.getElementsByTagName("header");
+			//System.out.println("-----------------------");
+	 
+		    Node nNode = nList.item(0);
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) 
+			{
+			      Element eElement = (Element) nNode;
+	 
+			      System.out.println("Title : " + getTagValue("title", eElement));
+			      System.out.println("Clef : " + getTagValue("clef", eElement));
+		          System.out.println("accType : " + getTagValue("accType", eElement));
+			      System.out.println("accCount : " + getTagValue("accCount", eElement));
+			      System.out.println("measure : " + getTagValue("measure", eElement));
+			      System.out.println("speed : " + getTagValue("speed", eElement));
+			}
+			
+			NodeList sList = doc.getElementsByTagName("sequence");
+			for (int temp = 0; temp < nList.getLength(); temp++) 
+			{
+			   Node sNode = sList.item(temp);
+			}
+			
+		  } 
+		  catch (Exception e) 
+		  {
+			e.printStackTrace();
 		  }
 	}
 }

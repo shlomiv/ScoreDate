@@ -339,12 +339,10 @@ public class MidiController
 		 sequencers[1].close();
 	 }
 	 
-	 public Sequencer createPlayback(Preferences p, int BPM, Vector<Note> notes, int timeDivision, boolean playOnly, boolean startImmediately)
+	 public Sequencer createPlayback(Preferences p, int BPM, Vector<Note> notes, int timeDivision, boolean playOnly, int timeOffset)
 	 {
 		 final int metaType = 0x01;
 		 int tick = 0;
-		 if (startImmediately == false)
-			 tick = (4*timeDivision)*ppq; // ticks start after 4 metronome beats 
 		 createSequencer(0);
 
 		 int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));
@@ -361,6 +359,7 @@ public class MidiController
 		 for (int i = 0; i < notes.size(); i++)
 		 {
 			 Note cNote = notes.get(i);
+			 tick = (int)((cNote.timestamp + timeOffset) * ppq);
 			 if (playOnly == true && cNote.type != 5) // do not play silence !
 				 tracks[0].add(createNoteOnEvent(cNote.pitch, 90, tick));
 			 String textb = "nOn";

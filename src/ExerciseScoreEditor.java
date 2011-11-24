@@ -60,12 +60,13 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	RoundedButton removeNoteButton;
 	RoundedButton finishButton;
 	
-	private int rowsDistance = 90; // distance in pixel between staff rows
+	//private int rowsDistance = 90; // distance in pixel between staff rows
 	private int timeNumerator = 4;
 	private int timeDenominator = 4;
 	
 	private int measuresNumber = 1;
 	private double measureCounter = 0;
+	private double timeCounter = 0;
 	
 	private boolean isPlaying = false;
 	
@@ -324,6 +325,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			tmpNote = new Note(0, currExercise.clefMask, 10, exerciseNG.getRhythmPitch(currExercise.clefMask), (int)type, false, 0);
 		
 		measureCounter -= tmpNote.duration;
+		tmpNote.setTimeStamp(timeCounter);
+		timeCounter += tmpNote.duration;
 
 		currExercise.notes.add(tmpNote);
 		notesLayer.setEditNoteIndex(currExercise.notes.size() - 1);
@@ -355,7 +358,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		{
 			if (isPlaying == false)
 			{
-				playback = appMidi.createPlayback(appPrefs, currExercise.speed, currExercise.notes, timeDenominator / 4, true, true);
+				playback = appMidi.createPlayback(appPrefs, currExercise.speed, currExercise.notes, timeDenominator / 4, true, 0);
 				playback.addMetaEventListener(new MetaEventListener() {
 			          public void meta(MetaMessage meta) 
 			          {
@@ -386,6 +389,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		{
 			int lastIdx =  currExercise.notes.size() - 1;
 			measureCounter += currExercise.notes.get(lastIdx).duration;
+			timeCounter -= currExercise.notes.get(lastIdx).duration;
 			if (measureCounter == timeNumerator)
 				measureCounter = 0;
 			currExercise.notes.removeElementAt(lastIdx);

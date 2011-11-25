@@ -163,9 +163,9 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		if (treeScrollPanel != null)
 			leftPanel.remove(treeScrollPanel);
 		
-		if (list.length == 0)
+		if (list == null || list.length == 0)
 		{
-			DefaultMutableTreeNode mainNode = new DefaultMutableTreeNode(appBundle.getString("_noStatistics"));
+			DefaultMutableTreeNode mainNode = new DefaultMutableTreeNode(appBundle.getString("_exNotFound"));
 			exercisesList = new JTree(mainNode);
 		}
 		else

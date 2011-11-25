@@ -182,7 +182,7 @@ public class Exercise
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File("Exercises\\" + title + ".xml"));
+			StreamResult result = new StreamResult(new File("Exercises" + File.separator + title + ".xml"));
 	 
 			// Output to console for testing
 			// StreamResult result = new StreamResult(System.out);

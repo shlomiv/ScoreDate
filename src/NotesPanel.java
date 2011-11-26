@@ -68,8 +68,11 @@ public class NotesPanel extends JPanel implements MouseListener
 	
 	// edit mode, activated from the exercise panel
 	boolean editMode = false;
+	boolean editModeRhythm = false;
 	int editNoteIndex = -1;
 	NoteGenerator editNG;
+	
+	private double globalScale = 1.0;
 	
 	public NotesPanel(Font f, Preferences p, Vector<Note> n, boolean inline)
 	{
@@ -77,6 +80,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		appPrefs = p;
 		notes = n;
 		inlineMode = inline;
+		globalScale = 1.0;
 		
 		rightImg = new ImageIcon(getClass().getResource("/resources/correct.png")).getImage();
 		wrongImg = new ImageIcon(getClass().getResource("/resources/wrong.png")).getImage();
@@ -128,9 +132,15 @@ public class NotesPanel extends JPanel implements MouseListener
     	staffWidth = w;
     }
     
-    public void setEditMode(boolean active)
+    public void setScale(double factor)
+    {
+    	globalScale = factor;
+    }
+    
+    public void setEditMode(boolean active, boolean isRhythm)
     {
     	editMode = active;
+    	editModeRhythm = isRhythm;
     }
     
     public void setEditNoteIndex(int idx)
@@ -143,19 +153,27 @@ public class NotesPanel extends JPanel implements MouseListener
     	editNG = ng;
     }
     
+    public void setNotesSequence(Vector<Note> n)
+    {
+    	notes = n;
+    }
+    
     public void setNotesPositions()
     {
     	tmpX = firstNoteXPos;
     	tmpY = 0;
 
+    	if (notes == null)
+    		return;
+
     	for (int i = 0; i < notes.size(); i++)
     	{
-    		setSingleNotePositions(notes.get(i), true);
-    		System.out.println("[Note: #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
+    		setSingleNotePosition(notes.get(i), true);
+    		//System.out.println("[Note: #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
     	}
     }
     
-    public void setSingleNotePositions(Note note, boolean setXpos)
+    public void setSingleNotePosition(Note note, boolean setXpos)
     {
    		int type = note.type;
    		int ypos = (note.level * 5) + 11;
@@ -289,7 +307,7 @@ public class NotesPanel extends JPanel implements MouseListener
     	int mouseY = e.getY();
 		System.out.println("X pos: " + mouseX + ", Y pos: " + mouseY);
 		
-		if (editMode == false)
+		if (editMode == false || editModeRhythm == true)
 			return;
 		
 		if (editNoteIndex != -1 && mouseX >= notes.get(editNoteIndex).xpos - 5 &&
@@ -297,10 +315,13 @@ public class NotesPanel extends JPanel implements MouseListener
 		{
 			// clicked over the currently selected note. Act on the pitch
 			Note tmpNote = notes.get(editNoteIndex);
-			tmpNote.level = (mouseY - 5) / 5;
-			setSingleNotePositions(tmpNote, false); // do not touch X position !
-			tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(0), tmpNote.level);
-			System.out.println("New note pitch = " + tmpNote.pitch);
+			tmpNote.level = (mouseY - 4) / 5;
+			tmpX = tmpNote.xpos; // must 'rewind' xpos to avoid wrong check for second line
+			setSingleNotePosition(tmpNote, false); // do not touch X position !
+			tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(0), tmpNote.level); // retrieve the base pitch of this level and clef
+			tmpNote.pitch = editNG.getAlteredFromBase(tmpNote.pitch); // retrieve a new pitch if it is altered
+		
+			System.out.println("[Edit mode] note level: " + tmpNote.level + ", pitch = " + tmpNote.pitch);
 			this.firePropertyChange("levelChanged", false, true);
 			repaint();
 		}
@@ -480,6 +501,9 @@ public class NotesPanel extends JPanel implements MouseListener
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		//super.paintComponent(g);
 		
+		if (globalScale != 1.0)
+			((Graphics2D) g).scale(globalScale, globalScale);
+		
 		if (scheduleFlag != -1)
 		{
 			switch (scheduleFlag)
@@ -517,6 +541,8 @@ public class NotesPanel extends JPanel implements MouseListener
     	if (singleNoteIndex == -1)
     	{
         	g.setColor(Color.black);
+        	if (notes == null)
+        		return;
     		for (int i = 0; i < notes.size(); i++)
     		{
     			drawNote(g, i);

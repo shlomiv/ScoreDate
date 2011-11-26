@@ -45,6 +45,7 @@ public class Exercise
 	Accidentals acc;
 	int timeSign;
 	int speed;
+	int randomize;
 	Vector<Note> notes;
 	
 	public Exercise(Preferences p)
@@ -62,6 +63,7 @@ public class Exercise
 		acc = new Accidentals("", 0, appPrefs);
 		timeSign = -1;
 		speed = 60;
+		randomize = 0;
 		notes.clear();
 	}
 	
@@ -117,6 +119,9 @@ public class Exercise
 
 			// shorten way
 			// staff.setAttribute("id", "1");
+			Element exType = doc.createElement("type");
+			exType.appendChild(doc.createTextNode(Integer.toString(type)));
+			staff.appendChild(exType);			
 
 			Element exTitle = doc.createElement("title");
 			exTitle.appendChild(doc.createTextNode(title));
@@ -141,6 +146,11 @@ public class Exercise
 			Element exSpeed = doc.createElement("speed");
 			exSpeed.appendChild(doc.createTextNode(Integer.toString(speed)));
 			staff.appendChild(exSpeed);
+			
+			Element exRandom = doc.createElement("random");
+			exRandom.appendChild(doc.createTextNode(Integer.toString(randomize)));
+			staff.appendChild(exRandom);
+			
 			
 			// ************************ SEQUENCE ****************************
 			Element exSequence = doc.createElement("sequence");
@@ -213,6 +223,7 @@ public class Exercise
 	  
 	public void loadFromFile(String path)
 	{
+		notes.clear();
 		try
 		{
 			File fXmlFile = new File(path);
@@ -228,20 +239,52 @@ public class Exercise
 		    Node nNode = nList.item(0);
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) 
 			{
-			      Element eElement = (Element) nNode;
+				Element eElement = (Element) nNode;
 	 
-			      System.out.println("Title : " + getTagValue("title", eElement));
-			      System.out.println("Clef : " + getTagValue("clef", eElement));
-		          System.out.println("accType : " + getTagValue("accType", eElement));
-			      System.out.println("accCount : " + getTagValue("accCount", eElement));
-			      System.out.println("measure : " + getTagValue("measure", eElement));
-			      System.out.println("speed : " + getTagValue("speed", eElement));
+				type = Integer.parseInt(getTagValue("type", eElement));
+				title = getTagValue("title", eElement);
+				clefMask = Integer.parseInt(getTagValue("clef", eElement));
+				acc = new Accidentals(getTagValue("accType", eElement), Integer.parseInt(getTagValue("accCount", eElement)), appPrefs);
+				timeSign = Integer.parseInt(getTagValue("measure", eElement));
+				speed = Integer.parseInt(getTagValue("speed", eElement));
+				randomize = Integer.parseInt(getTagValue("random", eElement));
+
+				System.out.println("Type: " + type);
+			    System.out.println("Title: " + title);
+			    System.out.println("Clef: " + clefMask);
+		        System.out.println("accType: " + acc.getType());
+			    System.out.println("accCount: " + acc.getNumber());
+			    System.out.println("Measure: " + timeSign);
+			    System.out.println("Speed: " + speed);
+			    System.out.println("Randomize: " + randomize);
 			}
 			
 			NodeList sList = doc.getElementsByTagName("sequence");
-			for (int temp = 0; temp < nList.getLength(); temp++) 
+			// cycle through sequences
+			for (int seq = 0; seq < nList.getLength(); seq++)
 			{
-			   Node sNode = sList.item(temp);
+			   Element sElem = (Element)sList.item(seq);
+			   NodeList notesList = sElem.getElementsByTagName("note");
+			   if (notesList != null)
+			   {
+				   System.out.println("Sequence #" + seq + ": notes: " + notesList.getLength());
+				   for (int n = 0; n < notesList.getLength(); n++)
+				   {
+					   Note tmpNote;
+					   Element nElem = (Element)notesList.item(n);
+					   int nType = Integer.parseInt(getTagValue("t", nElem));
+					   int nPitch = Integer.parseInt(getTagValue("p", nElem));
+					   int nLevel = Integer.parseInt(getTagValue("l", nElem));
+					   double nStamp = Double.parseDouble(getTagValue("ts", nElem));
+					   double nDur = Double.parseDouble(getTagValue("d", nElem));
+					   int nClef = Integer.parseInt(getTagValue("c", nElem));
+					   tmpNote = new Note(0, nClef, nLevel, nPitch, nType, false, 0);
+					   tmpNote.setTimeStamp(nStamp);
+					   tmpNote.duration = nDur;
+					   notes.add(tmpNote);
+				   }
+			   }
+			   
 			}
 			
 		  } 

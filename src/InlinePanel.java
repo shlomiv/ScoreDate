@@ -73,6 +73,9 @@ public class InlinePanel extends JPanel implements ActionListener
 	private int currentSpeed = 120;
 	private int noteXStartPos = 0; // X position of the notes appearing on the staff
 	
+	private boolean exerciseMode = false;
+	private Exercise currEx = null;
+	
 	public InlinePanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d)
 	{
 		appFont = f;
@@ -83,7 +86,16 @@ public class InlinePanel extends JPanel implements ActionListener
 		setBackground(Color.white);
 		setSize(d);
 		setLayout(null);
-		inlineAccidentals = new Accidentals("", 0, appPrefs);
+		if (appPrefs.globalExerciseMode == true)
+		{
+			exerciseMode = true;
+			currEx = appPrefs.currentExercise;
+			inlineAccidentals = new Accidentals(currEx.acc.getType(), currEx.acc.getNumber(), appPrefs);			
+		}
+		else
+		{
+			inlineAccidentals = new Accidentals("", 0, appPrefs);
+		}
 		inlineNG = new NoteGenerator(appPrefs, inlineAccidentals, false);
 		stats = new Statistics();
 
@@ -102,6 +114,8 @@ public class InlinePanel extends JPanel implements ActionListener
 		});
 		
 		sBar.playBtn.addActionListener(this);
+		if (exerciseMode == true)
+			sBar.tempoSlider.setValue(currEx.speed);
 		
 		int panelsWidth = d.width - (staffHMargin * 2);
 		
@@ -163,20 +177,33 @@ public class InlinePanel extends JPanel implements ActionListener
 	public void refreshPanel()
 	{
 		piano.reset(true);
-		inlineNG.update();
+		if (exerciseMode == false)
+		{
+			inlineNG.update();
 
-		int lowerPitch = inlineNG.getFirstLowPitch();
-		int higherPitch = inlineNG.getFirstHighPitch();
-		piano.setNewBound(lowerPitch, higherPitch);
-		lowerPitch = inlineNG.getSecondLowPitch();
-		higherPitch = inlineNG.getSecondHighPitch();
-		piano.setNewBound(lowerPitch, higherPitch);
+			int lowerPitch = inlineNG.getFirstLowPitch();
+			int higherPitch = inlineNG.getFirstHighPitch();
+			piano.setNewBound(lowerPitch, higherPitch);
+			lowerPitch = inlineNG.getSecondLowPitch();
+			higherPitch = inlineNG.getSecondHighPitch();
+			piano.setNewBound(lowerPitch, higherPitch);
 
-		rowsDistance = inlineNG.getRowsDistance();
+			inlineStaff.setClef(inlineNG.getClefMask());
+			notesLayer.setClef(inlineNG.getClefMask());
+			rowsDistance = inlineNG.getRowsDistance();
+		}
+		else
+		{
+			inlineStaff.setClef(currEx.clefMask);
+			notesLayer.setClef(currEx.clefMask);
+			if (currEx.randomize == 1)
+				inlineNG.setNotesList(currEx.notes, true);
+			else
+				inlineNG.setNotesList(currEx.notes, false);
+		}
+
 		inlineStaff.setRowsDistance(rowsDistance);
 		notesLayer.setRowsDistance(rowsDistance);
-		inlineStaff.setClef(inlineNG.getClefMask());
-		notesLayer.setClef(inlineNG.getClefMask());
 		notesLayer.setFirstNoteXPosition(inlineStaff.getFirstNoteXPosition());
 		setLearningInfo(false, -1);
 	}

@@ -43,7 +43,7 @@ import javax.sound.midi.Transmitter;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-//import javax.swing.JOptionPane;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -197,6 +197,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		 homePanel.scoreBtn.addActionListener(this);
 		 homePanel.statsBtn.addActionListener(this);
 		 homePanel.lessonsBtn.addActionListener(this);
+		 homePanel.earTrainBtn.addActionListener(this);
 	     
 		 currentContext = HOMEPANEL;
 		 transposition = Integer.parseInt(prefs.getProperty("transposition")) - 2;
@@ -206,6 +207,15 @@ public class ScoreDate extends JFrame implements ActionListener
     		public void componentResized(ComponentEvent e)
     		{
     			System.out.println("Score Date has been resized !");
+    			/*
+    			if (prefs.globalExerciseMode == false)
+    			{
+    				if (rhythmPanel != null && currentContext == RHYTHMREADING)
+    					rhythmPanel.createNewSequence();
+    				else if (scorePanel != null && currentContext == SCOREREADING)
+    					scorePanel.createNewSequence();
+    			}
+    			*/
     		}
     	 });
 
@@ -213,7 +223,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	 }
 
 	 /*
-	  * ACTION LISTENER - listens to homePanel buttons and homeBtn of each panel
+	  * ACTION LISTENER - listens to all buttons that require a switch of context
 	  */
 	 public void actionPerformed(ActionEvent ae)
 	 {
@@ -222,6 +232,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		 if (ae.getSource() == homePanel.inlineBtn)
 		 {
 			 homePanel.setVisible(false);
+			 prefs.setExerciseMode(false, null);
 			 inlinePanel = new InlinePanel(MusiSync, bundle, prefs, midiControl, wSize);
 			 getContentPane().add(inlinePanel);
 		 	 inlinePanel.setVisible(true);
@@ -231,6 +242,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		 else if (ae.getSource() == homePanel.rhythmBtn)
 		 {
 			 homePanel.setVisible(false);
+			 prefs.setExerciseMode(false, null);
 			 rhythmPanel = new ScorePanel(MusiSync, bundle, prefs, midiControl, wSize, true);
 			 getContentPane().add(rhythmPanel);
 			 rhythmPanel.setVisible(true);
@@ -240,6 +252,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	     else if (ae.getSource() == homePanel.scoreBtn)
 		 {
 			 homePanel.setVisible(false);
+			 prefs.setExerciseMode(false, null);
 			 scorePanel = new ScorePanel(MusiSync, bundle, prefs, midiControl, wSize, false);
 			 getContentPane().add(scorePanel);
 			 scorePanel.setVisible(true);
@@ -249,6 +262,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	     else if (ae.getSource() == homePanel.statsBtn)
 	     {
 			 homePanel.setVisible(false);
+			 prefs.setExerciseMode(false, null);
 			 statsPanel = new StatsPanel(MusiSync, bundle, prefs, wSize);
 			 getContentPane().add(statsPanel);
 			 statsPanel.setVisible(true);
@@ -257,20 +271,30 @@ public class ScoreDate extends JFrame implements ActionListener
 	     }
 	     else if (ae.getSource() == homePanel.lessonsBtn)
 	     {
-	    	// JOptionPane.showMessageDialog(this.getParent(), "<html><b>Coming soon !</b></html>",
-	    	//		 bundle.getString("_menuLessons"), JOptionPane.INFORMATION_MESSAGE);
 			 homePanel.setVisible(false);
+			 prefs.setExerciseMode(false, null);
 	    	 exsPanel = new ExercisesPanel(MusiSync, bundle, prefs, midiControl, wSize);
 			 getContentPane().add(exsPanel);
 			 exsPanel.setVisible(true);
 			 currentContext = EXERCISES;
 			 exsPanel.homeBtn.addActionListener(this);
-	     }		 
+			 exsPanel.exLineBtn.addActionListener(this);
+			 exsPanel.exRhythmBtn.addActionListener(this);
+			 exsPanel.exScoreBtn.addActionListener(this);
+	     }
+	     else if (ae.getSource() == homePanel.earTrainBtn)
+	     {
+	    	 JOptionPane.showMessageDialog(this.getParent(), "<html><b>Coming soon !</b></html>",
+		   	 		 	bundle.getString("_menuEarTraining"), JOptionPane.INFORMATION_MESSAGE);
+	     }
+		 
+		 // *************************** GAMES PANEL HOME BUTTON ***************************
 	     else if (inlinePanel != null && ae.getSource() == inlinePanel.sBar.homeBtn)
 	     {
 	    	 inlinePanel.stopGame();
 	    	 this.remove(inlinePanel);
 	    	 inlinePanel = null;
+	    	 getContentPane().add(homePanel);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
 	     }
@@ -279,6 +303,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	    	 rhythmPanel.stopGame();
 	    	 this.remove(rhythmPanel);
 	    	 rhythmPanel = null;
+	    	 getContentPane().add(homePanel);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
 	     }
@@ -287,22 +312,63 @@ public class ScoreDate extends JFrame implements ActionListener
 	    	 scorePanel.stopGame();
 	    	 this.remove(scorePanel);
 	    	 scorePanel = null;
+	    	 getContentPane().add(homePanel);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
 	     }
+		 // *************************** STATISTICS PANEL BUTTON ***************************
 	     else if (statsPanel != null && ae.getSource() == statsPanel.homeBtn)
 	     {
 	    	 this.remove(statsPanel);
 	    	 statsPanel = null;
+	    	 getContentPane().add(homePanel);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;	    	 
 	     }
+		 // ***************************** EXERCISE PANEL BUTTONS ***************************
 	     else if (exsPanel != null && ae.getSource() == exsPanel.homeBtn)
 	     {
 	    	 this.remove(exsPanel);
 	    	 exsPanel = null;
+	    	 getContentPane().add(homePanel);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;	
+	     }
+	     else if (exsPanel != null && ae.getSource() == exsPanel.exLineBtn)
+	     {
+	    	 prefs.setExerciseMode(true, exsPanel.getSelectedExercise());
+	    	 this.remove(exsPanel);
+	    	 exsPanel = null;
+	    	 inlinePanel = new InlinePanel(MusiSync, bundle, prefs, midiControl, wSize);
+			 getContentPane().add(inlinePanel);
+		 	 inlinePanel.setVisible(true);
+		 	 currentContext = NOTEREADING;
+		 	 inlinePanel.sBar.homeBtn.addActionListener(this);
+			 this.pack();
+	     }
+	     else if (exsPanel != null && ae.getSource() == exsPanel.exRhythmBtn)
+	     {
+	    	 prefs.setExerciseMode(true, exsPanel.getSelectedExercise());
+	    	 this.remove(exsPanel);
+	    	 exsPanel = null;
+	    	 rhythmPanel = new ScorePanel(MusiSync, bundle, prefs, midiControl, wSize, true);
+			 getContentPane().add(rhythmPanel);
+			 rhythmPanel.setVisible(true);
+			 currentContext = RHYTHMREADING;
+			 rhythmPanel.sBar.homeBtn.addActionListener(this);
+			 this.pack();
+	     }
+	     else if (exsPanel != null && ae.getSource() == exsPanel.exScoreBtn)
+	     {
+	    	 prefs.setExerciseMode(true, exsPanel.getSelectedExercise());
+	    	 this.remove(exsPanel);
+	    	 exsPanel = null;
+	    	 scorePanel = new ScorePanel(MusiSync, bundle, prefs, midiControl, wSize, false);
+			 getContentPane().add(scorePanel);
+			 scorePanel.setVisible(true);
+			 currentContext = SCOREREADING;
+			 scorePanel.sBar.homeBtn.addActionListener(this);
+			 this.pack();
 	     }
 	 }
 	 

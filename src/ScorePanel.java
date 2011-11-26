@@ -90,6 +90,9 @@ public class ScorePanel extends JPanel implements ActionListener
 	private int accuracy = 24; // a note is valid within 24 pixels around the note X position 
 	private int releaseXpos; // on key press, save the release X position for key release check
 	
+	private boolean exerciseMode = false;
+	private Exercise currEx = null;
+	
 	public ScorePanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d, boolean rhythm)
 	{
 		appFont = f;
@@ -101,8 +104,17 @@ public class ScorePanel extends JPanel implements ActionListener
 		setBackground(Color.white);
 		setSize(d);
 		setLayout(null);
-		scoreAccidentals = new Accidentals("", 0, appPrefs);
-		scoreNG = new NoteGenerator(appPrefs, scoreAccidentals, rhythm);
+		if (appPrefs.globalExerciseMode == true)
+		{
+			exerciseMode = true;
+			currEx = appPrefs.currentExercise;
+			scoreAccidentals = new Accidentals(currEx.acc.getType(), currEx.acc.getNumber(), appPrefs);
+		}
+		else
+		{
+			scoreAccidentals = new Accidentals("", 0, appPrefs);
+			scoreNG = new NoteGenerator(appPrefs, scoreAccidentals, rhythm);
+		}
 		stats = new Statistics();
 		
 		sBar = new SmartBar(new Dimension(d.width-8, sBarHeight), b, f, p, false);
@@ -120,6 +132,9 @@ public class ScorePanel extends JPanel implements ActionListener
 		sBar.refreshBtn.addActionListener(this);
 		sBar.playBtn.addActionListener(this);
 		sBar.listenBtn.addActionListener(this);
+		
+		if (exerciseMode == true)
+			sBar.tempoSlider.setValue(currEx.speed);
 		
 		int panelsWidth = d.width - (staffHMargin * 2);
 		staffHeight = getHeight() - sBarHeight - gBarHeight;
@@ -154,18 +169,31 @@ public class ScorePanel extends JPanel implements ActionListener
 	
 	public void refreshPanel()
 	{
-		scoreNG.update();
+		int tsIdx = 0;
+		if (exerciseMode == false)
+		{
+			scoreNG.update();
 		
-		rowsDistance = scoreNG.getRowsDistance();
-		scoreStaff.setRowsDistance(rowsDistance);
-		notesLayer.setRowsDistance(rowsDistance);
-		scoreStaff.setClef(scoreNG.getClefMask());
-		notesLayer.setClef(scoreNG.getClefMask());
-		System.out.println("Staff width = " + scoreStaff.getStaffWidth());
-		System.out.println("rowsDistance = " + rowsDistance);
+			rowsDistance = scoreNG.getRowsDistance();
+			scoreStaff.setRowsDistance(rowsDistance);
+			notesLayer.setRowsDistance(rowsDistance);
+			scoreStaff.setClef(scoreNG.getClefMask());
+			notesLayer.setClef(scoreNG.getClefMask());
+			System.out.println("Staff width = " + scoreStaff.getStaffWidth());
+			System.out.println("rowsDistance = " + rowsDistance);
+			tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
+		}
+		else
+		{
+			scoreStaff.setRowsDistance(rowsDistance);
+			notesLayer.setRowsDistance(rowsDistance);
+			scoreStaff.setClef(currEx.clefMask);
+			notesLayer.setClef(currEx.clefMask);
+			tsIdx = currEx.timeSign;
+		}
+		
 		notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
 		
-		int tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
 		timeDenominator = 4;
 		if (tsIdx <= 0) timeNumerator = 4;
 		else if (tsIdx == 1) timeNumerator = 2;
@@ -185,7 +213,16 @@ public class ScorePanel extends JPanel implements ActionListener
 		latency = Integer.parseInt(appPrefs.getProperty("latency"));
 		if (latency < 0) latency = 0;
 		
-		createNewSequence();
+		if (exerciseMode == false)
+			createNewSequence();
+		else
+		{
+			gameNotes = currEx.notes;
+			double totalDuration = currEx.notes.get(currEx.notes.size() - 1).timestamp + currEx.notes.get(currEx.notes.size() - 1).duration;
+	        scoreStaff.setMeasuresNumber((int)Math.ceil(totalDuration / timeNumerator));
+	        notesLayer.setNotesSequence(gameNotes);
+			notesLayer.setNotesPositions();
+		}
 	}
 	
 	public void updateLanguage(ResourceBundle bundle)
@@ -197,7 +234,7 @@ public class ScorePanel extends JPanel implements ActionListener
 
 	public void createNewSequence()
 	{
-		scoreNG.getRandomSequence(gameNotes, scoreStaff.getMeasuresNumber(), isRhythm);
+		scoreNG.getRandomSequence(gameNotes, scoreStaff.getMeasuresTotalNumber(), isRhythm);
 		notesLayer.setNotesPositions();
 	}
 
@@ -411,7 +448,7 @@ public class ScorePanel extends JPanel implements ActionListener
 		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/stop.png")).getImage());
 		sBar.playBtn.repaint();
 		currentSpeed = sBar.tempoSlider.getValue();
-		metronome = appMidi.createMetronome(appPrefs, currentSpeed, scoreStaff.getMeasuresNumber(), timeNumerator, timeDivision);
+		metronome = appMidi.createMetronome(appPrefs, currentSpeed, scoreStaff.getMeasuresTotalNumber(), timeNumerator, timeDivision);
 		metronome.addMetaEventListener(new MetaEventListener() {
             public void meta(MetaMessage meta) 
             {
@@ -509,8 +546,10 @@ public class ScorePanel extends JPanel implements ActionListener
 		layers.setBounds(staffHMargin, staffVMargin, getWidth() - (staffHMargin * 2), staffHeight);
 		scoreStaff.setBounds(0, 0, getWidth() - (staffHMargin * 2), staffHeight);
 		notesLayer.setBounds(0, 0, getWidth() - (staffHMargin * 2), staffHeight);
+		notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
+		notesLayer.setNotesPositions();
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
-		
+
 		//System.out.println("--------- REFRESH PANEL **********");
 		/*
 		rowsDistance = scoreNG.getRowsDistance();

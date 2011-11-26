@@ -53,6 +53,9 @@ public class NoteGenerator
 	Vector<Note> randomPitchList = new Vector<Note>(); // list of notes holding the user selected notes
 	Vector<Integer> notesTypeList = new Vector<Integer>(); // list of note types to facilitate random generation
 	
+	private boolean randomEnabled = true;
+	private int notesListIndex = 0;
+	
     /*                           C   D   E   F   G   A   B  */
     /*                         ---------------------------- */
     char[][] sharpsMatrix = { {  0,  2,  4,  5,  7,  9, 11 }, // offsets from the octave first note
@@ -245,6 +248,13 @@ public class NoteGenerator
 		else if (tsIdx == 3) { timeSignNumerator = 6; timeSignDenominator = 8; }
     }
     
+    public void setNotesList(Vector<Note> n, boolean random)
+    {
+    	randomPitchList = n;
+    	randomEnabled = random;
+    	notesListIndex = 0;
+    }
+
     public int getClefMask()
     {
     	return clefMask;
@@ -264,6 +274,7 @@ public class NoteGenerator
     	return 0;
     }
     
+    // Remember that this function returns the base pitch of a note !!!
     public int getPitchFromClefAndLevel(int clef, int level)
     {
     	if (clef == appPrefs.TREBLE_CLEF)
@@ -359,6 +370,11 @@ public class NoteGenerator
     	return alteredList.get(idx) - baseList.get(idx);
     }
     
+    public int getAlteredFromBase(int basePitch)
+    {
+    	int baseNoteIdx = baseList.indexOf(basePitch);
+    	return alteredList.get(baseNoteIdx);
+    }
     
     public int getRhythmPitch(int clef)
     {
@@ -376,7 +392,17 @@ public class NoteGenerator
     
     public Note getRandomNote(int forcedType, boolean altered)
     {
-    	int randIdx = (int) (randomPitchList.size() * Math.random());
+    	int randIdx = 0;
+    	if (randomEnabled == true)
+    		randIdx = (int) (randomPitchList.size() * Math.random());
+    	else
+    	{
+    		randIdx = notesListIndex;
+    		notesListIndex++;
+    		if (notesListIndex == randomPitchList.size()) // wrap up
+    			notesListIndex = 0;
+    	}
+    	
     	Note tmpNote  = randomPitchList.get(randIdx);
     	int type = forcedType;
     	if (forcedType == -1)

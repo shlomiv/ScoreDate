@@ -23,10 +23,12 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.QuadCurve2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.util.ResourceBundle;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -230,13 +232,35 @@ public class RoundedButton extends JButton
 	    	g.drawString("B", hOffset - 5, vOffset + 20);
 	    	g.drawString("C", hOffset + 20, vOffset + 40);
 	    }
-	    else
+	    else if (bLabel == "RBL_EARTRAIN")
 	    {
+	    	String title = appBundle.getString("_menuEarTraining");
+	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
+	    	FontMetrics fM1 = g.getFontMetrics();
+	    	textWidth = fM1.stringWidth(title);
+	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
 	    	
-	    	//g.setFont(new Font("Arial", Font.BOLD, fontSize));
+	    	// Draw an ear !
+	    	((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+	    	g.drawArc(hOffset - 40, vOffset - 20, 50, 50, -20, 210);
+	    	g.drawArc(hOffset - 32, vOffset - 12, 35, 32, -30, 230);
+	    	QuadCurve2D q = new QuadCurve2D.Float();
+	    	q.setCurve(hOffset + 7, vOffset + 15, hOffset, vOffset + 30, hOffset, vOffset + 40);
+	    	((Graphics2D) g).draw(q);
+	    	g.drawArc(hOffset - 25, vOffset + 20, 25, 40, 190, 170);
+	    	g.fillOval(hOffset - 25 , vOffset + 20, 10, 10);
+	    	
+	    	// draw sonic waves coming from the outer space
+	    	g.drawArc(hOffset + 35, vOffset, 15, 50, 90, 150);
+	    	g.drawArc(hOffset + 45, vOffset + 5, 10, 40, 90, 150);
+	    	((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+	    	g.drawArc(hOffset + 25, vOffset - 10, 20, 70, 90, 150);
+	    	
+	    }
+	    else
+	    {    	
 	    	FontMetrics fM1 = g.getFontMetrics(this.getFont());
 	    	textWidth = fM1.stringWidth(bLabel);
-	    	//System.out.println("------> di qua -- " + bLabel + ", text w: " + textWidth);
 	    	g.drawString(bLabel, textOffX + ((getSize().width - textWidth) / 2), textOffY + 25);
 	    }
 	    

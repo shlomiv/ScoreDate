@@ -78,6 +78,9 @@ public class Preferences
 	public int NOTE_CHORDS   	   = 3;
 
 	Properties prefs = new Properties();
+	
+	boolean globalExerciseMode = false;
+	Exercise currentExercise;
 
 	public Preferences()
 	{
@@ -114,5 +117,11 @@ public class Preferences
 			prefs.list(System.out);
         } 
         catch (IOException e) { }
+	}
+	
+	public void setExerciseMode(boolean enable, Exercise e)
+	{
+		globalExerciseMode = enable;
+		currentExercise = e;
 	}
 }

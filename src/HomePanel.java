@@ -34,7 +34,7 @@ public class HomePanel extends JPanel
 	Font appFont;
 	private ResourceBundle appBundle;
 	private BufferedImage MainPic = null;
-	public RoundedButton inlineBtn, rhythmBtn, scoreBtn, statsBtn, lessonsBtn;
+	public RoundedButton inlineBtn, rhythmBtn, scoreBtn, statsBtn, lessonsBtn, earTrainBtn;
 	public JPanel homeButtons;
 	private int btnWidth = 220;
 	private int logoHeight = 160;
@@ -76,6 +76,10 @@ public class HomePanel extends JPanel
 	    lessonsBtn.setFont(appFont);
 	    lessonsBtn.setBackground(Color.decode("0xAFC6E9"));
 	    lessonsBtn.setPreferredSize(new Dimension(btnWidth, 300));
+	    earTrainBtn = new RoundedButton("RBL_EARTRAIN", appBundle);
+	    earTrainBtn.setFont(appFont);
+	    earTrainBtn.setBackground(Color.decode("0xAFC6E9"));
+	    earTrainBtn.setPreferredSize(new Dimension(btnWidth, 300));
 
 	    homeButtons = new JPanel();
 	    homeButtons.setLayout(null);
@@ -87,6 +91,7 @@ public class HomePanel extends JPanel
 	    homeButtons.add(scoreBtn);
 	    homeButtons.add(statsBtn);
 	    homeButtons.add(lessonsBtn);
+	    homeButtons.add(earTrainBtn);
 	    
 	    add(homeButtons);
 	}
@@ -106,7 +111,10 @@ public class HomePanel extends JPanel
 		inlineBtn.setBounds(30, 10, btnWidth, btnHeight);
 		rhythmBtn.setBounds(40 + btnWidth, 10, btnWidth, btnHeight);
 		scoreBtn.setBounds(50 + (btnWidth * 2), 10, btnWidth, btnHeight);
-		statsBtn.setBounds(30 + (btnWidth/2), 20 + btnHeight, btnWidth, btnHeight);
-		lessonsBtn.setBounds(40 + (int)(btnWidth*1.5), 20 + btnHeight, btnWidth, btnHeight);
+		//statsBtn.setBounds(30 + (btnWidth/2), 20 + btnHeight, btnWidth, btnHeight);
+		//lessonsBtn.setBounds(40 + (int)(btnWidth*1.5), 20 + btnHeight, btnWidth, btnHeight);
+		statsBtn.setBounds(30, 20 + btnHeight, btnWidth, btnHeight);
+		lessonsBtn.setBounds(40 + btnWidth, 20 + btnHeight, btnWidth, btnHeight);
+		earTrainBtn.setBounds(50 + (btnWidth * 2), 20 + btnHeight, btnWidth, btnHeight);
 	}
 }

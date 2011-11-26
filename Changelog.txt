@@ -1,6 +1,20 @@
-November ???, 2011 - 2.0
+November 27th, 2011 - 2.0
 
+- MAJOR: added exercises panel. This feature includes:
+	* Tree listing of previously saved XML exercises
+	* preview of the exercise score properly scaled to fit the panel
+	* playback of the exercise to listen to it before playing it
+	* buttons to start exercising. Score reading can be also interpreted as notes in line
+	* exercise editor
+		> create any kind of exercise: line, rhythm, score
+		> set clef, accidentals, time signature, speed, random feature
+		> add notes and pauses to the score and edit the pitch by just pointing and clicking with the mouse
+		> previous notes selection
+		> last note removal 
+		> playback preview of the notes sequence
+		> save on XML file
 - fixed statistics daily view and empty panel
+- fixed resize of home panel when closing another panel
 
 November 13th, 2011 - 1.0
 

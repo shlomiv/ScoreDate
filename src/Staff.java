@@ -62,7 +62,7 @@ public class Staff extends JPanel
     //private int timeDivision = 1; // ratio between time signature numerator and denominator 
     private int scoreYpos = 35; // Y coordinate of the first row of the score
     private int rowsDistance = 90; // distance in pixel between staff rows
-    private int numberOfMeasures = 2; // number of measures in a single row
+    private int numberOfMeasuresPerRow = 2; // number of measures in a single row
     private int numberOfRows = 4; // number of score rows
     private int notesShift = 10; // space in pixel to align notes to the score layout
     private int noteDistance = 72; // distance in pixel between 1/4 notes
@@ -75,22 +75,23 @@ public class Staff extends JPanel
     private Vector<Integer> clefs = new Vector<Integer>();
     private Accidentals acc; // accidentals reference used for drawing
     
+    private double globalScale = 1.0;
+    
     public Staff(Font f, ResourceBundle b, Preferences p, Accidentals a, boolean inline, boolean singlePage)
     {
     	appFont = f;
     	appBundle = b;
     	appPrefs = p;
     	acc = a;
-    	//setSize(r.width, r.height);
+    	globalScale = 1.0;
+
     	if (inline == true)
     	{
     		inlineMode = true;
     		numberOfRows = 1;
-    		numberOfMeasures = 0;
+    		numberOfMeasuresPerRow = 0;
     	}
     	
-    	//setLocation(new Point(150, 110));
-    	//setDoubleBuffered(true);
     	setBackground(Color.white);
     }
     
@@ -112,6 +113,11 @@ public class Staff extends JPanel
     	repaint();
     }
     
+    public void setAccidentals(Accidentals a)
+    {
+    	acc = new Accidentals(a.getType(), a.getNumber(), appPrefs);
+    }
+    
     public void setTimeSignature(int num, int denom)
     {
     	timeSignNumerator = num;
@@ -119,9 +125,10 @@ public class Staff extends JPanel
     	repaint();
     }
     
-    public int getMeasuresNumber()
+    public int getMeasuresTotalNumber()
     {
-    	alterationWidth = acc.getNumber() * 12;
+    	if (acc != null)
+    		alterationWidth = acc.getNumber() * 12;
     	int scoreLineWidth = clefWidth + alterationWidth + timeSignWidth;
        	int tmpMeas =  (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
        	int tmpRows = getHeight() / rowsDistance;
@@ -141,7 +148,8 @@ public class Staff extends JPanel
     
     public int getFirstNoteXPosition()
     {
-    	alterationWidth = acc.getNumber() * 12;
+    	if (acc != null)
+    		alterationWidth = acc.getNumber() * 12;
     	firstNoteXPos = clefWidth + alterationWidth + timeSignWidth + notesShift;
     	return firstNoteXPos;
     }
@@ -150,15 +158,22 @@ public class Staff extends JPanel
     {
     	if (inlineMode == false)
     	{
-    		alterationWidth = acc.getNumber() * 12;
+    		if (acc != null)
+    			alterationWidth = acc.getNumber() * 12;
     		scoreLineWidth = clefWidth + alterationWidth + timeSignWidth;
-    		numberOfMeasures = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
-    		scoreLineWidth += (numberOfMeasures * (timeSignNumerator * noteDistance));
+    		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
+    		scoreLineWidth += (numberOfMeasuresPerRow * (timeSignNumerator * noteDistance));
     	}
     	else 
     		scoreLineWidth = getWidth();
 
+    	//System.out.println("[getStaffWidth] staff width: " + scoreLineWidth);
     	return scoreLineWidth;
+    }
+    
+    public void setScale(double factor)
+    {
+    	globalScale = factor;
     }
     
     // Draw staff. Includes clefs, alterations, time signature
@@ -166,13 +181,19 @@ public class Staff extends JPanel
  	{
  		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
  		super.paintComponent(g);
+ 		if (globalScale != 1.0)
+			((Graphics2D) g).scale(globalScale, globalScale);
+ 		
  		g.setColor(Color.white);
  		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setColor(Color.black);
 		
 		//System.out.println("[Staff - paintComponent] w = " + getWidth());
 
-        alterationWidth = acc.getNumber() * 12;
+		if ( acc != null)
+			alterationWidth = acc.getNumber() * 12;
+		else
+			alterationWidth = 0;
         firstNoteXPos = clefWidth + alterationWidth + alterationWidth + timeSignWidth + notesShift;
 
         scoreLineWidth = clefWidth + alterationWidth + timeSignWidth;
@@ -182,11 +203,20 @@ public class Staff extends JPanel
         if (inlineMode == false)
         {
         	if (forcedNumberOfMeasures == -1)
-        		numberOfMeasures = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
+        	{
+        		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
+        		numberOfRows = getHeight() / rowsDistance;
+        	}
         	else
-        		numberOfMeasures = forcedNumberOfMeasures;
-        	numberOfRows = getHeight() / rowsDistance;
-        	scoreLineWidth += (numberOfMeasures * (timeSignNumerator * noteDistance));
+        	{
+        		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
+        		numberOfRows = (int)Math.ceil((double)forcedNumberOfMeasures / (double)numberOfMeasuresPerRow);
+        		
+        		//numberOfRows = ((forcedNumberOfMeasures * (timeSignNumerator * noteDistance)) - scoreLineWidth) / (getWidth() - scoreLineWidth);
+        		//numberOfMeasuresPerRow = forcedNumberOfMeasures / numberOfRows;
+        	}
+        	
+        	scoreLineWidth += (numberOfMeasuresPerRow * (timeSignNumerator * noteDistance));
         }
         else
         {
@@ -196,7 +226,7 @@ public class Staff extends JPanel
         for (int r = 0; r < numberOfRows; r++) 
         {
         	// draw vertical separators first
-        	for (int v = 0; v < numberOfMeasures; v++)
+        	for (int v = 0; v < numberOfMeasuresPerRow; v++)
         		g.drawLine(vXPos + v * (timeSignNumerator * noteDistance), yPos, vXPos + v * (timeSignNumerator * noteDistance), yPos+40);
         	// draw the staff 5 lines 
         	for (int l = 0; l < 5; l++)
@@ -225,10 +255,11 @@ public class Staff extends JPanel
         	}
     		
     		// 2 - Draw accidentals
-       		acc.paint(g, appFont, clefWidth, yPos, clefs.get(0));
+        	if (acc != null && clefs.size() > 0)
+        		acc.paint(g, appFont, clefWidth, yPos, clefs.get(0));
         	
         	// 3 - Draw tonality (only on the first row)
-        	if (r == 0)
+        	if (r == 0 && acc != null)
         	{
         		g.setColor(Color.gray);
         		g.setFont(new Font("LucidaSans", Font.PLAIN, 11));
@@ -255,7 +286,7 @@ public class Staff extends JPanel
     		// 5 - Draw double clef elements
         	if (clefs.size() > 1)
         	{
-            	for (int v = 0; v < numberOfMeasures; v++)
+            	for (int v = 0; v < numberOfMeasuresPerRow; v++)
             		g.drawLine(vXPos + v * (timeSignNumerator * noteDistance), yPos + (rowsDistance / 2), vXPos + v * (timeSignNumerator * noteDistance), yPos + (rowsDistance / 2) + 40);
         		for (int l = 0; l < 5; l++)
             		g.drawLine(0, yPos + (rowsDistance / 2) + (l * 10), scoreLineWidth, yPos + (rowsDistance / 2) + (l * 10));

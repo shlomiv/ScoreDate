@@ -74,21 +74,21 @@ public class ExerciseWizard extends JDialog
         inlineExBtn = new RoundedButton("RBL_INLINE", appBundle, Color.decode("0xA2DDFF"));
         inlineExBtn.setFont(appFont);
         inlineExBtn.setFontSize(16);
-        inlineExBtn.setBackground(Color.decode("0xFFFFFF"));
+        inlineExBtn.setBackground(Color.decode("0xA1C5FF"));
         inlineExBtn.setPreferredSize(new Dimension(btnWidth, btnHeight));
         inlineExBtn.setBounds(tmpXpos, 45, btnWidth, 180);
         tmpXpos+=btnWidth+10;
         rhythmExBtn = new RoundedButton("RBL_RHYTHM", appBundle, Color.decode("0xA2DDFF"));
         rhythmExBtn.setFont(appFont);
         rhythmExBtn.setFontSize(16);
-        rhythmExBtn.setBackground(Color.decode("0xFFFFFF"));
+        rhythmExBtn.setBackground(Color.decode("0xA1C5FF"));
         rhythmExBtn.setPreferredSize(new Dimension(btnWidth, btnHeight));
         rhythmExBtn.setBounds(tmpXpos, 45, btnWidth, 180);
         tmpXpos+=btnWidth+10;
         scoreExBtn = new RoundedButton("RBL_SCORE", appBundle, Color.decode("0xA2DDFF"));
 	    scoreExBtn.setFont(appFont);
 	    scoreExBtn.setFontSize(16);
-	    scoreExBtn.setBackground(Color.decode("0xFFFFFF"));
+	    scoreExBtn.setBackground(Color.decode("0xA1C5FF"));
 	    scoreExBtn.setPreferredSize(new Dimension(btnWidth, btnHeight));
 	    scoreExBtn.setBounds(tmpXpos, 45, btnWidth, 180);
 	    
@@ -114,13 +114,12 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 	JComboBox accCB;
 	JRadioButton trebleClefCB, bassClefCB, altoClefCB, tenorClefCB;
 
-	JRadioButton fourfourButton;
-	JRadioButton twofourButton;
-	JRadioButton threefourButton;
-	JRadioButton sixeightButton;
+	JRadioButton fourfourButton, twofourButton, threefourButton, sixeightButton;
 	
 	JLabel tempoLabel;
 	JSlider tempoSlider;
+	
+	JRadioButton randYes, randNo;
 	
 	RoundedButton nextButton;
 	
@@ -311,7 +310,38 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
         speedPanel.add(tempoSlider);
         backPanel.add(speedPanel);
         tmpYpos+=60;
-        
+
+        if (currExercise.type == 0)
+        {
+			RoundPanel randomPanel = new RoundPanel(Color.decode("0xFFFFFF"), Color.decode("0xA2DDFF"));
+			randomPanel.setLayout(null);
+			randomPanel.setBackground(Color.white);
+			randomPanel.setBounds(5, tmpYpos, 585, 50);
+			
+			JLabel randomLabel = new JLabel(appBundle.getString("_exRandomize") + "  ");
+			randomLabel.setFont(new Font("Arial", Font.BOLD, 22));
+			randomLabel.setBounds(10, 10, 300, 30);
+			ButtonGroup rbRandGroup = new ButtonGroup();
+			
+			randYes = new JRadioButton(appBundle.getString("_yes"));
+			randYes.setFont(new Font("Arial", Font.BOLD, 20));
+			randYes.setBounds(270, 0, 70, 50);
+			randYes.setSelected(true);
+			randNo = new JRadioButton(appBundle.getString("_no"));
+			randNo.setFont(new Font("Arial", Font.BOLD, 20));
+			randNo.setBounds(340, 0, 70, 50);
+			randNo.setSelected(false);
+			
+			rbRandGroup.add(randYes);
+			rbRandGroup.add(randNo);
+			
+			randomPanel.add(randomLabel);
+			randomPanel.add(randYes);
+			randomPanel.add(randNo);
+			backPanel.add(randomPanel);
+	        tmpYpos+=60;
+        }
+
         nextButton = new RoundedButton(appBundle.getString("_exNext"), appBundle, Color.decode("0x0E9B20"));
         nextButton.setBackground(Color.decode("0x13DC2E"));
         nextButton.setFont(new Font("Arial", Font.BOLD, 20));
@@ -372,7 +402,13 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 					currExercise.setMeasure(3);
 	        }
 			else
+			{
 				currExercise.setMeasure(0);
+				if (randYes.isSelected() == true)
+					currExercise.randomize = 1;
+				else
+					currExercise.randomize = 0;
+			}
 			
 			currExercise.setSpeed(tempoSlider.getValue());
 			this.firePropertyChange("gotoScoreEditor", false, true);

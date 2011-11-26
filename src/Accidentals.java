@@ -45,6 +45,7 @@ public class Accidentals {
 	{
 		type = t;
 		amount = count;
+		//System.out.println("[Accidentals - setTypeAndCount] type: " + type + ", count: " + count);
 	}
 
 	public int getNumber()
@@ -148,7 +149,7 @@ public class Accidentals {
 	    else if (clefMask == appPrefs.TENOR_CLEF)
 	    	clefOffset = -5;
 
-	    if (type == "#") 
+	    if (type.equals("#")) 
 	    {
 	      if (amount >= 1) // FA#
 	        drawAlteration(g, f, xPos, yPos - 15 + clefOffset, sharp);
@@ -176,7 +177,7 @@ public class Accidentals {
 	        drawAlteration(g, f, xPos + 60, yPos + 5 + clefOffset, sharp);
 	    }
 
-	    if (type == "b") 
+	    if (type.equals("b"))
 	    {
 	      if (amount >= 1) // SIb
 	        drawAlteration(g, f, xPos, yPos + 5, flat);

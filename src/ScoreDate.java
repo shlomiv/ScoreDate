@@ -478,6 +478,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		homePanel.rhythmBtn.setResBundle(bundle);
 		homePanel.statsBtn.setResBundle(bundle);
 		homePanel.lessonsBtn.setResBundle(bundle);
+		homePanel.earTrainBtn.setResBundle(bundle);
 
 		if (currentContext == HOMEPANEL)
 		{

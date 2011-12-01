@@ -37,8 +37,6 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 //import javax.sound.midi.Transmitter;
 
-import javax.swing.JOptionPane;
-
 public class MidiController 
 {
 

@@ -101,7 +101,7 @@ public class InlinePanel extends JPanel implements ActionListener
 
 		gameType = appPrefs.GAME_STOPPED;
 		
-		sBar = new SmartBar(new Dimension(d.width, sBarHeight), b, f, p, true);
+		sBar = new SmartBar(new Dimension(d.width, sBarHeight), b, f, p, true, false);
 		sBar.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt)
 			{
@@ -165,8 +165,6 @@ public class InlinePanel extends JPanel implements ActionListener
 		
 		sBar.gameSelector.addActionListener(this);
 	
-		gameType = appPrefs.GAME_STOPPED;
-
 		add(sBar);
 		add(layers);
 		add(piano);
@@ -243,12 +241,12 @@ public class InlinePanel extends JPanel implements ActionListener
 			case 6:
 			case 7:
 			case 8:
-			case 9:
-			case 10:
+			//case 9:
+			//case 10:
 				gameSubType = appPrefs.NOTE_INTERVALS;
 				gameInterval = subGameIdx;
 			break;
-			case 11: 
+			case 9: 
 				gameSubType = appPrefs.NOTE_CHORDS; 
 			break;
 		}
@@ -463,9 +461,17 @@ public class InlinePanel extends JPanel implements ActionListener
 		{
 			appMidi.midiChannel.noteOff(pitch, 0);
 			if (fromPiano == true && gameSubType != appPrefs.NOTE_CHORDS && gameSubType != appPrefs.NOTE_INTERVALS &&  userNotes.size() != 0)
-				userNotes.removeElementAt(userNotes.indexOf(pitch));
+			{
+				int idx = userNotes.indexOf(pitch);
+				if (idx != -1)
+					userNotes.removeElementAt(idx);
+			}
 			else if (fromPiano == false	&& userNotes.size() != 0)
-				userNotes.removeElementAt(userNotes.indexOf(pitch));
+			{
+				int idx = userNotes.indexOf(pitch);
+				if (idx != -1)
+					userNotes.removeElementAt(idx);
+			}
 			if (pitch == 60 && gameType == appPrefs.GAME_STOPPED)
 				startGame();
 		}

@@ -60,7 +60,7 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 	private JTextField tempoLabel;
 	public JCheckBox metronomeCheckBox;
 	
-	private RoundedButton clefNoteBtn;
+	public RoundedButton clefNoteBtn;
 	private RoundPanel gameContainer;
 	public JComboBox gameSelector;
 	public JComboBox gameType;
@@ -72,17 +72,19 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 	private int totalObjWidth = 725;
 	private int upperMargin = 20;
 	private boolean isInline = false;
+	private boolean isEarTraining = false;
 
 	private ClefNotesOptionDialog clefNotesDialog;
 
 	private Color compColor = Color.decode("0x749CC5");
 
-	public SmartBar (Dimension d, ResourceBundle b, Font f, Preferences p, boolean inline)
+	public SmartBar (Dimension d, ResourceBundle b, Font f, Preferences p, boolean inline, boolean earTraining)
 	{
 		appBundle = b;
 		appFont = f;
 		appPrefs = p;
 		isInline = inline;
+		isEarTraining = earTraining;
 		setSize(d);
 		setLayout(null);
 		
@@ -120,7 +122,8 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		tempoContainer.setBackground(compColor);
 		((FlowLayout)tempoContainer.getLayout()).setHgap(7);
 
-		tempoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, -2));
+		tempoPanel = new JPanel(); //new FlowLayout(FlowLayout.CENTER, 20, -2));
+		tempoPanel.setLayout(null);
 		Border defBorder = UIManager.getBorder(tempoPanel);
 		tempoPanel.setBorder(BorderFactory.createTitledBorder(defBorder, appBundle.getString("_speed"), TitledBorder.LEADING, TitledBorder.TOP));
 		tempoPanel.setBackground(compColor);
@@ -128,23 +131,35 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 
 		if (inline == true)
 		{
-			tempoSlider = new JSlider(JSlider.HORIZONTAL, 30, 200, 60);
-			tempoLabel = new JTextField("60");
+			if (isEarTraining == false)
+			{
+				tempoSlider = new JSlider(JSlider.HORIZONTAL, 30, 200, 60);
+				tempoLabel = new JTextField("60");
+			}
+			else
+			{
+				tempoSlider = new JSlider(JSlider.HORIZONTAL, 1, 12, 6);
+				tempoLabel = new JTextField("6 Sec.");
+			}
+			tempoLabel.setBounds(85, 22, 60, 25);
 		}
 		else
 		{
 			tempoSlider = new JSlider(JSlider.HORIZONTAL, 40, 200, 80);
 			tempoLabel = new JTextField("80 BPM");
+			tempoLabel.setBounds(25, 22, 65, 25);
 		}
+		tempoSlider.setBounds(20, 45, 190, 25);
 		tempoSlider.addChangeListener(this);
 		tempoLabel.setBackground(Color.white);
-		tempoLabel.setPreferredSize(new Dimension(65, 25));
+		//tempoLabel.setPreferredSize(new Dimension(65, 25));
 		tempoLabel.setAlignmentX(LEFT_ALIGNMENT);
 		if (inline == false)
 		{
 			metronomeCheckBox = new JCheckBox(appBundle.getString("_menuMetronom"));
 			metronomeCheckBox.setForeground(Color.white);
 			metronomeCheckBox.setAlignmentX(RIGHT_ALIGNMENT);
+			metronomeCheckBox.setBounds(100, 22, 120, 25);
 			int mOn = Integer.parseInt(appPrefs.getProperty("metronome"));
 			if (mOn == 1)
 				metronomeCheckBox.setSelected(true);
@@ -167,23 +182,29 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 			gameContainer = new RoundPanel();
 			gameContainer.setBackground(compColor);
 			//((FlowLayout)gameContainer.getLayout()).setHgap(0);
-			gameContainer.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 3));
-			
-			gameContainer.setPreferredSize(new Dimension(166, buttonSize));
-			
+			gameContainer.setLayout(null);
+			//gameContainer.setPreferredSize(new Dimension(166, buttonSize));
+	
 			Font sbf = new Font("Arial", Font.BOLD, 13);
 			gameSelector = new JComboBox();
-			gameSelector.setPreferredSize(new Dimension(155, 30));
 			gameSelector.setFont(sbf);
-			//gameSelector.setBackground(compColor);
-
-			gameType = new JComboBox();
-			gameType.setPreferredSize(new Dimension(155, 30));
-			gameType.setFont(sbf);
 			
 			gameContainer.add(gameSelector);
-			gameContainer.add(gameType);
 			
+			if (isEarTraining == false)
+			{
+				gameSelector.setBounds(8, 5, 150, 28);
+				gameType = new JComboBox();
+				gameType.setBounds(8, 37, 150, 28);
+				gameType.setFont(sbf);
+
+				gameContainer.add(gameType);
+			}
+			else
+			{
+				gameSelector.setBounds(8, 21, 150, 28);
+				clefNoteBtn.setEnabled(false);
+			}
 			gameContainer.setBounds(posX, upperMargin, 166, buttonSize);
 			posX += 171;
 		}
@@ -240,30 +261,42 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 
 		if (isInline == true)
 		{
-			gameType.removeAllItems();
 			gameSelector.removeAllItems();
 			
-			gameSelector.addItem(appBundle.getString("_normalgame"));
-			gameSelector.addItem(appBundle.getString("_linegame"));
-			gameSelector.addItem(appBundle.getString("_learninggame"));
+			if (isEarTraining == false)
+			{
+				gameSelector.addItem(appBundle.getString("_normalgame"));
+				gameSelector.addItem(appBundle.getString("_linegame"));
+				gameSelector.addItem(appBundle.getString("_learninggame"));
+			}
+			else
+			{
+				gameSelector.addItem(appBundle.getString("_levBasic"));
+				gameSelector.addItem(appBundle.getString("_levMedium"));
+				gameSelector.addItem(appBundle.getString("_levAdvanced"));
+				gameSelector.addItem(appBundle.getString("_levCustom"));
+			}
 			
 			// TODO: 
 			// WARNING !!!! If you change these entries you must change indexes of 
 			// InlinePanel.setLearningInfo and InlinePanel.setGameType !!!!
-			gameType.addItem(appBundle.getString("_notes"));
-			gameType.addItem(appBundle.getString("_alterednotes"));
-			//gameType.addItem(appBundle.getString("_customnotes"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_second"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_third"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_fourth"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_fifth"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_sixth"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_seventh"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_octave"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_minor"));
-			gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_major"));
-			gameType.addItem(appBundle.getString("_chords"));
-			//gameType.addItem(appBundle.getString("_inversion"));
+			if (isEarTraining == false)
+			{
+				gameType.removeAllItems();
+				gameType.addItem(appBundle.getString("_notes"));
+				gameType.addItem(appBundle.getString("_alterednotes"));
+				gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_second"));
+				gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_third"));
+				gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_fourth"));
+				gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_fifth"));
+				gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_sixth"));
+				gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_seventh"));
+				gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_octave"));
+				//gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_minor"));
+				//gameType.addItem(appBundle.getString("_intervals") + " - " + appBundle.getString("_major"));
+				gameType.addItem(appBundle.getString("_chords"));
+				//gameType.addItem(appBundle.getString("_inversion"));
+			}
 		}
 		else
 			metronomeCheckBox.setText(appBundle.getString("_menuMetronom"));
@@ -304,7 +337,12 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 			if (isInline == false)
 				tempoLabel.setText(Integer.toString(tempoSlider.getValue()) + " BPM");
 			else
-				tempoLabel.setText(Integer.toString(tempoSlider.getValue()));
+			{
+				if (isEarTraining == true)
+					tempoLabel.setText(Integer.toString(tempoSlider.getValue()) + " Sec.");
+				else
+					tempoLabel.setText(Integer.toString(tempoSlider.getValue()));
+			}
 		}
     }
 	

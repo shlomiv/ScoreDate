@@ -1,4 +1,12 @@
-November 27th, 2011 - 2.0
+December 1st, 2011 - version 2.1
+
+- if GM soundbank is not present, ask the user to download it from internet
+- MIDI input transposition is now based on semitones, to allow more flexibility 
+- redesigned MIDI input configuration window
+- Line game: fixed potential crash on key release
+- updated russian and hungarian translations
+
+November 27th, 2011 - version 2.0
 
 - MAJOR: added exercises panel. This feature includes:
 	* Tree listing of previously saved XML exercises
@@ -16,7 +24,7 @@ November 27th, 2011 - 2.0
 - fixed statistics daily view and empty panel
 - fixed resize of home panel when closing another panel
 
-November 13th, 2011 - 1.0
+November 13th, 2011 - version 1.0
 
 - NEW: added statistics panel showing monthly and daily views
 - line game: added random accidentals exercise
@@ -35,6 +43,6 @@ November 13th, 2011 - 1.0
 - added icon to main window 
 - fixed italian translation
 
-November 5th, 2011 - 1.0 alpha
+November 5th, 2011 - version 1.0 alpha
 
 Initial version of Score Date

@@ -117,7 +117,7 @@ public class ScorePanel extends JPanel implements ActionListener
 		}
 		stats = new Statistics();
 		
-		sBar = new SmartBar(new Dimension(d.width-8, sBarHeight), b, f, p, false);
+		sBar = new SmartBar(new Dimension(d.width-8, sBarHeight), b, f, p, false, false);
 		sBar.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt)
 			{
@@ -488,7 +488,6 @@ public class ScorePanel extends JPanel implements ActionListener
 	}
 		
 	public void actionPerformed(ActionEvent ae)
-
 	{
 		if (ae.getSource() == sBar.playBtn)
 		{

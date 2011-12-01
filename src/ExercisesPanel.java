@@ -190,6 +190,12 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		updateTreeList();
 	}
 	
+	public void updateLanguage(ResourceBundle bundle)
+	{
+		System.out.println("EXERCISE - update language");
+		appBundle = bundle;
+	}
+	
     private class ExNodeInfo 
     {
         public String exLabel;

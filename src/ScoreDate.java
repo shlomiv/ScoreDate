@@ -44,6 +44,7 @@ import javax.sound.midi.Transmitter;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -70,6 +71,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	 private ScorePanel scorePanel = null;
 	 private StatsPanel statsPanel = null;
 	 private ExercisesPanel exsPanel = null;
+	 private EarTrainingPanel earPanel = null;
 	 
 	 // MIDI Resources
 	 public MidiController midiControl;
@@ -85,6 +87,7 @@ public class ScoreDate extends JFrame implements ActionListener
      private static int SCOREREADING = 3;
      private static int STATISTICS = 4;
      private static int EXERCISES = 5;
+     private static int EARTRAINING = 6;
      
      private int transposition = 0;
 
@@ -149,6 +152,20 @@ public class ScoreDate extends JFrame implements ActionListener
 		 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // exit when frame closed
 
 		 midiControl = new MidiController(prefs);
+		 int midiError = midiControl.checkError();
+		 if (midiError == 2)
+		 {
+		   Object[] options = { bundle.getString("_yes"), bundle.getString("_no") };
+      	   int ret = JOptionPane.showOptionDialog(this.getParent(), "<html><b>Java Soundbank not found. " +
+      	   		"<br>Without it you will not be able to hear any note.<br><br>Would you like to download it now ?</b></html>",
+   	  		 	"Java error", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+      	   if (ret == JOptionPane.YES_OPTION)
+      	   {
+      		 SoundbankDownloader sbDown = new SoundbankDownloader();
+      		 sbDown.startDownload(); // blocked here until download is finished
+      		 midiControl = new MidiController(prefs); // reload the just downloaded bank
+      	   }
+		 }
 		 midiDev = midiControl.openDevice();
 		 
 		 if (midiDev != null)
@@ -200,7 +217,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		 homePanel.earTrainBtn.addActionListener(this);
 	     
 		 currentContext = HOMEPANEL;
-		 transposition = Integer.parseInt(prefs.getProperty("transposition")) - 2;
+		 transposition = Integer.parseInt(prefs.getProperty("transposition"));
 		 
          addComponentListener(new java.awt.event.ComponentAdapter()
     	 {
@@ -286,6 +303,15 @@ public class ScoreDate extends JFrame implements ActionListener
 	     {
 	    	 JOptionPane.showMessageDialog(this.getParent(), "<html><b>Coming soon !</b></html>",
 		   	 		 	bundle.getString("_menuEarTraining"), JOptionPane.INFORMATION_MESSAGE);
+	    	 /*
+	    	 homePanel.setVisible(false);
+			 prefs.setExerciseMode(false, null);
+	    	 earPanel = new EarTrainingPanel(MusiSync, bundle, prefs, midiControl, wSize);
+	    	 getContentPane().add(earPanel);
+	    	 earPanel.setVisible(true);
+			 currentContext = EARTRAINING;
+			 earPanel.sBar.homeBtn.addActionListener(this);
+			 */
 	     }
 		 
 		 // *************************** GAMES PANEL HOME BUTTON ***************************
@@ -312,6 +338,15 @@ public class ScoreDate extends JFrame implements ActionListener
 	    	 scorePanel.stopGame();
 	    	 this.remove(scorePanel);
 	    	 scorePanel = null;
+	    	 getContentPane().add(homePanel);
+	    	 homePanel.setVisible(true);
+	    	 currentContext = HOMEPANEL;
+	     }
+	     else if (earPanel != null && ae.getSource() == earPanel.sBar.homeBtn)
+	     {
+	    	 earPanel.stopGame();
+	    	 this.remove(earPanel);
+	    	 earPanel = null;
 	    	 getContentPane().add(homePanel);
 	    	 homePanel.setVisible(true);
 	    	 currentContext = HOMEPANEL;
@@ -424,10 +459,10 @@ public class ScoreDate extends JFrame implements ActionListener
 							System.out.println("Set new MIDI instrument...");
 							midiControl.setNewInstrument();
 						}
-						else if (evt.getPropertyName() == "newTranpose")
+						else if (evt.getPropertyName() == "newTranspose")
 						{
 							System.out.println("Set new transposition...");
-							transposition = Integer.parseInt(prefs.getProperty("transposition")) - 2;
+							transposition = Integer.parseInt(prefs.getProperty("transposition"));
 						}
 					}
 				});
@@ -500,6 +535,14 @@ public class ScoreDate extends JFrame implements ActionListener
 	    {
 	    	statsPanel.updateLanguage(bundle);
 	    }
+	    else if (exsPanel != null && currentContext == EXERCISES)
+	    {
+	    	exsPanel.updateLanguage(bundle);
+	    }
+	    else if (earPanel != null && currentContext == EARTRAINING)
+	    {
+	    	earPanel.updateLanguage(bundle);
+	    }
 	 }
 
 	 private class MidiReceiver implements Receiver 
@@ -516,7 +559,7 @@ public class ScoreDate extends JFrame implements ActionListener
                   case 0x90:
                 	  int pitch = ((ShortMessage)event).getData1();
                 	  int vel = ((ShortMessage)event).getData2();
-                	  pitch += (transposition * 12);
+                	  pitch += transposition;
                 	  System.out.println("   Key pressed - Pitch: "+ pitch + " Velocity: " + vel);
 
                 	  if (inlinePanel != null && inlinePanel.isVisible() == true)

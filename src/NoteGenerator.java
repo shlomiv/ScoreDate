@@ -333,6 +333,11 @@ public class NoteGenerator
     	System.out.println("");
     }
     
+    public int getNotesNumber()
+    {
+    	return randomPitchList.size();
+    }
+    
     public int getFirstLowPitch()
     {
     	if (randomPitchList.size() == 0)

@@ -37,6 +37,8 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 //import javax.sound.midi.Transmitter;
 
+import javax.swing.JOptionPane;
+
 public class MidiController 
 {
 
@@ -55,6 +57,8 @@ public class MidiController
     private Track[] tracks = { null, null };
     private Sequence[] sequences = { null, null };
     private Sequencer[] sequencers = { null, null };
+    
+    int errorCode = 0;
 	
 	public MidiController(Preferences p)
 	{
@@ -62,8 +66,13 @@ public class MidiController
 		initialize();
 	}
 	
-	 public boolean initialize() 
-	 {
+	public int checkError()
+	{
+		return errorCode;
+	}
+	
+	public boolean initialize() 
+	{
 	   if (inputDevice != null && inputDevice.isOpen())
 		   inputDevice.close();
 
@@ -74,6 +83,7 @@ public class MidiController
                if ((midiSynth = MidiSystem.getSynthesizer()) == null) 
                {
                    System.out.println("getSynthesizer() failed!");
+                   errorCode = 1;
                    return false;
                }
            }
@@ -88,7 +98,8 @@ public class MidiController
        if (!midierror) 
        {
            Soundbank sb = midiSynth.getDefaultSoundbank();
-           if (sb != null) {
+           if (sb != null) 
+           {
                instruments = midiSynth.getDefaultSoundbank().getInstruments();
 
                if (instruments != null) {
@@ -100,21 +111,26 @@ public class MidiController
                    System.out.println("Soundbank null");
                }
            }
+           else
+           {
+        	   System.out.println("NO SOUNDBANK FOUND !! Download one...");
+        	   errorCode = 2;
+           }
 
            allMC = midiSynth.getChannels();
 
            midiChannel = allMC[0];
        }
        return true;
-	 }
+	}
 	 
-	 public Instrument[] getInstruments()
-	 {
+	public Instrument[] getInstruments()
+	{
 		 return instruments;
-	 }
+	}
 	 
-	 public MidiDevice openDevice()
-	 {
+	public MidiDevice openDevice()
+	{
 		 int selectedDeviceIdx = Integer.parseInt(appPrefs.getProperty("mididevice"));
 
 		 if (inputDevice != null && inputDevice.isOpen())

@@ -16,7 +16,8 @@ along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
 
 **********************************************/
 
-import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
@@ -26,14 +27,17 @@ import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 
 public class MidiOptionsDialog extends JDialog implements ActionListener
 {
@@ -41,10 +45,12 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	private ResourceBundle appBundle;
 	private Preferences appPrefs;
 	
+	JPanel backPanel;
+	
     //private JCheckBox soundOnCheckBox;
     private JComboBox instrumentsComboBox;
     private JComboBox keyboardLengthComboBox; // for length-number of touchs of keyboard
-    private JComboBox transpositionComboBox; // for transposition MIDI keyboard
+    private JSpinner transpositionSpinner; // for transposition MIDI keyboard
     private JSlider latencySlider;
 
     private JCheckBox keyboardsoundCheckBox;
@@ -60,77 +66,37 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		appBundle = b;
 		appPrefs = p;
 		
-		this.setIconImage(new ImageIcon(getClass().getResource("/resources/midi.png")).getImage());
+		Font titleFont = new Font("Arial", Font.BOLD, 18);
 		
-		JPanel soundPanel = new JPanel(); // panel midi keyboard
-		soundPanel.setBorder(BorderFactory.createTitledBorder(appBundle.getString("_sound")));
-
-		/*soundOnCheckBox = new JCheckBox(appBundle.getString("_notessound"), false);
-		if (Integer.parseInt(appPrefs.getProperty("sound")) != 0)
-			soundOnCheckBox.setSelected(true);
-		 */
-        keyboardsoundCheckBox = new JCheckBox(appBundle.getString("_keyboardsound"), false);
-        int kSound = Integer.parseInt(appPrefs.getProperty("keyboardsound")); 
-        if (kSound == -1 || kSound == 1)
-        	keyboardsoundCheckBox.setSelected(true);
-
-		instrumentsComboBox = new JComboBox();
-		if (iList != null) 
-		{
-            for (int i=0; i<20; i++) 
-                instrumentsComboBox.addItem(iList[i].getName());
-        } 
-		else 
-		{
-            instrumentsComboBox.addItem("No instrument available");
-            System.out.println("No soundbank file : http://java.sun.com/products/java-media/sound/soundbanks.html");
-        }
-		if (instrumentsComboBox.getItemCount() > 0)
-		{
-			int instIdx = Integer.parseInt(appPrefs.getProperty("instrument"));
-			if (instIdx == -1) instIdx = 0;
-			instrumentsComboBox.setSelectedIndex(instIdx);
-		}
-		instrumentsComboBox.addActionListener(this);
-
-        JPanel keyboardSoundPanel = new JPanel();
-        //keyboardSoundPanel.add(soundOnCheckBox);
-        keyboardSoundPanel.add(keyboardsoundCheckBox);
-        keyboardSoundPanel.add(instrumentsComboBox);
-
-        soundPanel.setLayout(new BorderLayout());
-        soundPanel.add(keyboardSoundPanel, BorderLayout.CENTER);
-
-        // show metronome beats panel
-        JPanel metronomePanel = new JPanel();
-        metronomePanel.setBorder(BorderFactory.createTitledBorder(appBundle.getString("_menuMetronom")));
-        showBeatsCheckBox = new JCheckBox(appBundle.getString("_menuShowMetronom"));
-        if (Integer.parseInt(appPrefs.getProperty("showBeats")) == 1)
-        	showBeatsCheckBox.setSelected(true);
-        metronomePanel.add(showBeatsCheckBox);
+		setTitle(appBundle.getString("_menuMidi"));
+        setSize(517, 380);
+        setResizable(false);
+        setLocationRelativeTo(null); // Center the window on the display
+        setLayout(null);
+		setIconImage(new ImageIcon(getClass().getResource("/resources/midi.png")).getImage());
+		
+		backPanel = new JPanel();
+        backPanel.setLayout(null);
+        backPanel.setBackground(Color.white);
+        backPanel.setBounds(0, 0, 517, 380);
         
-        /* Latency - Cursor Speed panel */
-		latencySlider = new JSlider(JSlider.HORIZONTAL, 0, 250, 0);
-        latencySlider.setMajorTickSpacing(50);
-        latencySlider.setMinorTickSpacing(10);
-        latencySlider.setPaintTicks(true);
-        latencySlider.setPaintLabels(true);
+        int tmpYpos = 5;
+        
+        // ******************************* MIDI in panel *****************************
+        
+        RoundPanel midiInPanel = new RoundPanel();
+        midiInPanel.setLayout(null);
+        midiInPanel.setBackground(Color.white);
+        midiInPanel.setBounds(5, tmpYpos, 500, 50);
 
-		JPanel latencyPanel = new JPanel();
-		latencyPanel.setBorder(BorderFactory.createTitledBorder(appBundle.getString("_latency")));
-        latencyPanel.add(latencySlider);
-       
-    	try
-    	{
-            latencySlider.setValue(Integer.parseInt(appPrefs.getProperty("latency")));	   
-    	}
-  	    catch (Exception e) 
-  	    {
-  	      System.out.println(e);
-  	    }
-
+        JLabel midiLabel = new JLabel(appBundle.getString("_midiclavier"));
+        midiLabel.setFont(titleFont);
+        midiLabel.setBounds(10, 5, 200, 40);
+        midiInPanel.add(midiLabel);
+        
         // MIDI IN panel
     	midiInComboBox = new JComboBox();
+    	midiInComboBox.setBounds(250, 12, 230, 25);
     	midiInComboBox.addItem(appBundle.getString("_nomidiin"));
         MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
         for (int i = 0; i < aInfos.length; i++) 
@@ -153,39 +119,141 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         if (midiDevIdx < 0 || midiDevIdx >= midiInComboBox.getItemCount())
         	midiInComboBox.setSelectedIndex(0);
         else
-        	midiInComboBox.setSelectedIndex(midiDevIdx);     
+        	midiInComboBox.setSelectedIndex(midiDevIdx);
+
+        midiInPanel.add(midiInComboBox);
+        tmpYpos+=55;
+       
+        // ******************************* keyboard sound & lenght *****************************
+        RoundPanel soundPanel = new RoundPanel();
+        soundPanel.setLayout(null);
+        soundPanel.setBackground(Color.white);
+        soundPanel.setBounds(5, tmpYpos, 500, 50);
+
+        keyboardsoundCheckBox = new JCheckBox(appBundle.getString("_keyboardsound"), false);
+        keyboardsoundCheckBox.setBounds(20, 5, 140, 40);
+        int kSound = Integer.parseInt(appPrefs.getProperty("keyboardsound")); 
+        if (kSound == -1 || kSound == 1)
+        	keyboardsoundCheckBox.setSelected(true);
+
+		instrumentsComboBox = new JComboBox();
+		instrumentsComboBox.setBounds(160, 12, 160, 25);
+		if (iList != null) 
+		{
+            for (int i=0; i<20; i++) 
+                instrumentsComboBox.addItem(iList[i].getName());
+        } 
+		else 
+		{
+            instrumentsComboBox.addItem("No instrument available");
+            System.out.println("No soundbank file : http://java.sun.com/products/java-media/sound/soundbanks.html");
+        }
+		if (instrumentsComboBox.getItemCount() > 0)
+		{
+			int instIdx = Integer.parseInt(appPrefs.getProperty("instrument"));
+			if (instIdx == -1) instIdx = 0;
+			instrumentsComboBox.setSelectedIndex(instIdx);
+		}
+		instrumentsComboBox.addActionListener(this);
 
         keyboardLengthComboBox = new JComboBox();
+        keyboardLengthComboBox.setBounds(330, 12, 150, 25);
         keyboardLengthComboBox.addItem("73 " + appBundle.getString("_keys"));
         keyboardLengthComboBox.addItem("61 " + appBundle.getString("_keys"));
         if (Integer.parseInt(appPrefs.getProperty("keyboardlength")) == 61)
         	keyboardLengthComboBox.setSelectedIndex(1);
         keyboardLengthComboBox.addActionListener(this);
+		
+		/*soundOnCheckBox = new JCheckBox(appBundle.getString("_notessound"), false);
+		if (Integer.parseInt(appPrefs.getProperty("sound")) != 0)
+			soundOnCheckBox.setSelected(true);
+		 */
 
-        transpositionComboBox = new JComboBox();
-        transpositionComboBox.addItem("-2 " + appBundle.getString("_octave"));
-        transpositionComboBox.addItem("-1 " + appBundle.getString("_octave"));
-        transpositionComboBox.addItem(appBundle.getString("_notransposition"));
-        transpositionComboBox.addItem("1 " + appBundle.getString("_octave"));
-        transpositionComboBox.addItem("2 " + appBundle.getString("_octave"));
-        int trIdx = Integer.parseInt(appPrefs.getProperty("transposition"));
-        if (trIdx == -1) trIdx = 2;
-        transpositionComboBox.setSelectedIndex(trIdx);
-        transpositionComboBox.addActionListener(this);
+        //soundPanel.add(soundOnCheckBox);
+        soundPanel.add(keyboardsoundCheckBox);
+        soundPanel.add(instrumentsComboBox);
+        soundPanel.add(keyboardLengthComboBox);
+        tmpYpos+=55;
+        
+        // ******************************* transposition *****************************
+        
+        RoundPanel keyboardPanel = new RoundPanel();
+        keyboardPanel.setLayout(null);
+        keyboardPanel.setBackground(Color.white);
+        keyboardPanel.setBounds(5, tmpYpos, 500, 50);
+        
+        JLabel keyLabel = new JLabel(appBundle.getString("_transposition"));
+        keyLabel.setFont(titleFont);
+        keyLabel.setBounds(10, 5, 260, 40);
 
-        JPanel keyboardPanel = new JPanel();
-        keyboardPanel.add(keyboardLengthComboBox);
-        keyboardPanel.add(transpositionComboBox);
+        int trVal = Integer.parseInt(appPrefs.getProperty("transposition"));
+        if (trVal == -1) trVal = 0;
 
-        JPanel midiInPanel = new JPanel();
-        midiInPanel.setBorder(BorderFactory.createTitledBorder(appBundle.getString("_midiclavier")));
-        midiInPanel.setLayout(new BorderLayout());
-        midiInPanel.add(midiInComboBox, BorderLayout.NORTH);
-        midiInPanel.add(keyboardPanel, BorderLayout.CENTER);
+        SpinnerModel model = new SpinnerNumberModel(trVal, -24, 24, 1);
+        transpositionSpinner = new JSpinner(model);
+        transpositionSpinner.setBounds(380, 12, 100, 25);
+        
 
-        // ----
+        keyboardPanel.add(keyLabel);
+        keyboardPanel.add(transpositionSpinner);
+        tmpYpos+=55;
 
-        okButton = new JButton(appBundle.getString("_buttonok"));
+        // ******************************* metronome panel *****************************
+        // show metronome beats panel
+        RoundPanel metronomePanel = new RoundPanel();
+        metronomePanel.setLayout(null);
+        metronomePanel.setBackground(Color.white);
+        metronomePanel.setBounds(5, tmpYpos, 500, 50);
+        
+        JLabel clickLabel = new JLabel(appBundle.getString("_menuMetronom"));
+        clickLabel.setFont(titleFont);
+        clickLabel.setBounds(10, 5, 260, 40);
+        
+        showBeatsCheckBox = new JCheckBox(appBundle.getString("_menuShowMetronom"));
+        showBeatsCheckBox.setBounds(380, 12, 100, 25);
+        if (Integer.parseInt(appPrefs.getProperty("showBeats")) == 1)
+        	showBeatsCheckBox.setSelected(true);
+        
+        metronomePanel.add(clickLabel);
+        metronomePanel.add(showBeatsCheckBox);
+        tmpYpos+=55;
+        
+        // ******************************* latency panel *****************************
+        RoundPanel latencyPanel = new RoundPanel();
+        latencyPanel.setLayout(null);
+        latencyPanel.setBackground(Color.white);
+        latencyPanel.setBounds(5, tmpYpos, 500, 70);
+        
+        JLabel latLabel = new JLabel(appBundle.getString("_latency"));
+        latLabel.setFont(titleFont);
+        latLabel.setBounds(10, 5, 200, 60);
+
+        latencySlider = new JSlider(JSlider.HORIZONTAL, 0, 250, 0);
+        latencySlider.setBounds(210, 3, 270, 60);
+        latencySlider.setMajorTickSpacing(50);
+        latencySlider.setMinorTickSpacing(10);
+        latencySlider.setPaintTicks(true);
+        latencySlider.setPaintLabels(true);
+
+        latencyPanel.add(latLabel);
+        latencyPanel.add(latencySlider);
+        tmpYpos+=75;
+       
+    	try
+    	{
+            latencySlider.setValue(Integer.parseInt(appPrefs.getProperty("latency")));	   
+    	}
+  	    catch (Exception e) 
+  	    {
+  	      System.out.println(e);
+  	    }
+
+    	// ******************************* buttons panel *****************************
+    	JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.white);
+        buttonPanel.setBounds(5, tmpYpos, 500, 40);
+
+    	okButton = new JButton(appBundle.getString("_buttonok"));
         okButton.setIcon(new ImageIcon(getClass().getResource("/resources/correct.png")));
         okButton.addActionListener(this);
 
@@ -193,23 +261,18 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         cancelButton.setIcon(new ImageIcon(getClass().getResource("/resources/wrong.png")));
         cancelButton.addActionListener(this);
 
-        JPanel buttonPanel = new JPanel();
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
 
-        // ----
+        backPanel.add(midiInPanel);
+        backPanel.add(keyboardPanel);
+        backPanel.add(soundPanel);
+        backPanel.add(metronomePanel);
+        backPanel.add(latencyPanel);
+        backPanel.add(buttonPanel);
+        
+        add(backPanel);
 
-        JPanel contentPanel = new JPanel();
-        contentPanel.add(soundPanel);
-        contentPanel.add(metronomePanel);
-        contentPanel.add(midiInPanel);
-        contentPanel.add(latencyPanel);
-        contentPanel.add(buttonPanel);
-
-        setTitle(appBundle.getString("_menuMidi"));
-        setContentPane(contentPanel);
-        setSize(520, 320);
-        setLocationRelativeTo(null); // Center the window on the display
 	}
 	
 	public void actionPerformed(ActionEvent ae)
@@ -235,11 +298,11 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	    		appPrefs.setProperty("showBeats", "1");
 	    	else
 	    		appPrefs.setProperty("showBeats", "0");
-	    	
-	    	if (Integer.parseInt(appPrefs.getProperty("transposition")) != transpositionComboBox.getSelectedIndex())
+
+	    	SpinnerNumberModel model =  (SpinnerNumberModel)transpositionSpinner.getModel();
+	    	if (Integer.parseInt(appPrefs.getProperty("transposition")) != model.getNumber().intValue())
 	    		newTranpose = true;
-			appPrefs.setProperty("transposition",String.valueOf(transpositionComboBox.getSelectedIndex()));
-			
+			appPrefs.setProperty("transposition",String.valueOf(model.getNumber().intValue()));
 			
 	    	if (keyboardLengthComboBox.getSelectedIndex() == 1) 
 	    		appPrefs.setProperty("keyboardlength","61");
@@ -260,7 +323,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	    	if (newInstrument == true)
 	    		this.firePropertyChange("newMidiInstrument", false, true);
 	    	if (newTranpose == true)
-	    		this.firePropertyChange("newTranpose", false, true);
+	    		this.firePropertyChange("newTranspose", false, true);
 	    	
 			this.dispose();
 		}

@@ -28,7 +28,6 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.util.ResourceBundle;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -58,6 +57,12 @@ public class RoundedButton extends JButton
 	    bLabel = label;
 	    appBundle = b;
 	    endColor = eC;
+	  }
+	  
+	  public void setLabel(String label)
+	  {
+		  bLabel = label;
+		  repaint();
 	  }
 	  
 	  public void setResBundle(ResourceBundle b)

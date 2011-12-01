@@ -71,6 +71,7 @@ public class Preferences
 	public int SCORE_GAME_LISTEN   = 4;
 	public int RHTYHM_GAME_USER    = 5;
 	public int SCORE_GAME_USER     = 6;
+	public int EAR_TRAINING		   = 7;
 	
 	public int NOTE_NORMAL		   = 0;
 	public int NOTE_ACCIDENTALS	   = 1;

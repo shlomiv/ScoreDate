@@ -174,7 +174,10 @@ public class ScorePanel extends JPanel implements ActionListener
 		{
 			scoreNG.update();
 		
-			rowsDistance = scoreNG.getRowsDistance();
+			if (isRhythm == false)
+				rowsDistance = scoreNG.getRowsDistance();
+			else
+				rowsDistance = 90;
 			scoreStaff.setRowsDistance(rowsDistance);
 			notesLayer.setRowsDistance(rowsDistance);
 			scoreStaff.setClef(scoreNG.getClefMask());
@@ -509,7 +512,7 @@ public class ScorePanel extends JPanel implements ActionListener
 					gameType = appPrefs.RHTYHM_GAME_USER;
 				else 
 					gameType = appPrefs.SCORE_GAME_USER;
-				//notesLayer.repaint();
+				notesLayer.repaint();
 				gameBar.precisionCnt.setText("");
 				gameBar.scoreCnt.setText("");
 				gameBar.progress.setValue(0);

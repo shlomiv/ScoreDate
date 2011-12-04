@@ -81,14 +81,14 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		String title = appBundle.getString("_exWizard") + " 3/3";
 		setTitle(title);
         setLayout(null);
-		setSize(700, 360);
+		setSize(700, 380);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display
         
         JPanel backPanel = new JPanel();
         backPanel.setLayout(null);
         backPanel.setBackground(Color.white);
-        backPanel.setBounds(0, 0, 700, 360);
+        backPanel.setBounds(0, 0, 700, 380);
         
         RoundPanel notesPanel = new RoundPanel(Color.decode("0xFFFFFF"), Color.decode("0xA2DDFF"));
         notesPanel.setLayout(null);
@@ -210,14 +210,14 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         
         layers = new JLayeredPane();
 		//layers.setPreferredSize( new Dimension(panelsWidth, staffHeight));
-		layers.setPreferredSize(new Dimension(670, 125));
+		layers.setPreferredSize(new Dimension(670, 145));
 		layers.setBackground(Color.white);
 		
 		if (currExercise.type == 0)
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, true, true);
 		else
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, false, true);
-        scoreStaff.setBounds(0, 0, 670, 125);
+        scoreStaff.setBounds(0, 0, 670, 145);
         scoreStaff.setOpaque(true);
         scoreStaff.setClef(currExercise.clefMask);
         scoreStaff.setTimeSignature(timeNumerator, timeDenominator);
@@ -225,7 +225,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         
         notesLayer = new NotesPanel(appFont, appPrefs, currExercise.notes, false);
 		//notesLayer.setPreferredSize( new Dimension(670, 125));
-		notesLayer.setBounds(0, 0, 670, 125);
+		notesLayer.setBounds(0, 0, 670, 145);
 		notesLayer.setOpaque(false);
 		notesLayer.setClef(currExercise.clefMask);
 		notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
@@ -240,13 +240,13 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         layers.add(notesLayer, new Integer(2));
         
         scoreScrollPanel = new JScrollPane(layers);
-        scoreScrollPanel.setBounds(10, 120, 676, 146);
+        scoreScrollPanel.setBounds(10, 120, 676, 166);
         scoreScrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         
         finishButton = new RoundedButton(appBundle.getString("_exFinished"), appBundle, Color.decode("0x0E9B20"));
         finishButton.setBackground(Color.decode("0x13DC2E"));
         finishButton.setFont(new Font("Arial", Font.BOLD, 20));
-        finishButton.setBounds(490, 275, 190, 40);
+        finishButton.setBounds(490, 295, 190, 40);
         finishButton.addActionListener(this);
 
         backPanel.add(notesPanel);
@@ -319,15 +319,15 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			scoreScrollPanel.repaint();
 		}
 
-		int pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, 10);
+		int pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, 12);
 		pitch = exerciseNG.getAlteredFromBase(pitch);
 		if (isSilence == true)
 		{
-			tmpNote = new Note(0, currExercise.clefMask, 10, pitch, 5, false, 0);
+			tmpNote = new Note(0, currExercise.clefMask, 12, pitch, 5, false, 0);
 			tmpNote.duration = type;
 		}
 		else
-			tmpNote = new Note(0, currExercise.clefMask, 10, pitch, (int)type, false, 0);
+			tmpNote = new Note(0, currExercise.clefMask, 12, pitch, (int)type, false, 0);
 		
 		measureCounter -= tmpNote.duration;
 		tmpNote.setTimeStamp(timeCounter);

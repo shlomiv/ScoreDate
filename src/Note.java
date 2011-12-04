@@ -55,7 +55,7 @@ public class Note
 			case 2: duration = 1; break;
 			case 3: duration = 0.5; break;
 			case 4: duration = 1.0 / 3.0; break;
-			case 5: duration = 0; level = 10; pitch = 71; break;
+			case 5: duration = 0; level = 12; pitch = 71; break;
 		}
 		
 		//System.out.println("[Note] t: " + type + ", p: " + pitch + ", l: " + level + ", dur: " + duration + ", alt: " + altType);

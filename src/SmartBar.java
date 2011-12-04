@@ -258,6 +258,8 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		appBundle = bundle;
 		
 		clefNoteBtn.setResBundle(appBundle);
+		Border defBorder = UIManager.getBorder(tempoPanel);
+		tempoPanel.setBorder(BorderFactory.createTitledBorder(defBorder, appBundle.getString("_speed"), TitledBorder.LEADING, TitledBorder.TOP));
 
 		if (isInline == true)
 		{

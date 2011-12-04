@@ -188,27 +188,31 @@ public class NotesPanel extends JPanel implements MouseListener
 		if (note.secondRow == true)
 			yOffset += (rowsDistance / 2);
 		
-		if (note.level < 5)
+		if (note.level < 7)
 		{
-			note.addLinesNumber = 3 - (note.level / 2);
-			note.addLinesYpos = ypos + tmpY - 6 + ((note.level%2) * 5); 
+			note.addLinesNumber = 4 - (note.level / 2);
+			note.addLinesYpos = ypos + tmpY - 6 + ((note.level%2) * 5);
+			if (note.secondRow == true)
+				note.addLinesYpos+=rowsDistance/2;
 		}
-		else if  (note.level > 15)
+		else if  (note.level > 17)
 		{
-			note.addLinesNumber = (note.level / 2) - 7;
-			note.addLinesYpos = ypos + tmpY - 6 - ((note.level - 16) * 5); 
+			note.addLinesNumber = (note.level / 2) - 8;
+			note.addLinesYpos = ypos + tmpY - 6 - ((note.level - 18) * 5);
+			if (note.secondRow == true)
+				note.addLinesYpos+=rowsDistance/2;
 		}
 		
 		if (type == 0) // whole note
 			ypos++;
 		else if (type == 2) // quarter note
 		{
-			if (note.level < 10)
+			if (note.level < 12)
 				ypos += 41;
 		}
 		else if (type == 3) // eigth note
 		{
-			if (note.level <= 10) 
+			if (note.level <= 12) 
 				ypos += 30;
 		}
 		else if (type == 4) // triplets
@@ -313,6 +317,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		if (editNoteIndex != -1 && mouseX >= notes.get(editNoteIndex).xpos - 5 &&
 			mouseX < (int)(notes.get(editNoteIndex).xpos + notes.get(editNoteIndex).duration * noteDistance))
 		{
+			if (mouseY > 128) return;
 			// clicked over the currently selected note. Act on the pitch
 			Note tmpNote = notes.get(editNoteIndex);
 			tmpNote.level = (mouseY - 4) / 5;
@@ -372,7 +377,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		if (editMode == true && index == editNoteIndex)
 		{
 			g.setColor(new Color(0xA2, 0xDD, 0xFF, 0x7F));
-			g.fillRoundRect(note.xpos - 5, 5, (int)(note.duration * noteDistance), 110, 10, 10);
+			g.fillRoundRect(note.xpos - 5, 5, (int)(note.duration * noteDistance), 130, 10, 10);
 		}
 
 		if (note.highlight == true)
@@ -393,12 +398,12 @@ public class NotesPanel extends JPanel implements MouseListener
 		else if (type == 1) symbol = "h"; // half note 
 		else if (type == 2)
 		{
-			if (note.level >= 10) symbol = "q"; // quarter note upward
+			if (note.level >= 12) symbol = "q"; // quarter note upward
 			else symbol = "" + (char)0xF6; // quarter note downward
 		}
 		else if (type == 3)
 		{
-			if (note.level > 10) symbol = "" + (char)0xC8; // eighth note upward 
+			if (note.level > 12) symbol = "" + (char)0xC8; // eighth note upward 
 			else symbol = "" + (char)0xCA; // eighth note downward
 		}
 		else if (type == 4)
@@ -427,9 +432,11 @@ public class NotesPanel extends JPanel implements MouseListener
 		// double clef ? Must draw a pause on the other clef
 		if (inlineMode == false && clefs.size() == 2)
 		{
-			int yPos = (((int)(note.ypos / rowsDistance) *  rowsDistance) + 50);
+			int yPos = (((int)Math.floor(note.ypos / (rowsDistance + 60)) *  rowsDistance) + 60);
 			if (note.secondRow == false)
 				yPos += (rowsDistance / 2);
+			
+			System.out.println("double clef ---> note.ypos: " + note.ypos + ", rowsDistance: " + rowsDistance + ", yPos = " + yPos);
 
 			symbol = "";
 			if (note.duration == 4)

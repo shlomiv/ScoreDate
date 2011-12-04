@@ -24,10 +24,10 @@ public class NoteGenerator
 	Accidentals accidentals;
 
 	int baseNote = 24; // pitch of C0
-	int TREBLE_CLEF_BASEPITCH = 53;
-	int BASS_CLEF_BASEPITCH = 33;
-	int ALTO_CLEF_BASEPITCH = 43;
-	int TENOR_CLEF_BASEPITCH = 40;
+	int TREBLE_CLEF_BASEPITCH = 50; // D2
+	int BASS_CLEF_BASEPITCH = 29; // F0
+	int ALTO_CLEF_BASEPITCH = 40; // E1 
+	int TENOR_CLEF_BASEPITCH = 36; // C1
 	
 	// intervals from base note to build chords or intervals 
 	char[][] chordsIntervals = { { 4 , 7 },   // major
@@ -151,7 +151,7 @@ public class NoteGenerator
     	if (addRangeIndex != -1) // means there are 2 clefs
     	{
     		if (tmpH < 100) tmpH = 100;
-    		height += tmpH + 40;
+    		height += tmpH + 30;
     	}
     	else
     	{
@@ -263,13 +263,13 @@ public class NoteGenerator
     private int getLevelFromClefAndPitch(int clef, int pitch)
     {
     	if (clef == appPrefs.TREBLE_CLEF)
-    		return 20 - getIndexFromPitch(TREBLE_CLEF_BASEPITCH, pitch, true);
+    		return 24 - getIndexFromPitch(TREBLE_CLEF_BASEPITCH, pitch, true);
     	else if (clef == appPrefs.BASS_CLEF)
-    		return 20 - getIndexFromPitch(BASS_CLEF_BASEPITCH, pitch, true);
+    		return 24 - getIndexFromPitch(BASS_CLEF_BASEPITCH, pitch, true);
     	else if (clef == appPrefs.ALTO_CLEF)
-    		return 20 - getIndexFromPitch(ALTO_CLEF_BASEPITCH, pitch, true);
+    		return 24 - getIndexFromPitch(ALTO_CLEF_BASEPITCH, pitch, true);
     	else if (clef == appPrefs.TENOR_CLEF)
-    		return 20 - getIndexFromPitch(TENOR_CLEF_BASEPITCH, pitch, true);
+    		return 24 - getIndexFromPitch(TENOR_CLEF_BASEPITCH, pitch, true);
 
     	return 0;
     }
@@ -278,13 +278,13 @@ public class NoteGenerator
     public int getPitchFromClefAndLevel(int clef, int level)
     {
     	if (clef == appPrefs.TREBLE_CLEF)
-    		return getPitchFromLevel(TREBLE_CLEF_BASEPITCH, 20 - level);
+    		return getPitchFromLevel(TREBLE_CLEF_BASEPITCH, 24 - level);
     	else if (clef == appPrefs.BASS_CLEF)
-    		return getPitchFromLevel(BASS_CLEF_BASEPITCH, 20 - level);
+    		return getPitchFromLevel(BASS_CLEF_BASEPITCH, 24 - level);
     	else if (clef == appPrefs.ALTO_CLEF)
-    		return getPitchFromLevel(ALTO_CLEF_BASEPITCH, 20 - level);
+    		return getPitchFromLevel(ALTO_CLEF_BASEPITCH, 24 - level);
     	else if (clef == appPrefs.TENOR_CLEF)
-    		return getPitchFromLevel(TENOR_CLEF_BASEPITCH, 20 - level);
+    		return getPitchFromLevel(TENOR_CLEF_BASEPITCH, 24 - level);
 
     	return 0;
     }
@@ -384,13 +384,13 @@ public class NoteGenerator
     public int getRhythmPitch(int clef)
     {
 		if (clef == appPrefs.TREBLE_CLEF)
-			return baseList.get(baseList.indexOf(TREBLE_CLEF_BASEPITCH) + 10);
+			return baseList.get(baseList.indexOf(TREBLE_CLEF_BASEPITCH) + 12);
 		else if (clef == appPrefs.BASS_CLEF)
-			return baseList.get(baseList.indexOf(BASS_CLEF_BASEPITCH) + 10);
+			return baseList.get(baseList.indexOf(BASS_CLEF_BASEPITCH) + 12);
 		else if (clef == appPrefs.ALTO_CLEF)
-			return baseList.get(baseList.indexOf(ALTO_CLEF_BASEPITCH) + 10);
+			return baseList.get(baseList.indexOf(ALTO_CLEF_BASEPITCH) + 12);
 		else if (clef == appPrefs.TENOR_CLEF)
-			return baseList.get(baseList.indexOf(TENOR_CLEF_BASEPITCH) + 10);
+			return baseList.get(baseList.indexOf(TENOR_CLEF_BASEPITCH) + 12);
 		
 		return 71;
     }
@@ -512,7 +512,7 @@ public class NoteGenerator
     				Note thirdNote = getTripletRandomNote(tmpNote.pitch);
     				if (isRhythm == true)
     				{
-    					tmpNote.level = secondNote.level = thirdNote.level = 10;
+    					tmpNote.level = secondNote.level = thirdNote.level = 12;
     					tmpNote.pitch = secondNote.pitch = thirdNote.pitch = getRhythmPitch(tmpNote.clef);
     				}
     				
@@ -520,7 +520,7 @@ public class NoteGenerator
     				int mult = 1;
     				if (isRhythm == false)
     				{
-    				  if (tmpNote.level >= 10) // oriented upward. Find the lowest level
+    				  if (tmpNote.level >= 12) // oriented upward. Find the lowest level
     				  {
     					if (secondNote.level < tripletLevel) tripletLevel = secondNote.level;
     					if (thirdNote.level < tripletLevel) tripletLevel = thirdNote.level;
@@ -557,14 +557,15 @@ public class NoteGenerator
     			}
     			else if (tmpNote.type == 5) // if this is silence, then set a random duration
     			{
-    				tmpNote.duration = tmpNote.getDuration((int)((notesTypeList.size() - 1) * Math.random()));
+    				int randTypeIdx = (int)((notesTypeList.size() - 1) * Math.random());
+    				tmpNote.duration = tmpNote.getDuration(notesTypeList.get(randTypeIdx));
     				if (tmpNote.duration == (1.0 / 3.0))
     					continue;
     			}
 
     			if (isRhythm == true)
     			{
-    				tmpNote.level = 10;
+    				tmpNote.level = 12;
     				//tmpNote.ypos = 62;
     				tmpNote.pitch = getRhythmPitch(tmpNote.clef);
     			}
@@ -577,9 +578,9 @@ public class NoteGenerator
     				if (tmpNote.type == 3)
     					eighthPresent = true;
     				tmpNote.setTimeStamp(timeCounter);
-        			System.out.println("note #" + i + ": timestamp: " + timeCounter);
-        			timeCounter+=tmpNote.duration;
-    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + tmpNote.pitch + ", level: " + tmpNote.level); 
+        			//System.out.println("Measure #" + i + ": timestamp: " + timeCounter);
+    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + tmpNote.pitch + ", level: " + tmpNote.level + ", ts: " + timeCounter);
+    				timeCounter+=tmpNote.duration;
     			}
     			//System.out.println("tempMesCnt: " + measureCounter);
     		}

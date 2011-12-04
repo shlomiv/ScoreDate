@@ -119,9 +119,13 @@ public class Exercise
 
 			// shorten way
 			// staff.setAttribute("id", "1");
+			Element exVersion = doc.createElement("version");
+			exVersion.appendChild(doc.createTextNode(Integer.toString(2))); // remember to update this value in case more tags are added
+			staff.appendChild(exVersion);
+
 			Element exType = doc.createElement("type");
 			exType.appendChild(doc.createTextNode(Integer.toString(type)));
-			staff.appendChild(exType);			
+			staff.appendChild(exType);
 
 			Element exTitle = doc.createElement("title");
 			exTitle.appendChild(doc.createTextNode(title));
@@ -211,7 +215,10 @@ public class Exercise
 	
 	private static String getTagValue(String sTag, Element eElement) 
 	{
-		NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
+		NodeList elList = eElement.getElementsByTagName(sTag);
+		if (elList == null || elList.getLength() == 0) return "-1";
+		NodeList nlList = elList.item(0).getChildNodes();
+		if (nlList == null || nlList.getLength() == 0) return "-2";
  
         Node nValue = (Node) nlList.item(0);
  
@@ -223,6 +230,7 @@ public class Exercise
 	  
 	public void loadFromFile(String path)
 	{
+		int levOffset = 0; // offset to be added to notes levels
 		notes.clear();
 		try
 		{
@@ -241,6 +249,9 @@ public class Exercise
 			{
 				Element eElement = (Element) nNode;
 	 
+				int version = Integer.parseInt(getTagValue("version", eElement));
+				if (version < 0)
+					levOffset = 2;
 				type = Integer.parseInt(getTagValue("type", eElement));
 				title = getTagValue("title", eElement);
 				clefMask = Integer.parseInt(getTagValue("clef", eElement));
@@ -274,7 +285,7 @@ public class Exercise
 					   Element nElem = (Element)notesList.item(n);
 					   int nType = Integer.parseInt(getTagValue("t", nElem));
 					   int nPitch = Integer.parseInt(getTagValue("p", nElem));
-					   int nLevel = Integer.parseInt(getTagValue("l", nElem));
+					   int nLevel = Integer.parseInt(getTagValue("l", nElem)) + levOffset;
 					   double nStamp = Double.parseDouble(getTagValue("ts", nElem));
 					   double nDur = Double.parseDouble(getTagValue("d", nElem));
 					   int nClef = Integer.parseInt(getTagValue("c", nElem));

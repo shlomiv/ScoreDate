@@ -152,6 +152,22 @@ public class Piano extends JPanel
 	  return 0;
   }
   
+  public int getNoteIndexFromPitch(int pitch)
+  {
+	  for (int i = 0; i < keys.size(); i++)
+	  {
+		  Key tmpKey = keys.get(i);
+		  if (tmpKey.pitch == pitch)
+		  {
+			  if (tmpKey.is_black == true)
+				  return tmpKey.noteIndex + 100;
+			  else
+				  return tmpKey.noteIndex;
+		  }
+	  }
+	  return 0;
+  }
+  
   public boolean isSelectedBlack()
   {
 	  if (selectedKeyIndex == -1)

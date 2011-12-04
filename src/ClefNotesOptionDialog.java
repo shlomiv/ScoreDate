@@ -107,8 +107,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		int higherPitch = Integer.parseInt(appPrefs.getProperty("trebleClefUpper"));
 		if (higherPitch == -1) higherPitch = 77; // default, set to F4
 		System.out.println("Treble Clef pitches: " + lowerPitch + " to " + higherPitch);
-		trebleClef.setLevels(20 - tmpNG.getIndexFromPitch(tmpNG.TREBLE_CLEF_BASEPITCH, lowerPitch, false), 
-							 20 - tmpNG.getIndexFromPitch(tmpNG.TREBLE_CLEF_BASEPITCH, higherPitch, false));
+		trebleClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.TREBLE_CLEF_BASEPITCH, lowerPitch, false), 
+							 24 - tmpNG.getIndexFromPitch(tmpNG.TREBLE_CLEF_BASEPITCH, higherPitch, false));
 		
 		bassClef = new ClefSelector(appBundle, "?");
 		bassClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
@@ -124,8 +124,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		higherPitch = Integer.parseInt(appPrefs.getProperty("bassClefUpper"));
 		if (higherPitch == -1) higherPitch = 57; // default, set to A2
 		System.out.println("Bass Clef pitches: " + lowerPitch + " to " + higherPitch);
-		bassClef.setLevels(20 - tmpNG.getIndexFromPitch(tmpNG.BASS_CLEF_BASEPITCH, lowerPitch, false), 
-						   20 - tmpNG.getIndexFromPitch(tmpNG.BASS_CLEF_BASEPITCH, higherPitch, false));
+		bassClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.BASS_CLEF_BASEPITCH, lowerPitch, false), 
+						   24 - tmpNG.getIndexFromPitch(tmpNG.BASS_CLEF_BASEPITCH, higherPitch, false));
 
 		altoClef = new ClefSelector(appBundle, "ALTO");
 		altoClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
@@ -141,8 +141,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		higherPitch = Integer.parseInt(appPrefs.getProperty("altoClefUpper"));
 		if (higherPitch == -1) higherPitch = 67; // default, set to G3
 		System.out.println("Alto Clef pitches: " + lowerPitch + " to " + higherPitch);
-		altoClef.setLevels(20 - tmpNG.getIndexFromPitch(tmpNG.ALTO_CLEF_BASEPITCH, lowerPitch, false), 
-						   20 - tmpNG.getIndexFromPitch(tmpNG.ALTO_CLEF_BASEPITCH, higherPitch, false));
+		altoClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.ALTO_CLEF_BASEPITCH, lowerPitch, false), 
+						   24 - tmpNG.getIndexFromPitch(tmpNG.ALTO_CLEF_BASEPITCH, higherPitch, false));
 		
 		tenorClef = new ClefSelector(appBundle, "TENOR");
 		tenorClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
@@ -158,8 +158,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		higherPitch = Integer.parseInt(appPrefs.getProperty("tenorClefUpper"));
 		if (higherPitch == -1) higherPitch = 64; // default, set to E3
 		System.out.println("Tenor Clef pitches: " + lowerPitch + " to " + higherPitch);
-		tenorClef.setLevels(20 - tmpNG.getIndexFromPitch(tmpNG.TENOR_CLEF_BASEPITCH, lowerPitch, false), 
-							20 - tmpNG.getIndexFromPitch(tmpNG.TENOR_CLEF_BASEPITCH, higherPitch, false));
+		tenorClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.TENOR_CLEF_BASEPITCH, lowerPitch, false), 
+							24 - tmpNG.getIndexFromPitch(tmpNG.TENOR_CLEF_BASEPITCH, higherPitch, false));
 		
 		clefsPanel.add(trebleClef);
 		clefsPanel.add(bassClef);
@@ -332,8 +332,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			NoteGenerator tmpNG = new NoteGenerator(appPrefs, null, false);
 			if (trebleClef.isEnabled() == true)
 			{
-				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.TREBLE_CLEF_BASEPITCH, 20 - trebleClef.getLowerLevel());
-				int higherPitch = tmpNG.getPitchFromLevel(tmpNG.TREBLE_CLEF_BASEPITCH, 20 - trebleClef.getHigherLevel());
+				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.TREBLE_CLEF_BASEPITCH, 24 - trebleClef.getLowerLevel());
+				int higherPitch = tmpNG.getPitchFromLevel(tmpNG.TREBLE_CLEF_BASEPITCH, 24 - trebleClef.getHigherLevel());
 				System.out.println("Treble Clef pitches: " + lowerPitch + " to " + higherPitch);
 				clefsMask = clefsMask | appPrefs.TREBLE_CLEF;
 				appPrefs.setProperty("trebleClefUpper", Integer.toString(higherPitch));
@@ -341,8 +341,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			}
 			if (bassClef.isEnabled() == true)
 			{
-				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.BASS_CLEF_BASEPITCH, 20 - bassClef.getLowerLevel());
-				int higherPitch = tmpNG.getPitchFromLevel(tmpNG.BASS_CLEF_BASEPITCH, 20 - bassClef.getHigherLevel());
+				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.BASS_CLEF_BASEPITCH, 24 - bassClef.getLowerLevel());
+				int higherPitch = tmpNG.getPitchFromLevel(tmpNG.BASS_CLEF_BASEPITCH, 24 - bassClef.getHigherLevel());
 				System.out.println("Bass Clef pitches: " + lowerPitch + " to " + higherPitch);
 				clefsMask = clefsMask | appPrefs.BASS_CLEF;
 				appPrefs.setProperty("bassClefUpper", Integer.toString(higherPitch));
@@ -350,8 +350,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			}
 			if (altoClef.isEnabled() == true)
 			{
-				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.ALTO_CLEF_BASEPITCH, 20 - altoClef.getLowerLevel());
-				int higherPitch = tmpNG.getPitchFromLevel(tmpNG.ALTO_CLEF_BASEPITCH, 20 - altoClef.getHigherLevel());
+				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.ALTO_CLEF_BASEPITCH, 24 - altoClef.getLowerLevel());
+				int higherPitch = tmpNG.getPitchFromLevel(tmpNG.ALTO_CLEF_BASEPITCH, 24 - altoClef.getHigherLevel());
 				System.out.println("Alto Clef pitches: " + lowerPitch + " to " + higherPitch);
 				clefsMask = clefsMask | appPrefs.ALTO_CLEF;
 				appPrefs.setProperty("altoClefUpper", Integer.toString(higherPitch));
@@ -359,8 +359,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			}
 			if (tenorClef.isEnabled() == true)
 			{
-				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.TENOR_CLEF_BASEPITCH, 20 - tenorClef.getLowerLevel());
-				int higherPitch = tmpNG.getPitchFromLevel(tmpNG.TENOR_CLEF_BASEPITCH, 20 - tenorClef.getHigherLevel());
+				int lowerPitch = tmpNG.getPitchFromLevel(tmpNG.TENOR_CLEF_BASEPITCH, 24 - tenorClef.getLowerLevel());
+				int higherPitch = tmpNG.getPitchFromLevel(tmpNG.TENOR_CLEF_BASEPITCH, 24 - tenorClef.getHigherLevel());
 				System.out.println("Tenor Clef pitches: " + lowerPitch + " to " + higherPitch);
 				clefsMask = clefsMask | appPrefs.TENOR_CLEF;
 				appPrefs.setProperty("tenorClefUpper", Integer.toString(higherPitch));

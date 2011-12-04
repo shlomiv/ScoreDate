@@ -60,7 +60,7 @@ public class Staff extends JPanel
     private int timeSignNumerator = 4;
     private int timeSignDenominator = 4;
     //private int timeDivision = 1; // ratio between time signature numerator and denominator 
-    private int scoreYpos = 35; // Y coordinate of the first row of the score
+    private int scoreYpos = 45; // Y coordinate of the first row of the score
     private int rowsDistance = 90; // distance in pixel between staff rows
     private int numberOfMeasuresPerRow = 2; // number of measures in a single row
     private int numberOfRows = 4; // number of score rows

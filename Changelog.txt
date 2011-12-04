@@ -1,3 +1,10 @@
+December ???, 2011 - version 2.2
+
+- MAJOR: added ear training panel. 4 levels available: novice, intermediate, expert and custom 
+- notes range extended up to 4 additional lines above and below staff
+- notes panel is now cleaned up when repeating an exercise
+- fixed silence insertion for different notes types selection
+
 December 1st, 2011 - version 2.1
 
 - if GM soundbank is not present, ask the user to download it from internet

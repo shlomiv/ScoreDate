@@ -301,9 +301,8 @@ public class ScoreDate extends JFrame implements ActionListener
 	     }
 	     else if (ae.getSource() == homePanel.earTrainBtn)
 	     {
-	    	 JOptionPane.showMessageDialog(this.getParent(), "<html><b>Coming soon !</b></html>",
-		   	 		 	bundle.getString("_menuEarTraining"), JOptionPane.INFORMATION_MESSAGE);
-	    	 /*
+	    	 /*JOptionPane.showMessageDialog(this.getParent(), "<html><b>Coming soon !</b></html>",
+		   	 		 	bundle.getString("_menuEarTraining"), JOptionPane.INFORMATION_MESSAGE);*/
 	    	 homePanel.setVisible(false);
 			 prefs.setExerciseMode(false, null);
 	    	 earPanel = new EarTrainingPanel(MusiSync, bundle, prefs, midiControl, wSize);
@@ -311,7 +310,6 @@ public class ScoreDate extends JFrame implements ActionListener
 	    	 earPanel.setVisible(true);
 			 currentContext = EARTRAINING;
 			 earPanel.sBar.homeBtn.addActionListener(this);
-			 */
 	     }
 		 
 		 // *************************** GAMES PANEL HOME BUTTON ***************************

@@ -123,9 +123,9 @@ public class ClefSelector extends JPanel implements MouseListener
 				return;
 		}
 
-		if (e.getY() > 20 && e.getY() < 172)
+		if (e.getY() > 9 && e.getY() < 189)
 		{
-			int relYpos =  e.getY() - 25;
+			int relYpos = e.getY() - 14;
 			int level = (relYpos / 7);
 			System.out.println("[ClefSelector] New level = " + level);
 			
@@ -144,7 +144,6 @@ public class ClefSelector extends JPanel implements MouseListener
 					higherLevel = level;
 			}
 		}
-			
 			
 		repaint();
 	}
@@ -186,33 +185,33 @@ public class ClefSelector extends JPanel implements MouseListener
 		if (clefSymbol == "ALTO")
 		{
 			g.setFont(getFont().deriveFont(73f));
-			g.drawString("" + (char)0xBF, 15, 129);
+			g.drawString("" + (char)0xBF, 15, 132);
 		}
 		else if (clefSymbol == "TENOR")
 		{
 			g.setFont(getFont().deriveFont(73f));
-			g.drawString("" + (char)0xBF, 15, 115);
+			g.drawString("" + (char)0xBF, 15, 118);
 		}
 		else
 		{
 			g.setFont(getFont().deriveFont(80f));
-			g.drawString(clefSymbol, 15, 125);
+			g.drawString(clefSymbol, 15, 128);
 		}
 		if (enabled == true)
 		{
 			g.setFont(getFont().deriveFont(68f));
 			String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
-			g.drawString(ss, 15, 125);
+			g.drawString(ss, 15, 128);
 			
-			int ypos = 140;
-			for (int i = 0; i < 3; i++, ypos+=14) // draw 3 additional lines below
+			int ypos = 143;
+			for (int i = 0; i < 4; i++, ypos+=14) // draw 3 additional lines below
 				g.fillRect(70, ypos, 32, 2);
-			ypos = 56;
-			for (int i = 0; i < 3; i++, ypos-=14) // draw 3 additional lines above
+			ypos = 59;
+			for (int i = 0; i < 4; i++, ypos-=14) // draw 3 additional lines above
 				g.fillRect(100, ypos, 32, 2);
 			
-			g.drawString("w", 75, 36 + (lowerLevel * 7));
-			g.drawString("w", 105, 36 + (higherLevel * 7));
+			g.drawString("w", 75, 25 + (lowerLevel * 7));
+			g.drawString("w", 105, 25 + (higherLevel * 7));
 		}
 			
 	}

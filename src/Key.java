@@ -28,16 +28,17 @@ import javax.swing.JButton;
 public class Key extends JButton
 {
 	private static final long serialVersionUID = 8886689336934022704L;
-	final int ON = 0, OFF = 1;
-    int noteState = OFF;
+
     boolean is_black = false;
     int pitch;
+    int octave;
     int noteIndex; // holds the index of the seven note scale (C, D, E, F, G, A, B)
     int offx; // just for black keys since they have an irregular pattern
 
-    public Key(int x, int y, int w, int h, int kpitch, int idx, int offset, boolean black) 
+    public Key(int x, int y, int w, int h, int kpitch, int koctave, int idx, int offset, boolean black) 
     {
       pitch = kpitch;
+      octave = koctave;
       is_black = black;
       noteIndex = idx;
       offx = offset;
@@ -65,13 +66,6 @@ public class Key extends JButton
       return this.offx;
     }
 
-    public boolean isNoteOn() {
-      return noteState == ON;
-    }
-
-    public void setNoteState(int state) {
-      noteState = state;
-    }
 
     protected void paintComponent(Graphics g) 
     {

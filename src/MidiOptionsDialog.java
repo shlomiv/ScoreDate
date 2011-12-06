@@ -49,11 +49,12 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	
     //private JCheckBox soundOnCheckBox;
     private JComboBox instrumentsComboBox;
-    private JComboBox keyboardLengthComboBox; // for length-number of touchs of keyboard
-    private JSpinner transpositionSpinner; // for transposition MIDI keyboard
+    private JComboBox keyboardLengthComboBox; // virtual keyboard keys number
+    private JSpinner transpositionSpinner; // MIDI IN transposition
     private JSlider latencySlider;
 
     private JCheckBox keyboardsoundCheckBox;
+    private JCheckBox accentsCheckBox;
     private JCheckBox showBeatsCheckBox;
 
     private JComboBox midiInComboBox;
@@ -209,12 +210,18 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         clickLabel.setFont(titleFont);
         clickLabel.setBounds(10, 5, 260, 40);
         
+        accentsCheckBox = new JCheckBox(appBundle.getString("_beatAccents"));
+        accentsCheckBox.setBounds(270, 12, 100, 25);
+        if (Integer.parseInt(appPrefs.getProperty("clickAccents")) == 1)
+        	accentsCheckBox.setSelected(true);
+        
         showBeatsCheckBox = new JCheckBox(appBundle.getString("_menuShowMetronom"));
         showBeatsCheckBox.setBounds(380, 12, 100, 25);
         if (Integer.parseInt(appPrefs.getProperty("showBeats")) == 1)
         	showBeatsCheckBox.setSelected(true);
         
         metronomePanel.add(clickLabel);
+        metronomePanel.add(accentsCheckBox);
         metronomePanel.add(showBeatsCheckBox);
         tmpYpos+=55;
         
@@ -228,8 +235,8 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         latLabel.setFont(titleFont);
         latLabel.setBounds(10, 5, 200, 60);
 
-        latencySlider = new JSlider(JSlider.HORIZONTAL, 0, 250, 0);
-        latencySlider.setBounds(210, 3, 270, 60);
+        latencySlider = new JSlider(JSlider.HORIZONTAL, 0, 500, 0);
+        latencySlider.setBounds(130, 3, 350, 60);
         latencySlider.setMajorTickSpacing(50);
         latencySlider.setMinorTickSpacing(10);
         latencySlider.setPaintTicks(true);
@@ -293,6 +300,11 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	    		appPrefs.setProperty("keyboardsound", "1");
 		    else 
 		    	appPrefs.setProperty("keyboardsound", "0");
+	    	
+	    	if (accentsCheckBox.isSelected() == true)
+	    		appPrefs.setProperty("clickAccents", "1");
+	    	else
+	    		appPrefs.setProperty("clickAccents", "0");
 	    	
 	    	if (showBeatsCheckBox.isSelected() == true)
 	    		appPrefs.setProperty("showBeats", "1");

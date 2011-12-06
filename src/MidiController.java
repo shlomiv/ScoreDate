@@ -98,7 +98,7 @@ public class MidiController
            Soundbank sb = midiSynth.getDefaultSoundbank();
            if (sb != null) 
            {
-               instruments = midiSynth.getDefaultSoundbank().getInstruments();
+               instruments = sb.getInstruments();
 
                if (instruments != null) {
                    midiSynth.loadInstrument(instruments[0]);
@@ -106,7 +106,7 @@ public class MidiController
                } else 
                {
                    midierror = true;
-                   System.out.println("Soundbank null");
+                   System.out.println("No instruments found !!");
                }
            }
            else
@@ -173,8 +173,6 @@ public class MidiController
 	             System.out.println("Unable to open MIDI device (" + deviceName + ")");
 	             return null;
 	         }
-             if (inputDevice.isOpen())
-            	 System.out.println("Midi Device open : play a key, if this key don't change the color on screen, verify the MIDI port name");
               
              setNewInstrument();
 	     }
@@ -294,6 +292,9 @@ public class MidiController
          createSequencer(1);
          
          Track metronomeTrack = tracks[1];
+         boolean accents = false;
+         if (p.getProperty("clickAccents").equals("1"))
+        	 accents = true;
 
          try {
              final int metaType = 0x01;
@@ -316,19 +317,20 @@ public class MidiController
             	 beatsNumber = (timeSignNumerator * measures) + timeSignNumerator;
              else 
             	 beatsNumber = timeSignNumerator; //only few first to indicate pulse
-             
-             beatsNumber = beatsNumber / timeDivision;
 
-             for (int i=0; i < beatsNumber; i++) 
+             for (int i = 0; i < beatsNumber; i++) 
              {
-           		ShortMessage mess=new ShortMessage();
-        		ShortMessage mess2=new ShortMessage();
-        		mess.setMessage(ShortMessage.NOTE_ON, 9, 76, 40); // can use 37 as well, but it has reverb
+           		ShortMessage mess = new ShortMessage();
+        		ShortMessage mess2 = new ShortMessage();
+        		int pitch = 77;
+        		if (accents == true && i%(timeSignNumerator/timeDivision) == 0)
+        			pitch = 76;
+        		mess.setMessage(ShortMessage.NOTE_ON, 9, pitch, 90); // can use 37 as well, but it has reverb
 
         		metronomeTrack.add(new MidiEvent(mess, i*ppq));
-        		mess2.setMessage(ShortMessage.NOTE_OFF, 9, 77, 0);
+        		mess2.setMessage(ShortMessage.NOTE_OFF, 9, pitch, 0);
         		metronomeTrack.add(new MidiEvent(mess2, (i*ppq)+1));
-         		
+
         		if (i > ((timeSignNumerator / timeDivision) - 1)) 
         		{
          			//System.out.println("adding metronome beat : "+i);
@@ -342,7 +344,7 @@ public class MidiController
              System.exit(1);
          }
 
-         sequencers[1].setTempoInBPM(BPM);
+         sequencers[1].setTempoInBPM(BPM );
          
          return sequencers[1];
 	 }
@@ -369,7 +371,10 @@ public class MidiController
 		 catch (InvalidMidiDataException e) { }
 
 		 tracks[0].add(new MidiEvent(mess, 0));
-		 
+
+		 if (timeOffset > 0)
+			 timeOffset /= timeDivision;
+
 		 for (int i = 0; i < notes.size(); i++)
 		 {
 			 Note cNote = notes.get(i);
@@ -378,7 +383,7 @@ public class MidiController
 				 tracks[0].add(createNoteOnEvent(cNote.pitch, 90, tick));
 			 String textb = "nOn";
 			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
-			 tick+=(int)((cNote.duration*timeDivision)*ppq);
+			 tick+=(int)((cNote.duration)*ppq);
 			 
 			 if (playOnly == true && cNote.type != 5) // do not play silence !
 				 tracks[0].add(createNoteOffEvent(cNote.pitch, tick));
@@ -388,8 +393,8 @@ public class MidiController
 		 String textend = "end";
 		 addMidiEvent(tracks[0], metaType, textend.getBytes(), tick);
 
-		 sequencers[0].setTempoInBPM(BPM);
-		 
+		 sequencers[0].setTempoInBPM(BPM/timeDivision);
+
 		 return sequencers[0];
 	 }
 

@@ -59,7 +59,7 @@ public class Staff extends JPanel
     private int timeSignWidth = 30; // width of current score time signature symbol. This includes also the first note margin
     private int timeSignNumerator = 4;
     private int timeSignDenominator = 4;
-    //private int timeDivision = 1; // ratio between time signature numerator and denominator 
+    private int timeDivision = 1; // ratio between time signature denominator and quarters 
     private int scoreYpos = 45; // Y coordinate of the first row of the score
     private int rowsDistance = 90; // distance in pixel between staff rows
     private int numberOfMeasuresPerRow = 2; // number of measures in a single row
@@ -122,18 +122,24 @@ public class Staff extends JPanel
     {
     	timeSignNumerator = num;
     	timeSignDenominator = denom;
+    	timeDivision = timeSignDenominator / 4;
     	repaint();
     }
     
     public int getMeasuresTotalNumber()
     {
-    	if (acc != null)
-    		alterationWidth = acc.getNumber() * 12;
-    	int scoreLineWidth = clefWidth + alterationWidth + timeSignWidth;
-       	int tmpMeas =  (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
-       	int tmpRows = getHeight() / rowsDistance;
+    	if (forcedNumberOfMeasures == -1)
+    	{
+    		if (acc != null)
+    			alterationWidth = acc.getNumber() * 12;
+    		int scoreLineWidth = clefWidth + alterationWidth + timeSignWidth;
+    		int tmpMeas =  (getWidth() - scoreLineWidth) / ((timeSignNumerator/timeDivision) * noteDistance);
+    		int tmpRows = getHeight() / rowsDistance;
        	
-       	return tmpMeas * tmpRows;
+    		return tmpMeas * tmpRows;
+    	}
+    	else
+    		return forcedNumberOfMeasures;
     }
     
     public void setMeasuresNumber(int num)
@@ -161,8 +167,8 @@ public class Staff extends JPanel
     		if (acc != null)
     			alterationWidth = acc.getNumber() * 12;
     		scoreLineWidth = clefWidth + alterationWidth + timeSignWidth;
-    		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
-    		scoreLineWidth += (numberOfMeasuresPerRow * (timeSignNumerator * noteDistance));
+    		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / ((timeSignNumerator/timeDivision) * noteDistance);
+    		scoreLineWidth += (numberOfMeasuresPerRow * ((timeSignNumerator/timeDivision) * noteDistance));
     	}
     	else 
     		scoreLineWidth = getWidth();
@@ -198,25 +204,25 @@ public class Staff extends JPanel
 
         scoreLineWidth = clefWidth + alterationWidth + timeSignWidth;
         int yPos = scoreYpos;
-        int vXPos = scoreLineWidth + (timeSignNumerator * noteDistance);
+        int vXPos = scoreLineWidth + ((timeSignNumerator/timeDivision) * noteDistance);
         
         if (inlineMode == false)
         {
         	if (forcedNumberOfMeasures == -1)
         	{
-        		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
+        		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / ((timeSignNumerator/timeDivision) * noteDistance);
         		numberOfRows = getHeight() / rowsDistance;
         	}
         	else
         	{
-        		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / (timeSignNumerator * noteDistance);
+        		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / ((timeSignNumerator/timeDivision) * noteDistance);
         		numberOfRows = (int)Math.ceil((double)forcedNumberOfMeasures / (double)numberOfMeasuresPerRow);
         		
         		//numberOfRows = ((forcedNumberOfMeasures * (timeSignNumerator * noteDistance)) - scoreLineWidth) / (getWidth() - scoreLineWidth);
         		//numberOfMeasuresPerRow = forcedNumberOfMeasures / numberOfRows;
         	}
         	
-        	scoreLineWidth += (numberOfMeasuresPerRow * (timeSignNumerator * noteDistance));
+        	scoreLineWidth += (numberOfMeasuresPerRow * ((timeSignNumerator/timeDivision) * noteDistance));
         }
         else
         {
@@ -227,7 +233,7 @@ public class Staff extends JPanel
         {
         	// draw vertical separators first
         	for (int v = 0; v < numberOfMeasuresPerRow; v++)
-        		g.drawLine(vXPos + v * (timeSignNumerator * noteDistance), yPos, vXPos + v * (timeSignNumerator * noteDistance), yPos+40);
+        		g.drawLine(vXPos + v * ((timeSignNumerator/timeDivision) * noteDistance), yPos, vXPos + v * ((timeSignNumerator/timeDivision) * noteDistance), yPos+40);
         	// draw the staff 5 lines 
         	for (int l = 0; l < 5; l++)
         		g.drawLine(0, yPos + (l * 10), scoreLineWidth, yPos + (l * 10));
@@ -287,7 +293,7 @@ public class Staff extends JPanel
         	if (clefs.size() > 1)
         	{
             	for (int v = 0; v < numberOfMeasuresPerRow; v++)
-            		g.drawLine(vXPos + v * (timeSignNumerator * noteDistance), yPos + (rowsDistance / 2), vXPos + v * (timeSignNumerator * noteDistance), yPos + (rowsDistance / 2) + 40);
+            		g.drawLine(vXPos + v * ((timeSignNumerator/timeDivision) * noteDistance), yPos + (rowsDistance / 2), vXPos + v * ((timeSignNumerator/timeDivision) * noteDistance), yPos + (rowsDistance / 2) + 40);
         		for (int l = 0; l < 5; l++)
             		g.drawLine(0, yPos + (rowsDistance / 2) + (l * 10), scoreLineWidth, yPos + (rowsDistance / 2) + (l * 10));
 

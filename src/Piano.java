@@ -78,19 +78,19 @@ public class Piano extends JPanel
       for (int j = 0; j < 7; j++, x += kw) 
       {
         int keyPitch = i * 12 + whiteIDs[j] + transpose;
-        whiteKeys.add(new Key(x + leftMargin, ypos, kw, kh, keyPitch, j, 0, false));
+        whiteKeys.add(new Key(x + leftMargin, ypos, kw, kh, keyPitch, i, j, 0, false));
       }
     }
 
     whiteKeys.add(new Key(7 * octavesNumber * kw + leftMargin + 3, ypos, kw, kh, 
-			octavesNumber * 12 + transpose, 0, 0, false));
+			octavesNumber * 12 + transpose, octavesNumber, 0, 0, false));
 
     for (int i = 0, x = -1; i < octavesNumber; i++) 
     {
       for (int j = 0, noteIdx = 0; j < 5; j++, x += kw, noteIdx++) 
       {
     	  int keyPitch = i * 12 + blackIDs[j] + transpose;
-    	  blackKeys.add(new Key( x += kw + leftMargin, ypos, kw / 2, kh / 2 + 11, keyPitch, noteIdx, offset, true));
+    	  blackKeys.add(new Key( x += kw + leftMargin, ypos, kw / 2, kh / 2 + 11, keyPitch, i, noteIdx, offset, true));
     	  if (j == 1) x += kw;
     	  if (j == 1 || j == 4) 
     	  {
@@ -164,6 +164,17 @@ public class Piano extends JPanel
 			  else
 				  return tmpKey.noteIndex;
 		  }
+	  }
+	  return 0;
+  }
+  
+  public int getOctaveFromPitch(int pitch)
+  {
+	  for (int i = 0; i < keys.size(); i++)
+	  {
+		  Key tmpKey = keys.get(i);
+		  if (tmpKey.pitch == pitch)
+			  return tmpKey.octave;
 	  }
 	  return 0;
   }

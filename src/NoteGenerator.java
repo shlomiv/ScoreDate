@@ -500,6 +500,8 @@ public class NoteGenerator
     	for (int i = 0; i < measuresNumber; i++)
     	{
     		measureCounter = timeSignNumerator;
+    		if (timeSignDenominator == 8)
+    			measureCounter /= 2;
     		eighthPresent = false;
     		while (measureCounter != 0)
     		{

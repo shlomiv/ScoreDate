@@ -566,6 +566,9 @@ public class ScoreDate extends JFrame implements ActionListener
                 		  rhythmPanel.noteEvent(pitch, vel);
                 	  else if (scorePanel != null &&  scorePanel.isVisible() == true)
                 		  scorePanel.noteEvent(pitch, vel);
+                	  else if (earPanel != null &&  earPanel.isVisible() == true)
+                		  earPanel.noteEvent(pitch, vel, false);
+                	  
                 	  
                   break;
 /*

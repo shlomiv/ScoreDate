@@ -3,7 +3,10 @@ December ???, 2011 - version 2.2
 - MAJOR: added ear training panel. 4 levels available: novice, intermediate, expert and custom 
 - notes range extended up to 4 additional lines above and below staff
 - notes panel is now cleaned up when repeating an exercise
+- fixed 6/8 time signature notes display
+- added an option to enable metronome accents, to simplify compound time signatures 
 - fixed silence insertion for different notes types selection
+- latency maximum value extended to 500ms
 
 December 1st, 2011 - version 2.1
 

@@ -505,6 +505,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 		gameTitle.setBounds(0, sBarHeight, getWidth(), 30);
 		noteContainer.setBounds((getWidth() / 2) - 200, (getHeight() / 2 - 90), 400, 160);
 		buttonsContainer.setBounds((getWidth() / 2) - 300, getHeight() - gBarHeight - 120, 600, 80);
+		piano.setBounds(0, getHeight() - gBarHeight - 130, getWidth(), pianoHeight);
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 	}
 	

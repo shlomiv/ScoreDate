@@ -138,7 +138,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         	keyboardsoundCheckBox.setSelected(true);
 
 		instrumentsComboBox = new JComboBox();
-		instrumentsComboBox.setBounds(160, 12, 160, 25);
+		instrumentsComboBox.setBounds(160, 12, 200, 25);
 		if (iList != null) 
 		{
             for (int i=0; i<20; i++) 
@@ -158,7 +158,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		instrumentsComboBox.addActionListener(this);
 
         keyboardLengthComboBox = new JComboBox();
-        keyboardLengthComboBox.setBounds(330, 12, 150, 25);
+        keyboardLengthComboBox.setBounds(370, 12, 110, 25);
         keyboardLengthComboBox.addItem("73 " + appBundle.getString("_keys"));
         keyboardLengthComboBox.addItem("61 " + appBundle.getString("_keys"));
         if (Integer.parseInt(appPrefs.getProperty("keyboardlength")) == 61)
@@ -211,12 +211,12 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         clickLabel.setBounds(10, 5, 260, 40);
         
         accentsCheckBox = new JCheckBox(appBundle.getString("_beatAccents"));
-        accentsCheckBox.setBounds(270, 12, 100, 25);
+        accentsCheckBox.setBounds(220, 12, 100, 25);
         if (Integer.parseInt(appPrefs.getProperty("clickAccents")) == 1)
         	accentsCheckBox.setSelected(true);
         
         showBeatsCheckBox = new JCheckBox(appBundle.getString("_menuShowMetronom"));
-        showBeatsCheckBox.setBounds(380, 12, 100, 25);
+        showBeatsCheckBox.setBounds(330, 12, 150, 25);
         if (Integer.parseInt(appPrefs.getProperty("showBeats")) == 1)
         	showBeatsCheckBox.setSelected(true);
         

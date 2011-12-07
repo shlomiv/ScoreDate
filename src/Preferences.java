@@ -47,6 +47,7 @@ import java.util.Properties;
  *  
  *  metromome	     | metronome - 0: disabled, 1: enabled 
  *  showBeats		 | show metronome beats - 0: disabled, 1: enabled
+ *  clickAccents     | metronome accents - 0: disabled, 1: enabled
  *  
  *  keyboardlenght   | number of piano keys. Can be 63 or 73
  *  mididevice       | index of the MIDI device to use. 0 is always "no device"

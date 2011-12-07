@@ -77,6 +77,9 @@ public class ScoreDate extends JFrame implements ActionListener
 	 public MidiController midiControl;
 	 private MidiDevice midiDev;
 	 
+	 // Audio Resources
+	 AudioInputController audioControl;
+	 
 	 // MIDI option dialog
 	 private MidiOptionsDialog midiOptions;
 	 
@@ -195,6 +198,8 @@ public class ScoreDate extends JFrame implements ActionListener
         	System.out.println("Cannot load MusiSync font !!");
         	System.exit(0);
          }
+         
+         audioControl = new AudioInputController(prefs);
 
          menuBar = new SDMenuBar(bundle, prefs);
          setJMenuBar(menuBar);

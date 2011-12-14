@@ -1,4 +1,11 @@
-December ???, 2011 - version 2.2
+December ???, 2011 - version 2.3
+
+- added accidentals to Exercise editor
+- fixed MIDI IN device selection which didn't work in some cases
+- fixed a potential score reading game crash
+- rhythm exercise can now be played with the computer keyboard
+
+December 7th, 2011 - version 2.2
 
 - MAJOR: added ear training panel. 4 levels available: novice, intermediate, expert and custom 
 - notes range extended up to 4 additional lines above and below staff

@@ -40,7 +40,9 @@ public class SDMenuBar extends JMenuBar implements ActionListener
     //    Settings:
     public JMenu configMenu;
     public JMenuItem midiMenu;
+    public JMenuItem audioMenu;
     public JCheckBoxMenuItem statsCheck;
+    
     public JMenu langMenu;
     public JMenuItem exitMenu;
     
@@ -71,9 +73,22 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         configMenu = new JMenu();
         configMenu.setText(appBundle.getString("_menuPreferences"));
         
-        midiMenu = new JMenuItem(new ImageIcon(getClass().getResource("/resources/midi.png")));
+        ButtonGroup audioGroup = new ButtonGroup();
+        
+        midiMenu = new JRadioButtonMenuItem(new ImageIcon(getClass().getResource("/resources/midi.png")));
         midiMenu.setText(appBundle.getString("_menuMidi"));
         midiMenu.addActionListener(this);
+        
+        audioMenu = new JRadioButtonMenuItem(new ImageIcon(getClass().getResource("/resources/microphone.png")));
+        audioMenu.setText(appBundle.getString("_menuAudio"));
+        audioMenu.addActionListener(this);
+        audioGroup.add(midiMenu);
+        audioGroup.add(audioMenu);
+        
+        if (Integer.parseInt(appPrefs.getProperty("defaultInput")) == 1)
+        	audioMenu.setSelected(true);
+        else
+        	midiMenu.setSelected(true);
         
         statsCheck = new JCheckBoxMenuItem(new ImageIcon(getClass().getResource("/resources/stats.png")));
         statsCheck.setText(appBundle.getString("_menuSaveStatistics"));
@@ -195,6 +210,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         exitMenu.addActionListener(this);
 
         configMenu.add(midiMenu);
+        //configMenu.add(audioMenu);
         configMenu.addSeparator();
         configMenu.add(statsCheck);
         configMenu.addSeparator();
@@ -227,6 +243,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
     	
     	configMenu.setText(appBundle.getString("_menuPreferences"));
 		midiMenu.setText(appBundle.getString("_menuMidi"));
+		audioMenu.setText(appBundle.getString("_menuAudio"));
 		langMenu.setText(appBundle.getString("_menuLanguage"));
 		statsCheck.setText(appBundle.getString("_menuSaveStatistics"));
 		exitMenu.setText(appBundle.getString("_menuExit"));
@@ -273,6 +290,8 @@ public class SDMenuBar extends JMenuBar implements ActionListener
 		
 		else if (ae.getSource() == midiMenu)
 			this.firePropertyChange("midiOptions", false, true);
+		else if (ae.getSource() == audioMenu)
+			this.firePropertyChange("audioOptions", false, true);		
 		else if (ae.getSource() == statsCheck)
 		{
 			if (statsCheck.isSelected() == true)

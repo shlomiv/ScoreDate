@@ -47,6 +47,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 
 	private RoundedButton wholeBtn, halfBtn, quartBtn, eightBtn;
 	private RoundedButton wholePauseBtn, halfPauseBtn, quartPauseBtn, eightPauseBtn;
+	private RoundedButton sharpBtn, flatBtn, normalBtn;
 	
 	private RoundedButton playBtn;
 	
@@ -191,6 +192,32 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         
         measureCounter = timeNumerator;
         
+        sharpBtn = new RoundedButton("B", appBundle, Color.decode("0xFFE55F"));
+        sharpBtn.setBackground(Color.decode("0xFFFFFF"));
+        sharpBtn.setFont(notesFont);
+        sharpBtn.setTextOffsets(3, 5);
+        sharpBtn.setBounds(xPos, 10, btnW, btnH);
+        sharpBtn.addActionListener(this);
+        sharpBtn.setEnabled(false);
+        
+        normalBtn = new RoundedButton("" + (char)0xBD, appBundle, Color.decode("0xFFE55F"));
+        normalBtn.setBackground(Color.decode("0xFFFFFF"));
+        normalBtn.setFont(notesFont);
+        normalBtn.setTextOffsets(3, 5);
+        normalBtn.setBounds(xPos, 10, btnW, btnH);
+        normalBtn.addActionListener(this);
+        normalBtn.setVisible(false);
+        
+        flatBtn = new RoundedButton("b", appBundle, Color.decode("0xFFE55F"));
+        flatBtn.setBackground(Color.decode("0xFFFFFF"));
+        flatBtn.setFont(notesFont);
+        flatBtn.setTextOffsets(3, 8);
+        flatBtn.setBounds(xPos, 58, btnW, btnH);
+        flatBtn.addActionListener(this);
+        flatBtn.setEnabled(false);
+        
+        xPos+= btnW + 5;
+        
         removeNoteButton = new RoundedButton("", appBundle, Color.decode("0xFF7F7F"));
         removeNoteButton.setBounds(xPos, 10, btnW, 92);
         removeNoteButton.setBackground(Color.decode("0xFFFFFF"));
@@ -205,6 +232,9 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
  		playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
  		playBtn.addActionListener(this);
  		
+ 		notesPanel.add(sharpBtn);
+ 		notesPanel.add(normalBtn);
+ 		notesPanel.add(flatBtn);
  		notesPanel.add(removeNoteButton);
  		notesPanel.add(playBtn);
         
@@ -303,6 +333,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	private void addEditNote(double type, boolean isSilence)
 	{
 		Note tmpNote;
+		boolean isAltered = false;
 		if (measureCounter == 0)
 		{
 			measureCounter = timeNumerator;
@@ -320,25 +351,114 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		}
 
 		int pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, 12);
-		pitch = exerciseNG.getAlteredFromBase(pitch);
+		int altPitch = exerciseNG.getAlteredFromBase(pitch);
+		if (altPitch != pitch)
+			isAltered = true;
+		
+		pitch = altPitch;
 		if (isSilence == true)
 		{
+			sharpBtn.setVisible(true);
+			sharpBtn.setEnabled(false);
+			flatBtn.setVisible(true);
+			flatBtn.setEnabled(false);
+			normalBtn.setVisible(false);
 			tmpNote = new Note(0, currExercise.clefMask, 12, pitch, 5, false, 0);
 			tmpNote.duration = type;
 		}
 		else
+		{
 			tmpNote = new Note(0, currExercise.clefMask, 12, pitch, (int)type, false, 0);
+			if (currExercise.notes.size() > 0)
+			{
+			  for (int i = currExercise.notes.size() - 1; i >= 0; i--)
+			  {
+				System.out.println("--------- x ----------");
+				Note nNote = currExercise.notes.get(i);
+				if ((int)Math.floor(nNote.timestamp / timeNumerator) != measuresNumber - 1)
+					break;
+				if ((nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7) &&
+					nNote.altType != 0)
+				{
+					if (nNote.altType == 2)
+						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
+					else
+						tmpNote.pitch += nNote.altType;
+					// tmpNote.altType = nNote.altType; // TODO: remove this
+					System.out.println("NEW pitch = " + tmpNote.pitch);
+					break;
+				}
+			  }
+			}
+		}
 		
 		measureCounter -= tmpNote.duration;
 		tmpNote.setTimeStamp(timeCounter);
 		timeCounter += tmpNote.duration;
 
 		currExercise.notes.add(tmpNote);
+		if (isSilence == false)
+			checkAlterationButtons(currExercise.notes.size() - 1);
 		notesLayer.setEditNoteIndex(currExercise.notes.size() - 1);
 		notesLayer.setNotesPositions();
 		layers.repaint();
 		removeNoteButton.setEnabled(true);
 		setButtonsState();
+	}
+	
+	private void changeAlteration(int type)
+	{
+		int idx = notesLayer.getEditNoteIndex();
+		Note tmpNote = currExercise.notes.get(idx);
+		int currentMeasure = (int)Math.floor(tmpNote.timestamp / timeNumerator);
+		System.out.println("[changeAlteration] Current Measure = " + currentMeasure);
+		int naturalPitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
+		switch (type)
+		{
+			case 1:
+			case -1:
+				if (tmpNote.altType == type)
+				{
+					tmpNote.altType = 0;
+					tmpNote.pitch = naturalPitch;
+				}
+				else
+				{
+					tmpNote.altType = type;
+					tmpNote.pitch = naturalPitch + type;
+				}
+			break;
+			case 2:
+				if (tmpNote.altType == type)
+				{
+					tmpNote.altType = 0;
+					tmpNote.pitch = exerciseNG.getAlteredFromBase(naturalPitch); 
+				}
+				else
+				{
+					tmpNote.altType = 2;
+					tmpNote.pitch = naturalPitch;
+				}
+			break;
+		}
+		for (int i = idx + 1; i < currExercise.notes.size(); i++)
+		{
+			Note nNote = currExercise.notes.get(i);
+			if ((int)Math.floor(nNote.timestamp / timeNumerator) != currentMeasure)
+				break;
+			if (nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7)
+			{
+				nNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, nNote.level); // retrieve the base pitch of this level and clef
+				
+				if (tmpNote.altType == 0)
+					nNote.pitch = exerciseNG.getAlteredFromBase(nNote.pitch); // retrieve a new pitch if it is altered
+				else if (tmpNote.altType < 2)
+					nNote.pitch += type;
+				nNote.altType = 0;
+				//nNote.altType = tmpNote.altType;  // TODO: remove this
+			}
+		}
+		layers.repaint();
 	}
 
 	public void actionPerformed(ActionEvent ae)
@@ -359,6 +479,13 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			addEditNote(1, true);
 		else if (ae.getSource() == eightPauseBtn)
 			addEditNote(0.5, true);
+		else if (ae.getSource() == sharpBtn)
+			changeAlteration(1);
+		else if (ae.getSource() == flatBtn)
+			changeAlteration(-1);
+		else if (ae.getSource() == normalBtn)
+			changeAlteration(2);
+		
 		else if (ae.getSource() == playBtn)
 		{
 			if (isPlaying == false)
@@ -435,18 +562,82 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		}
 	}
 	
+	public void checkAlterationButtons(int idx)
+	{
+		if (currExercise.type == 1)
+			return;
+		boolean showNormal = false;
+		int alt = currExercise.notes.get(idx).altType;
+		int pitch = currExercise.notes.get(idx).pitch;
+		int lev = currExercise.notes.get(idx).level;
+		
+		if (alt == 2)
+			showNormal = true;
+		else
+		{
+			if (alt == 0 &&	exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, lev) != pitch)
+				showNormal = true;
+		}
+		
+		sharpBtn.setVisible(!showNormal);
+		sharpBtn.setEnabled(!showNormal);
+		flatBtn.setVisible(!showNormal);
+		flatBtn.setEnabled(!showNormal);
+		normalBtn.setVisible(showNormal);
+	}
+	
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		if (evt.getPropertyName() == "selectionChanged")
 		{
-			if (evt.getNewValue().equals(currExercise.notes.size() - 1))
+			int noteIdx = Integer.parseInt(evt.getNewValue().toString());
+			if (noteIdx == currExercise.notes.size() - 1)
 				removeNoteButton.setEnabled(true);
 			else
 				removeNoteButton.setEnabled(false);
+			checkAlterationButtons(noteIdx);
 		}
 		else if (evt.getPropertyName() == "levelChanged")
 		{
-			
+			int idx = notesLayer.getEditNoteIndex();
+			Note tmpNote = currExercise.notes.get(idx);
+			for (int i = idx - 1; i >= 0; i--)
+			{
+				Note nNote = currExercise.notes.get(i);
+				if ((int)Math.floor(nNote.timestamp / timeNumerator) != measuresNumber - 1)
+					break;
+				if ((nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7) &&
+					nNote.altType != 0)
+				{
+					if (nNote.altType == 2)
+						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
+					else
+						tmpNote.pitch += nNote.altType;
+					// tmpNote.altType = nNote.altType; // TODO: remove this
+					break;
+				}
+			}
+			checkAlterationButtons(notesLayer.getEditNoteIndex());
+		}
+		// if an altered note level changed, I must reset all the other altered notes 
+		// in the current measure with the same tone 
+		else if (evt.getPropertyName() == "levelWasAltered") 
+		{
+			int idx = notesLayer.getEditNoteIndex();
+			Note tmpNote = currExercise.notes.get(idx);
+			int currentMeasure = (int)Math.floor(tmpNote.timestamp / timeNumerator);
+			for (int i = idx + 1; i < currExercise.notes.size(); i++)
+			{
+				Note nNote = currExercise.notes.get(i);
+				if ((int)Math.floor(nNote.timestamp / timeNumerator) != currentMeasure)
+					break;
+				if (nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7)
+				{
+					nNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, nNote.level); // retrieve the base pitch of this level and clef
+					nNote.pitch = exerciseNG.getAlteredFromBase(nNote.pitch); // retrieve a new pitch if it is altered
+					nNote.altType = 0; 
+				}
+			}			
 		}
 	}
 }

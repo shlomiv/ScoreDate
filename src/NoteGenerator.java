@@ -372,12 +372,14 @@ public class NoteGenerator
     public int getAlteration(int pitch)
     {
     	int idx = alteredList.indexOf(pitch);
+    	if (idx == -1) return 0;
     	return alteredList.get(idx) - baseList.get(idx);
     }
-    
+
     public int getAlteredFromBase(int basePitch)
     {
     	int baseNoteIdx = baseList.indexOf(basePitch);
+    	if (baseNoteIdx == -1) return -1;
     	return alteredList.get(baseNoteIdx);
     }
     

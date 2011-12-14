@@ -148,6 +148,11 @@ public class NotesPanel extends JPanel implements MouseListener
     	editNoteIndex = idx;
     }
     
+    public int getEditNoteIndex()
+    {
+    	return editNoteIndex;
+    }
+    
     public void setEditNoteGenerator(NoteGenerator ng)
     {
     	editNG = ng;
@@ -212,7 +217,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		}
 		else if (type == 3) // eigth note
 		{
-			if (note.level <= 12) 
+			if (note.level < 12) 
 				ypos += 30;
 		}
 		else if (type == 4) // triplets
@@ -320,15 +325,23 @@ public class NotesPanel extends JPanel implements MouseListener
 			if (mouseY > 128) return;
 			// clicked over the currently selected note. Act on the pitch
 			Note tmpNote = notes.get(editNoteIndex);
-			tmpNote.level = (mouseY - 4) / 5;
-			tmpX = tmpNote.xpos; // must 'rewind' xpos to avoid wrong check for second line
-			setSingleNotePosition(tmpNote, false); // do not touch X position !
-			tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(0), tmpNote.level); // retrieve the base pitch of this level and clef
-			tmpNote.pitch = editNG.getAlteredFromBase(tmpNote.pitch); // retrieve a new pitch if it is altered
+			int origLevel = tmpNote.level;
+			int newLevel = (mouseY - 4) / 5;
+			if (newLevel != origLevel)
+			{
+				tmpNote.level = (mouseY - 4) / 5;
+				tmpX = tmpNote.xpos; // must 'rewind' xpos to avoid wrong check for second line
+				setSingleNotePosition(tmpNote, false); // do not touch X position !
+				tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(0), tmpNote.level); // retrieve the base pitch of this level and clef
+				tmpNote.pitch = editNG.getAlteredFromBase(tmpNote.pitch); // retrieve a new pitch if it is altered
+				if (tmpNote.altType != 0)
+					this.firePropertyChange("levelWasAltered", origLevel, newLevel);
+				tmpNote.altType = 0;
 		
-			System.out.println("[Edit mode] note level: " + tmpNote.level + ", pitch = " + tmpNote.pitch);
-			this.firePropertyChange("levelChanged", false, true);
-			repaint();
+				System.out.println("[Edit mode] note level: " + tmpNote.level + ", pitch = " + tmpNote.pitch);
+				this.firePropertyChange("levelChanged", origLevel, newLevel);
+				repaint();
+			}
 		}
 		else
 		{
@@ -338,6 +351,7 @@ public class NotesPanel extends JPanel implements MouseListener
 				int noteXpos = notes.get(i).xpos;
 				if (mouseX >= noteXpos - 5 && mouseX < (int)(noteXpos + notes.get(i).duration * noteDistance))
 				{
+					System.out.println("[Edit mode] selected note #" + i + ", pitch = " + notes.get(i).pitch);
 					this.firePropertyChange("selectionChanged", editNoteIndex, i);
 					editNoteIndex = i;
 					repaint();
@@ -403,7 +417,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		}
 		else if (type == 3)
 		{
-			if (note.level > 12) symbol = "" + (char)0xC8; // eighth note upward 
+			if (note.level >= 12) symbol = "" + (char)0xC8; // eighth note upward 
 			else symbol = "" + (char)0xCA; // eighth note downward
 		}
 		else if (type == 4)
@@ -435,7 +449,7 @@ public class NotesPanel extends JPanel implements MouseListener
 			int yPos = (((int)Math.floor(note.ypos / (rowsDistance + 60)) *  rowsDistance) + 60);
 			if (note.secondRow == false)
 				yPos += (rowsDistance / 2);
-			
+
 			System.out.println("double clef ---> note.ypos: " + note.ypos + ", rowsDistance: " + rowsDistance + ", yPos = " + yPos);
 
 			symbol = "";
@@ -457,23 +471,33 @@ public class NotesPanel extends JPanel implements MouseListener
 			g.drawString(symbol, note.xpos, yPos);
 		}
 
+		// draw alteration symbol if required
 		if (note.altType != 0)
 		{
+			int altYOff = 0;
 			g.setFont(appFont.deriveFont(50f));
+			if (note.level < 12)
+			{
+				if (note.type == 2) 
+					altYOff = -41;
+				else if (note.type == 3)
+					altYOff = -30;
+			}
 			if (note.altType == -2)
 			{
-				g.drawString("b", note.xpos - 19, note.ypos);
-				g.drawString("b", note.xpos - 12, note.ypos);
+				g.drawString("b", note.xpos - 19, note.ypos + altYOff);
+				g.drawString("b", note.xpos - 12, note.ypos + altYOff);
 			}
 			else if (note.altType == -1)
-				g.drawString("b", note.xpos - 12, note.ypos);
+				g.drawString("b", note.xpos - 12, note.ypos + altYOff);
 			else if (note.altType == 1)
-				g.drawString("B", note.xpos - 12, note.ypos);
+				g.drawString("B", note.xpos - 12, note.ypos + altYOff);
 			else if (note.altType == 2)
-				g.drawString("" + (char)0xBD, note.xpos - 14, note.ypos);
+				g.drawString("" + (char)0xBD, note.xpos - 14, note.ypos + altYOff);
 		}
 
-    	if (note.tripletValue != 0) // draw triplets special graphics 
+		// draw triplets special graphics
+    	if (note.tripletValue != 0)
     	{
     		int tsub = 0; 
     		if (note.tripletValue < 0) // notes downward

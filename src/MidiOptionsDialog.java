@@ -147,7 +147,6 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		else 
 		{
             instrumentsComboBox.addItem("No instrument available");
-            System.out.println("No soundbank file : http://java.sun.com/products/java-media/sound/soundbanks.html");
         }
 		if (instrumentsComboBox.getItemCount() > 0)
 		{

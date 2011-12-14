@@ -57,6 +57,9 @@ import java.util.Properties;
  *  latency          | latency between MIDI in and synthesizer playback
  *  transposition    | number of octaves used to transpose sound
  *  
+ *  audiodevice      | index of the audio input device to use for capture
+ *  defaultInput     | default input to capture notes. 0: MIDI, 1: Microphone
+ *  audiosensitivity | audio sensitivity threshold
  */
 public class Preferences 
 {

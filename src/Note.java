@@ -58,7 +58,7 @@ public class Note
 			case 5: duration = 0; level = 12; pitch = 71; break;
 		}
 		
-		//System.out.println("[Note] t: " + type + ", p: " + pitch + ", l: " + level + ", dur: " + duration + ", alt: " + altType);
+		System.out.println("[Note] t: " + type + ", p: " + pitch + ", l: " + level + ", dur: " + duration + ", alt: " + altType);
 		
 		ypos = 0; // y positions are calculated by the NotesPanel
 	}

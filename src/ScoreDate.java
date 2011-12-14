@@ -79,6 +79,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	 
 	 // Audio Resources
 	 AudioInputController audioControl;
+	 AudioOptionDialog audioOptions;
 	 
 	 // MIDI option dialog
 	 private MidiOptionsDialog midiOptions;
@@ -199,7 +200,7 @@ public class ScoreDate extends JFrame implements ActionListener
         	System.exit(0);
          }
          
-         audioControl = new AudioInputController(prefs);
+         //audioControl = new AudioInputController(prefs);
 
          menuBar = new SDMenuBar(bundle, prefs);
          setJMenuBar(menuBar);
@@ -469,6 +470,11 @@ public class ScoreDate extends JFrame implements ActionListener
 						}
 					}
 				});
+			}
+			else if (s == "audioOptions")
+			{
+				audioOptions = new AudioOptionDialog(bundle, prefs, audioControl);
+				audioOptions.setVisible(true);
 			}
 			else if (s == "exitProgram")
 			{

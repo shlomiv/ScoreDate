@@ -45,7 +45,7 @@ public class MidiController
 	private MidiDevice inputDevice;
 	private Synthesizer midiSynth;
 	private Instrument[] instruments;
-    private boolean midierror;
+    private boolean midierror = false;
     private MidiChannel[] allMC;
     public MidiChannel midiChannel; // fixed channels are: 0 = user, 1 = playback, 2 = metronome
     
@@ -71,6 +71,8 @@ public class MidiController
 	
 	public boolean initialize() 
 	{
+	   midierror = false;
+
 	   if (inputDevice != null && inputDevice.isOpen())
 		   inputDevice.close();
 
@@ -133,6 +135,8 @@ public class MidiController
 
 		 if (inputDevice != null && inputDevice.isOpen())
 			 inputDevice.close();
+		 
+		 //System.out.println("[TEST] selectedDeviceIdx: " + selectedDeviceIdx);
 
 		 if (selectedDeviceIdx > 0) // 0 means there are no available MIDI devices 
 		 {
@@ -147,19 +151,25 @@ public class MidiController
 	                tmpDevice = MidiSystem.getMidiDevice(aInfos[i]);
 	                boolean bAllowsInput = (tmpDevice.getMaxTransmitters() != 0);
 	                //boolean bAllowsOutput = (tmpDevice.getMaxReceivers() != 0);
+	                
+	                if (bAllowsInput == false) // non-input devices are excluded from the list !!
+	                	continue;
 
-	                if (bAllowsInput && tmpIdx == selectedDeviceIdx - 1) 
+	                //System.out.println("[TEST] device #" + i + " bAllowsInput: " + bAllowsInput + ", name: " + aInfos[i].getName() + " (tmpIdx = " + tmpIdx + ")");
+	                
+	                if (bAllowsInput == true && tmpIdx == selectedDeviceIdx - 1) 
 	                {
+	                	System.out.println("[openDevice] Found selected device. Name: " + aInfos[i].getName());
 	                	deviceName = aInfos[i].getName();
 	                	break;
 	                }
 	            }
-	            catch (MidiUnavailableException e) {  }
+	            catch (MidiUnavailableException e) { e.printStackTrace(); }
 	            tmpIdx++;
 	         }
 		     
 		     if (deviceName == "")
-		    	 return null;
+		     	 return null;
 
 		     System.out.println("Current device name = " + deviceName);
 

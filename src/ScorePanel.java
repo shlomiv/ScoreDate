@@ -22,6 +22,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
@@ -37,7 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 
-public class ScorePanel extends JPanel implements ActionListener 
+public class ScorePanel extends JPanel implements ActionListener, KeyListener
 {
 	private static final long serialVersionUID = 1L;
 	Font appFont;
@@ -85,6 +87,7 @@ public class ScorePanel extends JPanel implements ActionListener
 	private int cursorStartX; // X start position of cursor for each row
 	private int cursorX; // X position of cursor during game
 	private int cursorY; // Y position of cursor during game
+	private boolean isKeyPressed = false;
 	
 	// Variables to check notes validity
 	private int accuracy = 24; // a note is valid within 24 pixels around the note X position 
@@ -160,6 +163,9 @@ public class ScorePanel extends JPanel implements ActionListener
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 		
 		gameType = appPrefs.GAME_STOPPED;
+		
+		if (isRhythm)
+			this.addKeyListener(this);
 
 		add(sBar);
 		add(layers);
@@ -318,7 +324,8 @@ public class ScorePanel extends JPanel implements ActionListener
 			if (noteFound == false && lookupIndex < gameNotes.size())
 			{
 				lookupIndex++;
-				if (gameNotes.size() == 0) return; // security check
+				if (gameNotes.size() == 0 || lookupIndex >= gameNotes.size()) 
+					return; // security check
 				noteMargin = gameNotes.get(lookupIndex).xpos - (accuracy / 2);
 					
 				if (currPos > noteMargin && currPos < noteMargin + accuracy)
@@ -443,8 +450,29 @@ public class ScorePanel extends JPanel implements ActionListener
 				gameFinished();
 			gameType = appPrefs.GAME_STOPPED;
         }
-        
 	}
+	
+	 /** Handle the key typed event from the text field. */
+    public void keyTyped(KeyEvent e) { }
+    
+    /** Handle the key-pressed event from the text field. */
+    public void keyPressed(KeyEvent e) 
+    {
+    	//System.out.println("GOT KEYPRESS");
+    	if (isKeyPressed == false)
+    	{
+    		noteEvent(71, 90);
+    		isKeyPressed = true;
+    	}
+    }
+
+    /** Handle the key-released event from the text field. */
+    public void keyReleased(KeyEvent e) 
+    {
+    	//System.out.println("GOT KEYRELEASE");
+    	noteEvent(71, 0);
+    	isKeyPressed = false;
+    }
 
 	private void createPlayback(boolean playOnly)
 	{
@@ -509,7 +537,10 @@ public class ScorePanel extends JPanel implements ActionListener
 			{
 				/* ************** START NEW GAME ***************** */
 				if (isRhythm == true)
+				{
 					gameType = appPrefs.RHTYHM_GAME_USER;
+					this.requestFocus();
+				}
 				else 
 					gameType = appPrefs.SCORE_GAME_USER;
 				notesLayer.repaint();

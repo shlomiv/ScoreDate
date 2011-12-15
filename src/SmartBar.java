@@ -112,7 +112,6 @@ public class SmartBar extends JPanel implements ActionListener, ChangeListener
 		clefNoteBtn.setBounds(posX, upperMargin, 160, buttonSize);
 		clefNoteBtn.setBackground(Color.decode("0x8FC6E9"));
 		clefNoteBtn.setFont(f);
-		clefNoteBtn.setIcon(new ImageIcon(getClass().getResource("/resources/settings.png")));
 		clefNoteBtn.addActionListener(this);
 		
 		posX += 165;

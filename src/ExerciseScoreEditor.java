@@ -333,7 +333,6 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	private void addEditNote(double type, boolean isSilence)
 	{
 		Note tmpNote;
-		boolean isAltered = false;
 		if (measureCounter == 0)
 		{
 			measureCounter = timeNumerator;
@@ -352,8 +351,6 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 
 		int pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, 12);
 		int altPitch = exerciseNG.getAlteredFromBase(pitch);
-		if (altPitch != pitch)
-			isAltered = true;
 		
 		pitch = altPitch;
 		if (isSilence == true)
@@ -384,7 +381,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
 					else
 						tmpNote.pitch += nNote.altType;
-					// tmpNote.altType = nNote.altType; // TODO: remove this
+
 					System.out.println("NEW pitch = " + tmpNote.pitch);
 					break;
 				}
@@ -455,7 +452,6 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 				else if (tmpNote.altType < 2)
 					nNote.pitch += type;
 				nNote.altType = 0;
-				//nNote.altType = tmpNote.altType;  // TODO: remove this
 			}
 		}
 		layers.repaint();
@@ -613,7 +609,6 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
 					else
 						tmpNote.pitch += nNote.altType;
-					// tmpNote.altType = nNote.altType; // TODO: remove this
 					break;
 				}
 			}

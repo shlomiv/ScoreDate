@@ -18,6 +18,7 @@ along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
 
 import java.util.Vector;
 import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.sound.sampled.AudioFormat;
@@ -44,23 +45,28 @@ public class AudioInputController implements AsioDriverListener
 {
 	Preferences appPrefs;
 	Vector<String> audioDevList = new Vector<String>();
+	private byte[] javaSoundBuffer;
 	private AsioDriver asioDriver;
+	private Set<AsioChannel> asioChannels;
+	private float[] AsioBuffer;
 	boolean ASIOsupported = false;
-	boolean isCurrentASIO = false;
-	
+	boolean ASIOmode = false;
+
 	Vector<Double> freqList = new Vector<Double>();
-	
-	float sampleRate = 8000;
+
+	float sampleRate = 44100;
+	int sampleSizeInBits = 8;
+	int bufferSize = 4096;
 	AudioFormat inputFormat;
 	TargetDataLine inputLine;
-	int sensitivity = 10;
+	int sensitivity = 40;
 	long latency = 0;
-	
+	int previousVolume = 0;
+
 	boolean infoEnabled = false;
 	AudioMonitor audioMon;
-	double[] spctrumInfo = new double[16];
 	int currentVolume = 0;
-	
+
 	private AudioCaptureThread captureThread = null;
 	boolean captureStarted = false;
 
@@ -72,54 +78,13 @@ public class AudioInputController implements AsioDriverListener
 
 	public boolean initialize() 
 	{
-	    int sampleSizeInBits = 8;
 	    int channels = 1;
 	    boolean signed = true;
 	    boolean bigEndian = true;
 	    inputFormat =  new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
 	    
 	    initFrequenciesList();
-	    
-	    /*
-	    try 
-	    {
-	      System.out.println("OS: "+System.getProperty("os.name")+" " + System.getProperty("os.version")+"/" + System.getProperty("os.arch")+"\nJava: "+
-	    	      System.getProperty("java.version")+" ("+ System.getProperty("java.vendor")+")\n");
-	      for (Mixer.Info thisMixerInfo : AudioSystem.getMixerInfo()) 
-	      {
-	    	System.out.println("Mixer: "+ thisMixerInfo.getDescription() + " ["+thisMixerInfo.getName()+"]");
-	    	Mixer thisMixer = AudioSystem.getMixer(thisMixerInfo);
-	    	for (Line.Info thisLineInfo:thisMixer.getSourceLineInfo()) 
-	    	{
-	    		if (thisLineInfo.getLineClass().getName().equals("javax.sound.sampled.Port")) 
-	    		{
-	    			Line thisLine = thisMixer.getLine(thisLineInfo);
-	    	        thisLine.open();
-	    	        System.out.println("  Source Port: " + thisLineInfo.toString());
-	    	        for (Control thisControl : thisLine.getControls()) 
-	    	        {
-	    	        	System.out.println(AnalyzeControl(thisControl));
-	    	        }
-	    	        thisLine.close();
-	    	    }
-	    	}
-	    	for (Line.Info thisLineInfo:thisMixer.getTargetLineInfo()) 
-	    	{
-    	    	if (thisLineInfo.getLineClass().getName().equals("javax.sound.sampled.Port")) 
-    	    	{
-    	            Line thisLine = thisMixer.getLine(thisLineInfo);
-    	            thisLine.open();
-    	            System.out.println("  Target Port: " + thisLineInfo.toString());
-    	            for (Control thisControl : thisLine.getControls()) 
-    	            {
-    	            	System.out.println(AnalyzeControl(thisControl));
-    	            }
-    	            thisLine.close();
-    	        }
-	    	}
-    	  }
-    	} catch (Exception e) { e.printStackTrace();} 
-    	*/
+
 	    String userAudioDev = appPrefs.getProperty("audiodevice");
 	    audioDevList = getDevicesList(userAudioDev);
 
@@ -172,8 +137,7 @@ public class AudioInputController implements AsioDriverListener
 		    				System.out.println("Found the user selected device. Open it !");
 		    				if (inputLine!= null && inputLine.isOpen())
 		    					inputLine.close();
-		    				inputLine = (TargetDataLine)thisMixer.getLine(thisLineInfo); // either way...
-			    			//inputLine = (TargetDataLine)AudioSystem.getLine(thisLineInfo);
+		    				inputLine = (TargetDataLine)thisMixer.getLine(thisLineInfo);
 			    		}
 		    			break;
 		    		}
@@ -195,7 +159,7 @@ public class AudioInputController implements AsioDriverListener
 					devList.add(ASIOlist.get(i));
 					if (userAudioDev != "" && userAudioDev.equals(ASIOlist.get(i)))
 		    		{
-	    				System.out.println("Found the ASIO user selected device. Open it !");
+	    				System.out.println("Found the ASIO user selected device. Open it ! (" + userAudioDev + ")");
 	    				if (asioDriver != null)
 	    				{
 	    					asioDriver.shutdownAndUnloadDriver();
@@ -204,14 +168,20 @@ public class AudioInputController implements AsioDriverListener
 	    				try
 	    				{
 	    					final AsioDriverListener host = this;
+	    					System.out.println("----- 1 -----");
 	    					asioDriver = AsioDriver.getDriver(userAudioDev);
+	    					System.out.println("----- 2 -----");
 	    					asioDriver.addAsioDriverListener(host);
-	    					isCurrentASIO = true;
+	    					System.out.println("----- 3 -----");
+	    					asioChannels = new HashSet<AsioChannel>();
+	    					System.out.println("----- 4 -----");
+	    					ASIOmode = true;
 	    				}
 	    				catch (AsioException e)
 	    				{
-	    					
+	    					System.err.println("[getDevicesList] ASIO exception: " + e);
 	    				}
+	    				break;
 		    		}
 				}
 			}
@@ -246,45 +216,99 @@ public class AudioInputController implements AsioDriverListener
 
 	public void startCapture()
 	{
-		if (inputLine == null)
+		if (ASIOmode == false)
+		{
+		  if (inputLine == null)
 			return;
-		if (inputLine.isOpen() == true)
+		  if (inputLine.isOpen() == true)
 			inputLine.close();
-		try 
-		{			
+		  bufferSize = 4096;
+	      javaSoundBuffer = new byte[bufferSize];
+		  try 
+		  {
 			inputLine.open(inputFormat);
 			inputLine.start();
 			captureThread = new AudioCaptureThread();
 			captureStarted = true;
 			captureThread.start();
-		}
-		catch (LineUnavailableException e) 
-		{
+		  }
+		  catch (LineUnavailableException e) 
+		  {
 			System.err.println("Line unavailable: " + e);
+		  }
+		  catch (IllegalArgumentException e)
+		  {
+			  int channels = 1;
+			  boolean signed = true;
+			  boolean bigEndian = true;
+			  sampleSizeInBits = 16; // 8 doesn't work ? try 16
+			  inputFormat =  new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
+			  try 
+			  {
+				inputLine.open(inputFormat);
+				inputLine.start();
+				captureThread = new AudioCaptureThread();
+				captureStarted = true;
+				captureThread.start();
+			  }
+			  catch (LineUnavailableException ex) 
+			  {
+				System.err.println("Line unavailable: " + ex);
+			  }
+		  }
 		}
-
+		else
+		{
+			if (asioDriver == null)
+			  return;
+			asioChannels.clear();
+			asioChannels.add(asioDriver.getChannelInput(0));
+            bufferSize = asioDriver.getBufferPreferredSize();
+            AsioBuffer = new float[bufferSize];
+	        sampleRate = (float)asioDriver.getSampleRate();
+	        asioDriver.createBuffers(asioChannels);
+	        System.out.println("[startCapture] ASIO samplerate: " + sampleRate + ", buffer size: " + bufferSize + " bytes");
+	        latency = (int)(asioDriver.getLatencyInput() / sampleRate) * 1000;
+	        System.out.println("[startCapture] ASIO latency: " + latency + "ms");
+	        asioDriver.start();
+		}
 	}
 
 	public void stopCapture()
 	{
-		if (inputLine == null || inputLine.isOpen() == false)
-			return;
-		try 
+		if (ASIOmode == false)
 		{
+		  if (inputLine == null || inputLine.isOpen() == false)
+			return;
+		  try 
+		  {
 			captureStarted = false;
 			inputLine.stop();
 			inputLine.close();
-		}
-		catch (Exception e) 
-		{
+		  }
+		  catch (Exception e) 
+		  {
 			System.err.println("[stopCapture] exception: " + e);
+		  }
+		}
+		else
+		{
+		  if (asioDriver == null)
+			return;
+		  asioDriver.stop();
+		  asioDriver.disposeBuffers();
+		  asioChannels.clear();
 		}
 	}
 	
 	// *********************** ASIO related events ***************************
 	public void bufferSwitch(long systemTime, long samplePosition, Set<AsioChannel> channels) 
 	{
-
+		for (AsioChannel channelInfo : channels) 
+		{
+		      channelInfo.read(AsioBuffer);
+		}
+		performPeakDetection();
 	}
 	
 	public void resetRequest() 
@@ -311,33 +335,115 @@ public class AudioInputController implements AsioDriverListener
 	{
 		System.out.println("sampleRateDidChange() callback received.");
 	}
+	// *********************************************************************
+	
+	public void performPeakDetection()
+	{
+		int bufLength = 0;
+		if (ASIOmode == false)
+			bufLength = javaSoundBuffer.length;
+		else
+			bufLength = AsioBuffer.length;
+		
+		DoubleFFT_1D fft = new DoubleFFT_1D(bufLength);
+		double[] audioDataDoubles = new double[bufLength*2];
+
+	    currentVolume = 0;
+	    if (ASIOmode == false)
+	    {
+	      if (sampleSizeInBits == 8)
+	      {
+    	    for (int i = 0, j = 0; i < bufLength; i++, j+=2)
+		    {
+    	    	if (infoEnabled == true && javaSoundBuffer[i] > currentVolume)
+    	    		currentVolume = (int)javaSoundBuffer[i];
+    	    	if (javaSoundBuffer[i] < -5 || javaSoundBuffer[i] > 5)
+    	    		audioDataDoubles[j] = (double)javaSoundBuffer[i]; // real part
+    	    	else
+    	    		audioDataDoubles[j] = 0;
+    	    	audioDataDoubles[j + 1] = 0; // imaginary part
+		    }
+	      }
+	      else if (sampleSizeInBits == 16)
+	      {
+	        for (int j = 0; j < bufLength; j+=2) // convert audio data to double[] real, imaginary
+	        {
+	        	int sampleInt = javaSoundBuffer[j] << 8 + javaSoundBuffer[j + 1];
+	        	if (infoEnabled == true && sampleInt > currentVolume)
+	        		currentVolume = sampleInt;
+	    		
+	        	audioDataDoubles[j] = (double)sampleInt; // real part
+	        	audioDataDoubles[j + 1] = 0; // imaginary part
+	        }
+	      }
+	    	   
+	    }
+	    else // ASIO: convert from float[] to double[] real, imaginary
+	    {
+	      for (int i = 0, j = 0; i < bufLength; i++, j+=2)
+		  {
+	    	if (infoEnabled == true && AsioBuffer[i] > currentVolume)
+	    		currentVolume = (int)AsioBuffer[i];
+	    	audioDataDoubles[j] = (double)AsioBuffer[i]; // real part
+	    	audioDataDoubles[j + 1] = 0; // imaginary part
+		  }
+	    }
+	    if (infoEnabled == true)
+	    	audioMon.showVolume(currentVolume);
+
+	    fft.complexForward(audioDataDoubles);
+	    
+	    // calculate vector magnitude and extract highest peak
+	    double[] magnitude = new double[bufLength];
+	    double peak = 0;
+	    int peakIdx = 0;
+	    for (int j = 0, i = 0; j < bufLength*2; j+=2, i++)
+	    {				    	
+	    	magnitude[i] = Math.sqrt(audioDataDoubles[j]*audioDataDoubles[j] + audioDataDoubles[j+1]*audioDataDoubles[j+1]);
+	    	if ( magnitude[i] > peak)
+	    	{
+	    		peak = magnitude[i];
+	    		peakIdx = i;
+	    	}
+	    }
+	    
+	    double frequency = (sampleRate * peakIdx) / (bufLength * 2);
+	    if (frequency > 2000)
+	    	return;
+	    if (infoEnabled == true)
+	    	audioMon.showSpectrum(magnitude);
+	    //System.out.println("[AudioCaptureThread] FFT took " + (System.currentTimeMillis() - time) + "ms");
+	    System.out.println("[AudioCaptureThread] Peak at: " + frequency + "Hz (value: " + peak + ")");
+	    
+	    if ( currentVolume - previousVolume > sensitivity)
+		{
+			int pitch = frequencyLookup(frequency);
+			if (infoEnabled == true)
+				audioMon.showPitch(pitch);
+		}
+		previousVolume = currentVolume;
+	}
 	
 	
 	// ************************** capture thread ******************************
 	private class AudioCaptureThread extends Thread 
 	{
-		int bufferSize = 1024; //(int) inputFormat.getSampleRate() * inputFormat.getFrameSize();
-		byte buffer[] = new byte[bufferSize];
 		int readBytes = 0;
-		FileWriter out = null;
-		char cbuf[] = new char[bufferSize];
 		boolean checkLatency = true;
 		
 		public AudioCaptureThread()
 		{
 			System.out.println("[AudioCaptureThread] created");
+		}
+		
+		public void saveToFile(byte buf[])
+		{
+			FileWriter out = null;
 			try
 			{
 				out = new FileWriter("audioCap.wav", true);
-			}
-			catch (IOException e) { }
-		}
-		
-		public void saveToFile(byte buffer[])
-		{
-			try
-			{
-				String str = new String(buffer); //using the platform's default charset
+				String str = new String(buf); //using the platform's default charset
+				char cbuf[] = new char[bufferSize];
 				cbuf = str.toCharArray();
 				out.write(cbuf);
 			} catch (IOException e) { }
@@ -346,12 +452,11 @@ public class AudioInputController implements AsioDriverListener
 		public void run() 
 		{
 			System.out.println("[AudioCaptureThread] started");
-			DoubleFFT_1D fft = new DoubleFFT_1D(buffer.length);
 			while(captureStarted)
 			{
 				if (checkLatency == true)
 					latency = System.currentTimeMillis();
-				readBytes = inputLine.read(buffer, 0, buffer.length);
+				readBytes = inputLine.read(javaSoundBuffer, 0, javaSoundBuffer.length);
 				if (checkLatency == true)
 				{
 					latency = System.currentTimeMillis() - latency;
@@ -364,85 +469,9 @@ public class AudioInputController implements AsioDriverListener
 					//long time = System.currentTimeMillis();
 					//System.out.println("[AudioCaptureThread] got " + readBytes + " bytes);
 					//saveToFile(buffer);
-
-				    double[] audioDataDoubles = new double[buffer.length*2];
-
-				    currentVolume = 0;
-				    for (int j = 0; j < buffer.length; j+=2) // convert audio data in double[] real, imaginary
-				    {
-				    	if (buffer[j] < -sensitivity || buffer[j] > sensitivity) // noise reduction ?
-				    	{
-				    		if (infoEnabled == true && buffer[j] > currentVolume)
-				    			currentVolume = buffer[j];
-				    		
-				    		audioDataDoubles[j] = (double)buffer[j]; // real part
-				    	}
-				    	else
-				    		audioDataDoubles[j] = 0;
-				    	audioDataDoubles[j + 1] = 0; // imaginary part
-				    }
-				    if (infoEnabled == true)
-				    	audioMon.showVolume(currentVolume);
-
-				    fft.complexForward(audioDataDoubles);
-				    
-				    // calculate vector magnitude and extract highest peak
-				    double[] magnitude = new double[buffer.length];
-				    double peak = 0;
-				    int peakIdx = 0;
-				    for (int j = 0, i = 0; j < buffer.length*2; j+=2, i++)
-				    {				    	
-				    	magnitude[i] = Math.sqrt(audioDataDoubles[j]*audioDataDoubles[j] + audioDataDoubles[j+1]*audioDataDoubles[j+1]);
-				    	if ( magnitude[i] > peak)
-				    	{
-				    		peak = magnitude[i];
-				    		peakIdx = i;
-				    	}
-				    }
-				    
-				    double frequency = (sampleRate * peakIdx) / (buffer.length * 2);
-				    if (frequency > 2000)
-				    	continue;
-				    if (infoEnabled == true)
-				    	audioMon.showSpectrum(magnitude);
-				    //System.out.println("[AudioCaptureThread] FFT took " + (System.currentTimeMillis() - time) + "ms");
-				    System.out.println("[AudioCaptureThread] Peak at: " + frequency + "Hz (value: " + peak + ")");
-				    
-				    int pitch = frequencyLookup(frequency);
-				    if (infoEnabled == true)
-				    	audioMon.showPitch(pitch);
+					performPeakDetection();
 				}
 			}
 		}
 	}
-
-/*
-	public static String AnalyzeControl(Control thisControl) 
-	{
-	    String type = thisControl.getType().toString();
-	    if (thisControl instanceof BooleanControl) 
-	    {
-	      return "    Control: "+type+" (boolean)"; 
-	    }
-	    if (thisControl instanceof CompoundControl) 
-	    {
-	      System.out.println("    Control: "+type+ " (compound - values below)");
-	      String toReturn = "";
-	      for (Control children: ((CompoundControl)thisControl).getMemberControls()) 
-	      {
-	        toReturn+="  "+AnalyzeControl(children)+"\n";
-	      }
-	      return toReturn.substring(0, toReturn.length()-1);
-	    }
-	    if (thisControl instanceof EnumControl) 
-	    {
-	      return "    Control:"+type+" (enum: "+thisControl.toString()+")";
-	    }
-	    if (thisControl instanceof FloatControl) 
-	    {
-	      return "    Control: "+type+" (float: from "+ ((FloatControl) thisControl).getMinimum()+" to "+ ((FloatControl) thisControl).getMaximum()+")";
-	    }
-	    return "    Control: unknown type";
-	}
-*/
 }

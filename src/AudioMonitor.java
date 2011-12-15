@@ -41,7 +41,7 @@ public class AudioMonitor extends JPanel
 
 		spectrumBars = new int[16];	
 		piano = new Piano(73);
-		this.setFont(new Font("Arial", Font.BOLD, 50));
+		this.setFont(new Font("Arial", Font.BOLD, 40));
 	}
 
 	public void showVolume(int vol)
@@ -67,7 +67,7 @@ public class AudioMonitor extends JPanel
 	    	if (specIdx < 0) specIdx = 0;
 	    	spectrumSums[0][specIdx] += (long)value;
 	    	spectrumSums[1][specIdx]++;
-	    	spectrumBars[specIdx] = (int)(spectrumSums[0][specIdx] / spectrumSums[1][specIdx]) * 30;
+	    	spectrumBars[specIdx] = (int)(spectrumSums[0][specIdx] / spectrumSums[1][specIdx]);
 		}
 		repaint();
 	}
@@ -132,7 +132,7 @@ public class AudioMonitor extends JPanel
 			}
 		}
 		g.setColor(Color.black);
-		g.drawString(currentNote, 280, 70);
+		g.drawString(currentNote, 280, 90);
 	}
 }
 

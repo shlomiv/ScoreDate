@@ -115,7 +115,7 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
         audioSensLabel.setBounds(10, 5, 300, 40);
         audioSensitivityPanel.add(audioSensLabel);
         
-        sensitivitySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 10);
+        sensitivitySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
         sensitivitySlider.setBounds(365, -6, 200, 60);
         sensitivitySlider.setMajorTickSpacing(10);
         sensitivitySlider.setSnapToTicks(true);

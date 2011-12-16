@@ -1,6 +1,7 @@
 December ???, 2011 - version 2.3
 
-- added accidentals to Exercise editor
+- NEW: previously saved exercises can be modified
+- NEW: added accidentals to Exercise editor
 - fixed MIDI IN device selection which didn't work in some cases
 - fixed a potential score reading game crash
 - rhythm exercise can now be played with the computer keyboard

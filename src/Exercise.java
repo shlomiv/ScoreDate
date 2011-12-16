@@ -218,7 +218,7 @@ public class Exercise
 		NodeList elList = eElement.getElementsByTagName(sTag);
 		if (elList == null || elList.getLength() == 0) return "-1";
 		NodeList nlList = elList.item(0).getChildNodes();
-		if (nlList == null || nlList.getLength() == 0) return "-2";
+		if (nlList == null || nlList.getLength() == 0) return "";
  
         Node nValue = (Node) nlList.item(0);
  

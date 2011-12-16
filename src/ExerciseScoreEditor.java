@@ -243,27 +243,44 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		layers.setPreferredSize(new Dimension(670, 145));
 		layers.setBackground(Color.white);
 		
+		int staffW = 670;
+
 		if (currExercise.type == 0)
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, true, true);
 		else
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, false, true);
-        scoreStaff.setBounds(0, 0, 670, 145);
+		if (currExercise.notes.size() > 0)
+        {
+			double lastTS = currExercise.notes.get(currExercise.notes.size() - 1).timestamp;
+			double lastDur = currExercise.notes.get(currExercise.notes.size() - 1).duration;
+        	measuresNumber = (int)Math.ceil(lastTS / timeNumerator);
+			staffW = (scoreStaff.getNotesDistance() * timeNumerator) * (measuresNumber + 2);
+			System.out.println("Existing exercise. Notes: " + currExercise.notes.size() + ", staffW: " + staffW);
+			layers.setPreferredSize(new Dimension(staffW, 145));
+			layers.setBounds(0, 0, staffW, 145);
+			System.out.println("Measures: " + measuresNumber + ", last timestamp: " + lastTS);
+			measureCounter = lastTS + lastDur - (timeNumerator * (measuresNumber - 1));
+			System.out.println("Calculated measure counter: " + measureCounter);
+        }
+		scoreStaff.setBounds(0, 0, staffW, 145);
         scoreStaff.setOpaque(true);
         scoreStaff.setClef(currExercise.clefMask);
         scoreStaff.setTimeSignature(timeNumerator, timeDenominator);
-        scoreStaff.setMeasuresNumber(1);
-        
+       	scoreStaff.setMeasuresNumber(measuresNumber);
+
         notesLayer = new NotesPanel(appFont, appPrefs, currExercise.notes, false);
-		//notesLayer.setPreferredSize( new Dimension(670, 125));
-		notesLayer.setBounds(0, 0, 670, 145);
+		notesLayer.setBounds(0, 0, staffW, 145);
 		notesLayer.setOpaque(false);
 		notesLayer.setClef(currExercise.clefMask);
-		notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
-		notesLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
 		if (e.type != 1)
 			notesLayer.setEditMode(true, false);
 		else
 			notesLayer.setEditMode(true, true);
+		notesLayer.setStaffWidth(staffW /*scoreStaff.getStaffWidth()*/);
+		notesLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
+		notesLayer.setNotesPositions();
+		if (currExercise.notes.size() > 0)
+			notesLayer.setEditNoteIndex(currExercise.notes.size() - 1);
 		notesLayer.addPropertyChangeListener(this);
 		
         layers.add(scoreStaff, new Integer(1));
@@ -350,6 +367,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		}
 
 		int pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, 12);
+		System.out.println("Got pitch: " + pitch);
 		int altPitch = exerciseNG.getAlteredFromBase(pitch);
 		
 		pitch = altPitch;

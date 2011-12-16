@@ -57,6 +57,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 	public RoundPanel topBar;
 	public RoundedButton homeBtn;
 	public RoundedButton newExerciseBtn;
+	public RoundedButton editExerciseBtn;
 	public RoundedButton listenBtn;
 	private JScrollPane treeScrollPanel = null;
 	private JTree exercisesList;
@@ -100,27 +101,34 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		leftPanel.setBackground(Color.decode("0xCCF5FF"));
 		Border defBorder = UIManager.getBorder(leftPanel);
 		leftPanel.setBorder(BorderFactory.createTitledBorder(defBorder, "", TitledBorder.LEADING, TitledBorder.TOP));
-		leftPanel.setBounds(5, 10, 330, getHeight() - 20);
+		leftPanel.setBounds(5, 10, 330, getHeight() - 25);
 
 		topBar = new RoundPanel(Color.decode("0xA3C7FF"), Color.decode("0xA2DDFF"));
 		topBar.setBorderColor(Color.decode("0xA4D6FF"));
-		topBar.setBounds(10, 7, 310, 67);
+		topBar.setBounds(10, 7, 310, 75);
 		topBar.setLayout(null);
 
 		homeBtn = new RoundedButton("", appBundle);
-		homeBtn.setBounds(13, 5, 57, 57);
+		homeBtn.setBounds(10, 5, 64, 64);
 		homeBtn.setBackground(Color.decode("0x8FC6E9"));
 		homeBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/home.png")).getImage());
-		//homeBtn.setImagSize(42, 42);
+		//homeBtn.setImagSize(42, 42); // keep as a reminder
 
 		newExerciseBtn = new RoundedButton("", appBundle);
-		newExerciseBtn.setBounds(77, 5, 57, 57);
+		newExerciseBtn.setBounds(92, 5, 64, 64);
 		newExerciseBtn.setBackground(Color.decode("0x8FC6E9"));
 		newExerciseBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/new_exercise.png")).getImage());
 		newExerciseBtn.addActionListener(this);
+		
+		editExerciseBtn = new RoundedButton("", appBundle);
+		editExerciseBtn.setBounds(159, 5, 64, 64);
+		editExerciseBtn.setBackground(Color.decode("0x8FC6E9"));
+		editExerciseBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/edit.png")).getImage());
+		editExerciseBtn.setEnabled(false);
+		editExerciseBtn.addActionListener(this);
 
 		listenBtn = new RoundedButton("", appBundle);
-		listenBtn.setBounds(244, 5, 57, 57);
+		listenBtn.setBounds(240, 5, 64, 64);
 		listenBtn.setBackground(Color.decode("0x8FC6E9"));
 		listenBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
 		listenBtn.setEnabled(false);
@@ -128,6 +136,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 
 		topBar.add(homeBtn);
 		topBar.add(newExerciseBtn);
+		topBar.add(editExerciseBtn);
 		topBar.add(listenBtn);
 
 		leftPanel.add(topBar);
@@ -303,6 +312,12 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 			exerciseTypeDialog.rhythmExBtn.addActionListener(this);
 			exerciseTypeDialog.scoreExBtn.addActionListener(this);
 		}
+		else if (ae.getSource() == editExerciseBtn)
+		{
+			exerciseScoreEditorDialog = new ExerciseScoreEditor(appBundle, appPrefs, appFont, appMidi, selectedExercise);
+			exerciseScoreEditorDialog.setVisible(true);
+			exerciseScoreEditorDialog.addPropertyChangeListener(this);
+		}
 		if (exerciseTypeDialog != null)
 		{
 			if(ae.getSource() == exerciseTypeDialog.inlineExBtn)
@@ -373,6 +388,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 	    if (selNode == null || selNode.isLeaf() == false)
 	    {
 	    	listenBtn.setEnabled(false);
+	    	editExerciseBtn.setEnabled(false);
 	    	return;
 	    }
 
@@ -421,6 +437,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         	exLineBtn.setBounds(exRhythmBtn.getX() - 120, exRhythmBtn.getY(), 200, 40);
         	exLineBtn.setVisible(true);
         }
+        editExerciseBtn.setEnabled(true);
 	}
 	
 	protected void paintComponent(Graphics g) 
@@ -430,7 +447,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		
 		leftPanel.setBounds(5, 10, 330, getHeight() - 20);
 		exercisesList.setBounds(0, 0, 290, getHeight() - 120);
-		treeScrollPanel.setBounds(10, 80, 310, getHeight() - 110);
+		treeScrollPanel.setBounds(10, 85, 310, getHeight() - 110);
 		
 		exerciseTitle.setBounds(350, 10, getWidth() - 360, 30);
 		int panelsWidth = getWidth() - 360;

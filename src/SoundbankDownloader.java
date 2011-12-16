@@ -17,7 +17,6 @@ along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
 **********************************************/
 
 import java.net.URL;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

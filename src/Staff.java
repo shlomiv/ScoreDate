@@ -217,7 +217,7 @@ public class Staff extends JPanel
         	{
         		numberOfMeasuresPerRow = (getWidth() - scoreLineWidth) / ((timeSignNumerator/timeDivision) * noteDistance);
         		numberOfRows = (int)Math.ceil((double)forcedNumberOfMeasures / (double)numberOfMeasuresPerRow);
-        		
+        		System.out.println("[Staff] numberOfMeasuresPerRow: " + numberOfMeasuresPerRow + ", numberOfRows: " + numberOfRows);
         		//numberOfRows = ((forcedNumberOfMeasures * (timeSignNumerator * noteDistance)) - scoreLineWidth) / (getWidth() - scoreLineWidth);
         		//numberOfMeasuresPerRow = forcedNumberOfMeasures / numberOfRows;
         	}

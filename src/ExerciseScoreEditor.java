@@ -259,8 +259,10 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			layers.setPreferredSize(new Dimension(staffW, 145));
 			layers.setBounds(0, 0, staffW, 145);
 			System.out.println("Measures: " + measuresNumber + ", last timestamp: " + lastTS);
-			measureCounter = lastTS + lastDur - (timeNumerator * (measuresNumber - 1));
+			measureCounter = timeNumerator - (lastTS + lastDur - (timeNumerator * (measuresNumber - 1)));
+			timeCounter = lastTS + lastDur;
 			System.out.println("Calculated measure counter: " + measureCounter);
+			removeNoteButton.setEnabled(true);
         }
 		scoreStaff.setBounds(0, 0, staffW, 145);
         scoreStaff.setOpaque(true);

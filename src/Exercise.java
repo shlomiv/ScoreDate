@@ -188,7 +188,14 @@ public class Exercise
 
 				Element nClef = doc.createElement("c");
 				nClef.appendChild(doc.createTextNode(Integer.toString(tmpNote.clef)));
-				exNote.appendChild(nClef);				
+				exNote.appendChild(nClef);	
+				
+				if (tmpNote.altType != 0)
+				{
+					Element nAlt = doc.createElement("a");
+					nAlt.appendChild(doc.createTextNode(Integer.toString(tmpNote.altType)));
+					exNote.appendChild(nAlt);	
+				}
 			}
 	 
 			// write the content into xml file
@@ -216,7 +223,7 @@ public class Exercise
 	private static String getTagValue(String sTag, Element eElement) 
 	{
 		NodeList elList = eElement.getElementsByTagName(sTag);
-		if (elList == null || elList.getLength() == 0) return "-1";
+		if (elList == null || elList.getLength() == 0) return "-99";
 		NodeList nlList = elList.item(0).getChildNodes();
 		if (nlList == null || nlList.getLength() == 0) return "";
  
@@ -289,7 +296,10 @@ public class Exercise
 					   double nStamp = Double.parseDouble(getTagValue("ts", nElem));
 					   double nDur = Double.parseDouble(getTagValue("d", nElem));
 					   int nClef = Integer.parseInt(getTagValue("c", nElem));
+					   int nAlt = Integer.parseInt(getTagValue("a", nElem));
 					   tmpNote = new Note(0, nClef, nLevel, nPitch, nType, false, 0);
+					   if (nAlt > -3)
+						   tmpNote.altType = nAlt;
 					   tmpNote.setTimeStamp(nStamp);
 					   tmpNote.duration = nDur;
 					   notes.add(tmpNote);

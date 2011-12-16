@@ -253,7 +253,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         {
 			double lastTS = currExercise.notes.get(currExercise.notes.size() - 1).timestamp;
 			double lastDur = currExercise.notes.get(currExercise.notes.size() - 1).duration;
-        	measuresNumber = (int)Math.ceil(lastTS / timeNumerator);
+        	measuresNumber = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
 			staffW = (scoreStaff.getNotesDistance() * timeNumerator) * (measuresNumber + 2);
 			System.out.println("Existing exercise. Notes: " + currExercise.notes.size() + ", staffW: " + staffW);
 			layers.setPreferredSize(new Dimension(staffW, 145));
@@ -386,11 +386,10 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		else
 		{
 			tmpNote = new Note(0, currExercise.clefMask, 12, pitch, (int)type, false, 0);
-			if (currExercise.notes.size() > 0)
+			if (currExercise.notes.size() > 0 && currExercise.type == 2)
 			{
 			  for (int i = currExercise.notes.size() - 1; i >= 0; i--)
 			  {
-				System.out.println("--------- x ----------");
 				Note nNote = currExercise.notes.get(i);
 				if ((int)Math.floor(nNote.timestamp / timeNumerator) != measuresNumber - 1)
 					break;

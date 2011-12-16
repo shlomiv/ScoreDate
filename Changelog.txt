@@ -1,4 +1,4 @@
-December ???, 2011 - version 2.3
+December 16th, 2011 - version 2.3
 
 - NEW: previously saved exercises can be modified
 - NEW: added accidentals to Exercise editor

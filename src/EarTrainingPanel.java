@@ -285,7 +285,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 			gameStarted = false;
 			sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
 			for (int i = 0; i < gameNotes.size(); i++)
-				appMidi.midiChannel.noteOff(gameNotes.get(i).pitch, 0);
+				appMidi.stopNote(gameNotes.get(i).pitch, 0);
 			gameNotes.clear();
 			gameType = appPrefs.GAME_STOPPED;
 		}
@@ -407,7 +407,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 		}
 		questionLabel.setIcon(null);
 		for (int i = 0; i < gameNotes.size(); i++)
-			appMidi.midiChannel.noteOff(gameNotes.get(i).pitch, 0);
+			appMidi.stopNote(gameNotes.get(i).pitch, 0);
 	}
 	
 	private void gameFinished(boolean win)
@@ -417,7 +417,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 		refreshPanel();
 		for (int i = 0; i < gameNotes.size(); i++)
 		{
-			appMidi.midiChannel.noteOff(gameNotes.get(i).pitch, 0);
+			appMidi.stopNote(gameNotes.get(i).pitch, 0);
 			//if (gameType == appPrefs.INLINE_LEARN_NOTES)
 			//	setLearningInfo(gameNotes.get(i).pitch, false);
 		}
@@ -456,10 +456,10 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 	public void noteEvent(int pitch, int velocity, boolean fromPiano)
 	{
 		if (velocity == 0)
-			appMidi.midiChannel.noteOff(pitch, 0);
+			appMidi.stopNote(pitch, 0);
 		else
 		{
-			appMidi.midiChannel.noteOn(pitch, 90);
+			appMidi.playNote(pitch, 90);
 			checkNote(pitch, true);
 		}
 	}
@@ -535,7 +535,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 						else newNote = earNG.getRandomNote(0, false);
 						
 						gameNotes.add(newNote);
-						appMidi.midiChannel.noteOn(newNote.pitch, 90);
+						appMidi.playNote(newNote.pitch, 90);
 						needNewNote = false;
 						questionLabel.setText("");
 						answerLabel.setText("");
@@ -547,7 +547,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 					if (timeoutCounter == noteTimeout) // timed out without an answer
 					{
 						for (int i = 0; i < gameNotes.size(); i++)
-							appMidi.midiChannel.noteOff(gameNotes.get(i).pitch, 0);
+							appMidi.stopNote(gameNotes.get(i).pitch, 0);
 						needNewNote = true;
 						timeoutCounter = 0;
 						showQuestion();

@@ -60,6 +60,10 @@ import java.util.Properties;
  *  audiodevice      | index of the audio input device to use for capture
  *  defaultInput     | default input to capture notes. 0: MIDI, 1: Microphone
  *  audiosensitivity | audio sensitivity threshold
+ *  
+ *  synthDriver      | synthesizer system to be used (Java or Fluidsynth)
+ *  fluidDriver		 | audio driver that Fluidsynth will use to output sounds     // TODO: not used yet
+ *  soundfontPath    | path of the Soundfont to use when Fluidsynth is active
  */
 public class Preferences 
 {

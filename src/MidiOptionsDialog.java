@@ -20,13 +20,15 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -34,10 +36,14 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 public class MidiOptionsDialog extends JDialog implements ActionListener
 {
@@ -56,13 +62,18 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
     private JCheckBox keyboardsoundCheckBox;
     private JCheckBox accentsCheckBox;
     private JCheckBox showBeatsCheckBox;
+    
+    JRadioButton javaSynthButton;
+	JRadioButton fluidsynthButton;
+	JTextField sbankPath;
+	JButton sfSelectButton;
 
     private JComboBox midiInComboBox;
     
     JButton okButton;
     JButton cancelButton;
 
-	public MidiOptionsDialog(ResourceBundle b, Preferences p, Instrument[] iList)
+	public MidiOptionsDialog(ResourceBundle b, Preferences p, List<String> iList)
 	{
 		appBundle = b;
 		appPrefs = p;
@@ -70,7 +81,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		Font titleFont = new Font("Arial", Font.BOLD, 18);
 		
 		setTitle(appBundle.getString("_menuMidi"));
-        setSize(517, 380);
+        setSize(517, 430);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display
         setLayout(null);
@@ -79,7 +90,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		backPanel = new JPanel();
         backPanel.setLayout(null);
         backPanel.setBackground(Color.white);
-        backPanel.setBounds(0, 0, 517, 380);
+        backPanel.setBounds(0, 0, 517, 405);
         
         int tmpYpos = 5;
         
@@ -90,7 +101,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         midiInPanel.setBackground(Color.white);
         midiInPanel.setBounds(5, tmpYpos, 500, 50);
 
-        JLabel midiLabel = new JLabel(appBundle.getString("_midiclavier"));
+        JLabel midiLabel = new JLabel(appBundle.getString("_midiInput"));
         midiLabel.setFont(titleFont);
         midiLabel.setBounds(10, 5, 200, 40);
         midiInPanel.add(midiLabel);
@@ -129,21 +140,66 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         RoundPanel soundPanel = new RoundPanel();
         soundPanel.setLayout(null);
         soundPanel.setBackground(Color.white);
-        soundPanel.setBounds(5, tmpYpos, 500, 50);
+        soundPanel.setBounds(5, tmpYpos, 500, 105);
+        
+        JLabel midiOut = new JLabel(appBundle.getString("_midiOutput"));
+        midiOut.setFont(titleFont);
+        midiOut.setBounds(10, 5, 200, 40);
+        soundPanel.add(midiOut);
+        
+        ButtonGroup rbGroup = new ButtonGroup();
+        javaSynthButton = new JRadioButton("Java");
+        javaSynthButton.setBounds(200, 8, 80, 30);
+        javaSynthButton.addActionListener(this);
+        fluidsynthButton = new JRadioButton("Fluidsynth");
+        fluidsynthButton.setBounds(300, 8, 80, 30);
+        fluidsynthButton.addActionListener(this);
+        rbGroup.add(javaSynthButton);
+		rbGroup.add(fluidsynthButton);
+
+		soundPanel.add(javaSynthButton);
+		soundPanel.add(fluidsynthButton);
+		
+		String midiSynth = appPrefs.getProperty("synthDriver");
+		if (midiSynth == "-1" || midiSynth.equals("Java"))
+			javaSynthButton.setSelected(true);
+		else if (midiSynth.split(",")[0].equals("Fluidsynth"))
+			fluidsynthButton.setSelected(true);
+		
+		JLabel soundBank = new JLabel(appBundle.getString("_midiLibrary"));
+		soundBank.setFont(new Font("Arial", Font.BOLD, 13));
+		soundBank.setBounds(20, 35, 200, 40);
+        soundPanel.add(soundBank);
+        
+        String bankPath = "Default Java soundbank";
+        if (fluidsynthButton.isSelected() == true)
+        	bankPath = appPrefs.getProperty("soundfontPath");
+        if (bankPath == "-1") bankPath = "No soundfont selected";
+        sbankPath = new JTextField(bankPath);
+        sbankPath.setBounds(160, 40, 250, 25);
+        soundPanel.add(sbankPath);
+        
+        sfSelectButton = new JButton("...");
+        sfSelectButton.setBounds(420, 40, 40, 25);
+        sfSelectButton.setFont(new Font("Arial", Font.BOLD, 13));
+        sfSelectButton.addActionListener(this);
+        if (javaSynthButton.isSelected() == true)
+        	sfSelectButton.setVisible(false);
+        soundPanel.add(sfSelectButton);
 
         keyboardsoundCheckBox = new JCheckBox(appBundle.getString("_keyboardsound"), false);
-        keyboardsoundCheckBox.setBounds(20, 5, 140, 40);
+        keyboardsoundCheckBox.setBounds(20, 63, 140, 40);
         int kSound = Integer.parseInt(appPrefs.getProperty("keyboardsound")); 
         if (kSound == -1 || kSound == 1)
         	keyboardsoundCheckBox.setSelected(true);
 
 		instrumentsComboBox = new JComboBox();
-		instrumentsComboBox.setBounds(160, 12, 200, 25);
+		instrumentsComboBox.setBounds(160, 70, 200, 25);
 		if (iList != null) 
 		{
-            for (int i=0; i<20; i++) 
-                instrumentsComboBox.addItem(iList[i].getName());
-        } 
+            for (int i=0; i<iList.size(); i++) 
+                instrumentsComboBox.addItem(iList.get(i));
+        }
 		else 
 		{
             instrumentsComboBox.addItem("No instrument available");
@@ -157,7 +213,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		instrumentsComboBox.addActionListener(this);
 
         keyboardLengthComboBox = new JComboBox();
-        keyboardLengthComboBox.setBounds(370, 12, 110, 25);
+        keyboardLengthComboBox.setBounds(370, 70, 110, 25);
         keyboardLengthComboBox.addItem("73 " + appBundle.getString("_keys"));
         keyboardLengthComboBox.addItem("61 " + appBundle.getString("_keys"));
         if (Integer.parseInt(appPrefs.getProperty("keyboardlength")) == 61)
@@ -173,7 +229,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         soundPanel.add(keyboardsoundCheckBox);
         soundPanel.add(instrumentsComboBox);
         soundPanel.add(keyboardLengthComboBox);
-        tmpYpos+=55;
+        tmpYpos+=110;
         
         // ******************************* transposition *****************************
         
@@ -281,6 +337,20 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 
 	}
 	
+	public void reloadInstruments(List<String> iList)
+	{
+		instrumentsComboBox.removeAllItems();
+		if (iList != null) 
+		{
+            for (int i=0; i<iList.size(); i++) 
+                instrumentsComboBox.addItem(iList.get(i));
+        }
+		else 
+		{
+            instrumentsComboBox.addItem("No instrument available");
+        }
+	}
+	
 	public void actionPerformed(ActionEvent ae)
     {
 		if (ae.getSource() == okButton)
@@ -342,5 +412,60 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		{
 			this.dispose();
 		}
+		else if (ae.getSource() == javaSynthButton)
+		{
+			appPrefs.setProperty("synthDriver", "Java");
+			appPrefs.storeProperties();
+			sbankPath.setText("Default Java soundbank");
+			sfSelectButton.setVisible(false);
+			this.firePropertyChange("newMidiDevice", false, true);
+		}
+		else if (ae.getSource() == fluidsynthButton)
+		{
+			appPrefs.setProperty("synthDriver", "Fluidsynth,default");
+			appPrefs.storeProperties();
+			sfSelectButton.setVisible(true);
+			String bankPath = appPrefs.getProperty("soundfontPath");
+	        if (bankPath == "-1") bankPath = "No soundfont selected";
+	        sbankPath.setText(bankPath);
+
+			this.firePropertyChange("newMidiDevice", false, true);
+		}
+		else if (ae.getSource() == sfSelectButton)
+		{
+			final JFileChooser fc = new JFileChooser();
+			fc.setFileFilter( new BankFilter() );
+			int returnVal = fc.showOpenDialog(this);
+
+	        if (returnVal == JFileChooser.APPROVE_OPTION) 
+	        {
+	            File file = fc.getSelectedFile();
+	            //This is where a real application would open the file.
+	            System.out.println("Opening: " + file.getAbsolutePath() + "(" + file.getName() + ")");
+	            sbankPath.setText(file.getAbsolutePath());
+	            appPrefs.setProperty("soundfontPath", file.getAbsolutePath());
+	            appPrefs.storeProperties();
+	            this.firePropertyChange("newMidiDevice", false, true);
+	        } 
+	        else 
+	        {
+	        	System.out.println("Open command cancelled by user.");
+	        }
+		}
 	}
+}
+
+class BankFilter extends FileFilter 
+{
+   public String getDescription() 
+   { 
+      return "Soundfont File (*.sf2)"; 
+   } 
+
+   public boolean accept(File f) 
+   {
+	  if(f.isDirectory()) return true;
+
+      return f.getName().toUpperCase().endsWith(".SF2");
+   }
 }

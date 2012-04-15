@@ -43,7 +43,7 @@ public class AudioInputController implements AsioDriverListener
 	private byte[] javaSoundBuffer;
 	
 	// ASIO variables
-	private AsioDriver asioDriver;
+	private AsioDriver asioDriver = null;
 	private Set<AsioChannel> asioChannels;
 	private float[] asioBuffer;
 	private float[] asioSoundBuffer; // buffer on which FFT is performed. Try to reach 4k
@@ -52,8 +52,6 @@ public class AudioInputController implements AsioDriverListener
 	private int asioBufferCount = 0; // counter of cumulative ASIO buffers
 	boolean ASIOsupported = false;
 	boolean ASIOmode = false;
-
-	
 
 	float sampleRate = 44100;
 	int sampleSizeInBits = 8;
@@ -158,6 +156,7 @@ public class AudioInputController implements AsioDriverListener
 				for (int i = 0; i < ASIOlist.size(); i++)
 				{
 					devList.add(ASIOlist.get(i));
+					System.out.println("ASIO: " + ASIOlist.get(i));
 					if (userAudioDev != "" && userAudioDev.equals(ASIOlist.get(i)))
 		    		{
 	    				System.out.println("Found the ASIO user selected device. Open it ! (" + userAudioDev + ")");

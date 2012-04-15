@@ -389,12 +389,12 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		{
 			if (velocity != 0)
 			{
-				appMidi.midiChannel.noteOn(pitch, 90);
+				appMidi.playNote(pitch, 90);
 				checkNote(cursorX, pitch, true);
 			}
 			else
 			{
-				appMidi.midiChannel.noteOff(pitch, 0);
+				appMidi.stopNote(pitch, 0);
 				checkNote(cursorX, pitch, false);
 			}			
 		}
@@ -405,7 +405,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		byte[] metaData = msg.getData();
         String strData = new String(metaData);
        
-        //System.out.println("META message: text= " + strData);
+        //System.out.println("*SCOREPANEL* META message: text= " + strData);
 
         if ("beat".equals(strData)) 
         {
@@ -424,12 +424,12 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
         	cursorY = 10;
         	startTime = System.currentTimeMillis();
         }
-        else if ("nOn".equals(strData))
+        else if ("nOn".equals(strData.substring(0, 3)))
         {
         	if (gameType == appPrefs.SCORE_GAME_LISTEN)
         		notesLayer.highlightNote(currentNoteIndex, true);
         }
-        else if ("nOff".equals(strData))
+        else if ("nOff".equals(strData.substring(0, 4)))
         {
         	if (gameType == appPrefs.SCORE_GAME_LISTEN)
         		notesLayer.highlightNote(currentNoteIndex, false);

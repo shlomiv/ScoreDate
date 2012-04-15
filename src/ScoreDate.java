@@ -23,6 +23,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -74,8 +76,8 @@ public class ScoreDate extends JFrame implements ActionListener
 	 private EarTrainingPanel earPanel = null;
 	 
 	 // MIDI Resources
-	 public MidiController midiControl;
-	 private MidiDevice midiDev;
+	 public MidiController midiControl = null;
+	 private MidiDevice midiDev = null;
 	 
 	 // Audio Resources
 	 AudioInputController audioControl;
@@ -170,8 +172,9 @@ public class ScoreDate extends JFrame implements ActionListener
       		 midiControl = new MidiController(prefs); // reload the just downloaded bank
       	   }
 		 }
-		 midiDev = midiControl.openDevice();
-		 
+
+		 midiDev = midiControl.openInputDevice();
+
 		 if (midiDev != null)
 		 {
 			 Receiver r = new MidiReceiver();
@@ -187,7 +190,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	             midiDev.close();
 	         }
 		 }
-		 			 
+
          try 
          {
         	InputStream fInput = getClass().getResourceAsStream("/resources/MusiSyncForScoreDate.ttf");
@@ -199,8 +202,8 @@ public class ScoreDate extends JFrame implements ActionListener
         	System.out.println("Cannot load MusiSync font !!");
         	System.exit(0);
          }
-         
-         //audioControl = new AudioInputController(prefs);
+
+         //audioControl = new AudioInputController(prefs); // TODO: AUDIO unfinished
 
          menuBar = new SDMenuBar(bundle, prefs);
          setJMenuBar(menuBar);
@@ -241,6 +244,16 @@ public class ScoreDate extends JFrame implements ActionListener
     			*/
     		}
     	 });
+         
+         addWindowListener(new WindowAdapter() 
+         {
+             public void windowClosing(WindowEvent e) 
+             {
+               System.out.println("Score Date is going to be closed !");
+               if (midiControl != null)
+            	   midiControl.close();
+             }
+         });
 
 		 setVisible(true);
 	 }
@@ -440,7 +453,8 @@ public class ScoreDate extends JFrame implements ActionListener
 						{
 							System.out.println("Going to reconfigure MIDI system...");
 							//midiControl.initialize();
-							midiDev = midiControl.openDevice();
+							midiControl = new MidiController(prefs);
+							midiDev = midiControl.openInputDevice();
 							
 							 if (midiDev != null)
 							 {
@@ -456,6 +470,7 @@ public class ScoreDate extends JFrame implements ActionListener
 						             System.out.println(e);
 						             midiDev.close();
 						         }
+								 midiOptions.reloadInstruments(midiControl.getInstruments());
 							 }
 						}
 						else if (evt.getPropertyName() == "newMidiInstrument")

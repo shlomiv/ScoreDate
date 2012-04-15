@@ -20,6 +20,7 @@ import java.util.Vector;
 
 import javax.sound.midi.Instrument;
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
@@ -37,17 +38,24 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 //import javax.sound.midi.Transmitter;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
+
 public class MidiController 
 {
 
 	Preferences appPrefs; 
 	
-	private MidiDevice inputDevice;
+	private MidiDevice inputDevice = null;
+	private Fluidsynth fluidSynth = null;
 	private Synthesizer midiSynth;
-	private Instrument[] instruments;
+	private Instrument[] jInstruments; // this is used only by the Java MIDI system
+	private List<String> instrumentsList;
     private boolean midierror = false;
-    private MidiChannel[] allMC;
-    public MidiChannel midiChannel; // fixed channels are: 0 = user, 1 = playback, 2 = metronome
+    private MidiChannel[] allMC; // fixed channels are: 0 = user, 1 = playback, 2 = metronome
+    public MidiChannel midiOutChannel;
     
     private static final int ppq=1000;
 
@@ -57,11 +65,32 @@ public class MidiController
     private Sequencer[] sequencers = { null, null };
     
     int errorCode = 0;
+    private boolean useFluidsynth = false;
 	
 	public MidiController(Preferences p)
 	{
 		appPrefs = p;
-		initialize();
+		instrumentsList = new ArrayList<String>();
+		String driver = appPrefs.getProperty("synthDriver");
+		System.out.println("----------> Selected driver = " + driver);
+		if (driver == "-1" || driver.equals("Java"))
+			initJavaSynth();
+		else if (driver.split(",")[0].equals("Fluidsynth"))
+			initFluidsynth(driver.split(",")[1]);
+	}
+	
+	public void close()
+	{
+		if (useFluidsynth == false)
+		{
+			if (inputDevice != null && inputDevice.isOpen())
+			   inputDevice.close();
+		}
+		else
+		{
+			if (fluidSynth != null)
+				fluidSynth.destroy();
+		}
 	}
 	
 	public int checkError()
@@ -69,7 +98,7 @@ public class MidiController
 		return errorCode;
 	}
 	
-	public boolean initialize() 
+	public boolean initJavaSynth() 
 	{
 	   midierror = false;
 
@@ -100,10 +129,10 @@ public class MidiController
            Soundbank sb = midiSynth.getDefaultSoundbank();
            if (sb != null) 
            {
-               instruments = sb.getInstruments();
+               jInstruments = sb.getInstruments();
 
-               if (instruments != null) {
-                   midiSynth.loadInstrument(instruments[0]);
+               if (jInstruments != null) {
+                   midiSynth.loadInstrument(jInstruments[0]);
 
                } else 
                {
@@ -119,17 +148,23 @@ public class MidiController
 
            allMC = midiSynth.getChannels();
 
-           midiChannel = allMC[0];
+           midiOutChannel = allMC[0];
        }
        return true;
 	}
 	 
-	public Instrument[] getInstruments()
+	public List<String> getInstruments()
 	{
-		 return instruments;
+		 if (useFluidsynth == false)
+		 {
+			 instrumentsList.clear();
+			 for (int i = 0; i < 20; i++)
+				 instrumentsList.add(jInstruments[i].getName());
+		 }
+		 return instrumentsList;
 	}
 	 
-	public MidiDevice openDevice()
+	public MidiDevice openInputDevice()
 	{
 		 int selectedDeviceIdx = Integer.parseInt(appPrefs.getProperty("mididevice"));
 
@@ -183,18 +218,124 @@ public class MidiController
 	             System.out.println("Unable to open MIDI device (" + deviceName + ")");
 	             return null;
 	         }
-              
+             
              setNewInstrument();
 	     }
 		 return inputDevice;
 	 }
-	 
+	
 	 public void setNewInstrument()
+	 {
+		 if (useFluidsynth == false)
+        	 setJavaInstrument();
+         else
+        	 setFluidsynthInstrument();
+	 }
+	 
+	 public void setJavaInstrument()
 	 {
          int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));
  		 if (midiSound == -1) midiSound = 0;
  		   
- 		 midiChannel.programChange(midiSound);
+ 		 midiOutChannel.programChange(midiSound);
+	 }
+	 
+	 public boolean initFluidsynth(String drv)
+	 {
+		 midierror = false;
+		 String drvName = appPrefs.getProperty("fluidDriver");
+		 if (drvName == "-1") drvName = "dsound";
+
+		 List<String> drivers = Fluidsynth.getAudioDrivers();
+		 for (String driver : drivers)
+		 {
+			System.out.println(driver);
+			for (String device : Fluidsynth.getAudioDevices(driver))
+			{
+				System.out.println("  " + device);
+			}
+			if (drvName.equals(driver))
+			{
+				System.out.println("Fluidsynth is going to output on: " + driver);
+				try {
+					fluidSynth = new Fluidsynth("fluidDriver", 16, driver);
+				} catch (IOException expected) {
+					System.out.println("Cannot open Fluidsynth audio output driver!!");
+	                errorCode = 1;
+					return false;
+				}
+				try {
+					fluidSynth.soundFontLoad(new File("metronome.sf2"));
+					String bankPath = appPrefs.getProperty("soundfontPath");
+					fluidSynth.soundFontLoad(new File(bankPath));
+					//fluidSynth.soundFontLoad(new File("D:\\Soundfont\\GM\\8MBGMSFX.SF2"));
+				} catch (IOException expected) {
+					System.out.println("Cannot load Fluidsynth soundfont !!");
+					fluidSynth.destroy();
+	                errorCode = 2;
+					return false;
+				}
+				useFluidsynth = true;
+				List<String> programs = fluidSynth.getSoundfontPrograms();
+				int i = 0;
+				instrumentsList.clear();
+				for (String program : programs)
+				{
+					System.out.println("Program #" + i + ": " + program);
+					instrumentsList.add(program);
+					i++;
+				}
+				setNewInstrument();
+				return true;
+			}
+		 }
+		 return true;
+	 }
+	 
+	 public void setFluidsynthInstrument()
+	 {
+		 int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));
+ 		 if (midiSound == -1) midiSound = 0;
+
+		 fluidSynth.send(0, ShortMessage.PROGRAM_CHANGE, midiSound, 0);
+	 }
+	 
+	 public void playNote(int pitch, int volume)
+	 {
+		 if (useFluidsynth == false)
+			 midiOutChannel.noteOn(pitch, volume);
+		 else
+		 {
+			 //fluidSynth.send(0, ShortMessage.CONTROL_CHANGE , 0, 0);
+			 fluidSynth.send(0, ShortMessage.NOTE_ON, pitch, volume);
+		 }
+	 }
+	 
+	 public void stopNote(int pitch, int volume)
+	 {
+		 if (useFluidsynth == false)
+			 midiOutChannel.noteOff(pitch, volume);
+		 else
+			 fluidSynth.send(0, ShortMessage.NOTE_OFF, pitch, volume);
+	 }
+	 
+	 private void handleAsyncMIDIevent(MetaMessage msg)
+	 {
+		byte[] metaData = msg.getData();
+        String strData = new String(metaData);
+       
+        //System.out.println("*INTERNAL* META message: text= " + strData);
+
+        if ("fsbOnLow".equals(strData))
+        	fluidSynth.send(9, ShortMessage.NOTE_ON, 77, 90);
+        else if ("fsbOnHi".equals(strData))
+        	fluidSynth.send(9, ShortMessage.NOTE_ON, 76, 90);
+        else if ("fsbOff".equals(strData))
+        	fluidSynth.send(9, ShortMessage.NOTE_OFF, 77, 0);
+        else if ("nOn".equals(strData.substring(0, 3)))
+        	fluidSynth.send(0, ShortMessage.NOTE_ON, Integer.parseInt(strData.substring(3)), 90);
+        else if ("nOff".equals(strData.substring(0, 4)))
+        	fluidSynth.send(0, ShortMessage.NOTE_OFF, Integer.parseInt(strData.substring(4)), 0);
 	 }
 	 
 	 private void addMidiEvent(Track track, int type, byte[] data, long tick) 
@@ -310,11 +451,9 @@ public class MidiController
              final int metaType = 0x01;
              int beatsNumber;
 
-             //ShortMessage sm=new ShortMessage();
-             //sm.setMessage(ShortMessage.PROGRAM_CHANGE, 1, 115, 0);
-             //metronome.add(new MidiEvent(sm, 0));
-         	
          	 //System.out.println("[createMetronome] timeSignNumerator = " + timeSignNumerator);
+             if (useFluidsynth == true)
+             	 fluidSynth.send(9, ShortMessage.PROGRAM_CHANGE, 0, 0);
 
              String textd="gameOn"; // first note beat
              addMidiEvent(metronomeTrack, metaType, textd.getBytes(), 0);
@@ -332,14 +471,26 @@ public class MidiController
              {
            		ShortMessage mess = new ShortMessage();
         		ShortMessage mess2 = new ShortMessage();
-        		int pitch = 77;
-        		if (accents == true && i%(timeSignNumerator/timeDivision) == 0)
-        			pitch = 76;
-        		mess.setMessage(ShortMessage.NOTE_ON, 9, pitch, 90); // can use 37 as well, but it has reverb
+      		    int pitch = 77;
+      		    if (accents == true && i%(timeSignNumerator/timeDivision) == 0)
+      		    	pitch = 76;
 
-        		metronomeTrack.add(new MidiEvent(mess, i*ppq));
-        		mess2.setMessage(ShortMessage.NOTE_OFF, 9, pitch, 0);
-        		metronomeTrack.add(new MidiEvent(mess2, (i*ppq)+1));
+        		if (useFluidsynth == false)
+        		{
+        			mess.setMessage(ShortMessage.NOTE_ON, 9, pitch, 90);
+        			metronomeTrack.add(new MidiEvent(mess, i*ppq));
+        			mess2.setMessage(ShortMessage.NOTE_OFF, 9, pitch, 0);
+            		metronomeTrack.add(new MidiEvent(mess2, (i*ppq)+1));
+        		}
+        		else
+        		{
+        			String textb="fsbOnLow";
+        			if (pitch == 76)
+        				textb="fsbOnHi";
+     				addMidiEvent(metronomeTrack, metaType, textb.getBytes(), (int)i*ppq);
+        			textb="fsbOff";
+     				addMidiEvent(metronomeTrack, metaType, textb.getBytes(), (int)(i*ppq)+1);     				
+        		}
 
         		if (i > ((timeSignNumerator / timeDivision) - 1)) 
         		{
@@ -355,6 +506,16 @@ public class MidiController
          }
 
          sequencers[1].setTempoInBPM(BPM );
+         
+         if (useFluidsynth == true)
+         {
+           sequencers[1].addMetaEventListener(new MetaEventListener() {
+             public void meta(MetaMessage meta) 
+             {
+             	handleAsyncMIDIevent(meta);
+             }
+ 		   });
+         }
          
          return sequencers[1];
 	 }
@@ -374,13 +535,17 @@ public class MidiController
 		 int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));
 		 if (midiSound == -1) midiSound = 0;
 
-		 ShortMessage mess = new ShortMessage();
-		 try {
-			 mess.setMessage(ShortMessage.PROGRAM_CHANGE, 0, midiSound, 0);
+		 if (useFluidsynth == false)
+		 {
+			 ShortMessage mess = new ShortMessage();
+			 try {
+				 mess.setMessage(ShortMessage.PROGRAM_CHANGE, 0, midiSound, 0);
+			 }
+			 catch (InvalidMidiDataException e) { }
+			 tracks[0].add(new MidiEvent(mess, 0));
 		 }
-		 catch (InvalidMidiDataException e) { }
-
-		 tracks[0].add(new MidiEvent(mess, 0));
+		 else
+			 fluidSynth.send(0, ShortMessage.PROGRAM_CHANGE, midiSound, 0);
 
 		 if (timeOffset > 0)
 			 timeOffset /= timeDivision;
@@ -389,21 +554,37 @@ public class MidiController
 		 {
 			 Note cNote = notes.get(i);
 			 tick = (int)((cNote.timestamp + timeOffset) * ppq);
-			 if (playOnly == true && cNote.type != 5) // do not play silence !
-				 tracks[0].add(createNoteOnEvent(cNote.pitch, 90, tick));
-			 String textb = "nOn";
+			 if (useFluidsynth == false)
+			 {
+				 if (playOnly == true && cNote.type != 5) // do not play silence !
+					 tracks[0].add(createNoteOnEvent(cNote.pitch, 90, tick));
+			 }
+			 String textb = "nOn" + cNote.pitch;
 			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 			 tick+=(int)((cNote.duration)*ppq);
 			 
-			 if (playOnly == true && cNote.type != 5) // do not play silence !
-				 tracks[0].add(createNoteOffEvent(cNote.pitch, tick));
-			 textb = "nOff";
+			 if (useFluidsynth == false)
+			 {
+				 if (playOnly == true && cNote.type != 5) // do not play silence !
+					 tracks[0].add(createNoteOffEvent(cNote.pitch, tick));
+			 }
+			 textb = "nOff" + cNote.pitch;
   			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 		 }
 		 String textend = "end";
 		 addMidiEvent(tracks[0], metaType, textend.getBytes(), tick);
 
 		 sequencers[0].setTempoInBPM(BPM/timeDivision);
+
+		 if (useFluidsynth == true)
+         {
+           sequencers[0].addMetaEventListener(new MetaEventListener() {
+             public void meta(MetaMessage meta) 
+             {
+             	handleAsyncMIDIevent(meta);
+             }
+ 		   });
+         }
 
 		 return sequencers[0];
 	 }

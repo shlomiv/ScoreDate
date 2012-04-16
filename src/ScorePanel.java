@@ -424,12 +424,12 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
         	cursorY = 10;
         	startTime = System.currentTimeMillis();
         }
-        else if ("nOn".equals(strData.substring(0, 3)))
+        else if ("nOn".equals(strData))
         {
         	if (gameType == appPrefs.SCORE_GAME_LISTEN)
         		notesLayer.highlightNote(currentNoteIndex, true);
         }
-        else if ("nOff".equals(strData.substring(0, 4)))
+        else if ("nOff".equals(strData))
         {
         	if (gameType == appPrefs.SCORE_GAME_LISTEN)
         		notesLayer.highlightNote(currentNoteIndex, false);

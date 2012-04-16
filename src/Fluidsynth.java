@@ -170,15 +170,17 @@ public class Fluidsynth {
 	 * 
 	 */
 
-	static {
+	public static void loadLibraries(String drv)
+	{
 		File directory = new File(LIBS_PATH + ARCH_PATH);
+		File driverDirectory = new File(LIBS_PATH + ARCH_PATH + drv + "\\");
 
 		if (NativeUtils.isWindows()) {
 			try {
 				NativeUtils.load(new File(directory, "libintl-8.dll"));
 				NativeUtils.load(new File(directory, "libglib-2.0-0.dll"));
 				NativeUtils.load(new File(directory, "libgthread-2.0-0.dll"));
-				NativeUtils.load(new File(directory, "portaudio_x86.dll"));
+				NativeUtils.load(new File(driverDirectory, "portaudio_x86.dll"));
 				NativeUtils.load(new File(directory, "libfluidsynth.dll"));
 			} catch (UnsatisfiedLinkError error) {
 				System.out.println("Dependencies not provided" + error);

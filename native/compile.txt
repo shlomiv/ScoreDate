@@ -1,0 +1,3 @@
+# Set your own JDK directory in the first two -I flags.
+
+g++ -I C:/Programmi/Java/jdk1.6.0_31/include -I C:/Programmi/Java/jdk1.6.0_31/include/win32 -I. -Iinclude -Llib/win/win32 -llibfluidsynth -Wall -shared fluidsynthJNI.cpp -o fluidsynthJNI.dll

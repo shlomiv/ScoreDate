@@ -63,10 +63,11 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
     private JCheckBox accentsCheckBox;
     private JCheckBox showBeatsCheckBox;
     
-    JRadioButton javaSynthButton;
-	JRadioButton fluidsynthButton;
-	JTextField sbankPath;
-	JButton sfSelectButton;
+    private JRadioButton javaSynthButton;
+    private JRadioButton fluidsynthButton;
+    private JComboBox fluidOutComboBox; 
+    private JTextField sbankPath;
+    private JButton sfSelectButton;
 
     private JComboBox midiInComboBox;
     
@@ -149,22 +150,34 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         
         ButtonGroup rbGroup = new ButtonGroup();
         javaSynthButton = new JRadioButton("Java");
-        javaSynthButton.setBounds(200, 8, 80, 30);
+        javaSynthButton.setBounds(160, 8, 80, 30);
         javaSynthButton.addActionListener(this);
         fluidsynthButton = new JRadioButton("Fluidsynth");
-        fluidsynthButton.setBounds(300, 8, 80, 30);
+        fluidsynthButton.setBounds(240, 8, 80, 30);
         fluidsynthButton.addActionListener(this);
         rbGroup.add(javaSynthButton);
 		rbGroup.add(fluidsynthButton);
+		
+		fluidOutComboBox = new JComboBox();
+		fluidOutComboBox.setBounds(350, 10, 80, 25);
+		fluidOutComboBox.addItem("WDM");
+		fluidOutComboBox.addItem("ASIO");
+		fluidOutComboBox.addActionListener(this);
 
 		soundPanel.add(javaSynthButton);
 		soundPanel.add(fluidsynthButton);
+		soundPanel.add(fluidOutComboBox);
 		
 		String midiSynth = appPrefs.getProperty("synthDriver");
 		if (midiSynth == "-1" || midiSynth.equals("Java"))
 			javaSynthButton.setSelected(true);
 		else if (midiSynth.split(",")[0].equals("Fluidsynth"))
+		{
 			fluidsynthButton.setSelected(true);
+			if (midiSynth.split(",")[1].equals("asio"))
+				fluidOutComboBox.setSelectedIndex(1);
+			
+		}
 		
 		JLabel soundBank = new JLabel(appBundle.getString("_midiLibrary"));
 		soundBank.setFont(new Font("Arial", Font.BOLD, 13));
@@ -184,7 +197,10 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         sfSelectButton.setFont(new Font("Arial", Font.BOLD, 13));
         sfSelectButton.addActionListener(this);
         if (javaSynthButton.isSelected() == true)
+        {
+        	fluidOutComboBox.setVisible(false);
         	sfSelectButton.setVisible(false);
+        }
         soundPanel.add(sfSelectButton);
 
         keyboardsoundCheckBox = new JCheckBox(appBundle.getString("_keyboardsound"), false);
@@ -417,18 +433,31 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 			appPrefs.setProperty("synthDriver", "Java");
 			appPrefs.storeProperties();
 			sbankPath.setText("Default Java soundbank");
+			fluidOutComboBox.setVisible(false);
 			sfSelectButton.setVisible(false);
 			this.firePropertyChange("newMidiDevice", false, true);
 		}
 		else if (ae.getSource() == fluidsynthButton)
 		{
-			appPrefs.setProperty("synthDriver", "Fluidsynth,default");
+			appPrefs.setProperty("synthDriver", "Fluidsynth,wdm");
 			appPrefs.storeProperties();
+			fluidOutComboBox.setVisible(true);
 			sfSelectButton.setVisible(true);
+			
 			String bankPath = appPrefs.getProperty("soundfontPath");
 	        if (bankPath == "-1") bankPath = "No soundfont selected";
 	        sbankPath.setText(bankPath);
 
+			this.firePropertyChange("newMidiDevice", false, true);
+		}
+		else if (ae.getSource() == fluidOutComboBox)
+		{
+			int idx = fluidOutComboBox.getSelectedIndex();
+			if (idx == 0)
+				appPrefs.setProperty("synthDriver", "Fluidsynth,wdm");
+			else if (idx == 1)
+				appPrefs.setProperty("synthDriver", "Fluidsynth,asio");
+			appPrefs.storeProperties();
 			this.firePropertyChange("newMidiDevice", false, true);
 		}
 		else if (ae.getSource() == sfSelectButton)

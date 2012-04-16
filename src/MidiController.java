@@ -149,6 +149,7 @@ public class MidiController
            allMC = midiSynth.getChannels();
 
            midiOutChannel = allMC[0];
+           useFluidsynth = false;
        }
        return true;
 	}
@@ -246,6 +247,13 @@ public class MidiController
 		 String drvName = appPrefs.getProperty("fluidDriver");
 		 if (drvName == "-1") drvName = "dsound";
 
+		 if (fluidSynth != null)
+		 {
+			fluidSynth.destroy();
+		    fluidSynth = null;
+		 }
+
+		 Fluidsynth.loadLibraries(drv);
 		 List<String> drivers = Fluidsynth.getAudioDrivers();
 		 for (String driver : drivers)
 		 {
@@ -327,15 +335,15 @@ public class MidiController
         //System.out.println("*INTERNAL* META message: text= " + strData);
 
         if ("fsbOnLow".equals(strData))
-        	fluidSynth.send(9, ShortMessage.NOTE_ON, 77, 90);
+        	fluidSynth.send(9, ShortMessage.NOTE_ON, 77, 100);
         else if ("fsbOnHi".equals(strData))
-        	fluidSynth.send(9, ShortMessage.NOTE_ON, 76, 90);
+        	fluidSynth.send(9, ShortMessage.NOTE_ON, 76, 100);
         else if ("fsbOff".equals(strData))
         	fluidSynth.send(9, ShortMessage.NOTE_OFF, 77, 0);
-        else if ("nOn".equals(strData.substring(0, 3)))
-        	fluidSynth.send(0, ShortMessage.NOTE_ON, Integer.parseInt(strData.substring(3)), 90);
-        else if ("nOff".equals(strData.substring(0, 4)))
-        	fluidSynth.send(0, ShortMessage.NOTE_OFF, Integer.parseInt(strData.substring(4)), 0);
+        else if ("fsnOn".equals(strData.substring(0, 5)))
+        	fluidSynth.send(0, ShortMessage.NOTE_ON, Integer.parseInt(strData.substring(5)), 100);
+        else if ("fsnOff".equals(strData.substring(0, 6)))
+        	fluidSynth.send(0, ShortMessage.NOTE_OFF, Integer.parseInt(strData.substring(6)), 0);
 	 }
 	 
 	 private void addMidiEvent(Track track, int type, byte[] data, long tick) 
@@ -554,21 +562,35 @@ public class MidiController
 		 {
 			 Note cNote = notes.get(i);
 			 tick = (int)((cNote.timestamp + timeOffset) * ppq);
-			 if (useFluidsynth == false)
+			 
+			 if (playOnly == true && cNote.type != 5) // do not play silence !
 			 {
-				 if (playOnly == true && cNote.type != 5) // do not play silence !
+				 if (useFluidsynth == false)
 					 tracks[0].add(createNoteOnEvent(cNote.pitch, 90, tick));
+				 else
+				 {
+					 String textb = "fsnOn" + cNote.pitch;
+					 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
+				 }
 			 }
-			 String textb = "nOn" + cNote.pitch;
+
+			 String textb = "nOn";
 			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 			 tick+=(int)((cNote.duration)*ppq);
 			 
-			 if (useFluidsynth == false)
+			 
+			 if (playOnly == true && cNote.type != 5) // do not play silence !
 			 {
-				 if (playOnly == true && cNote.type != 5) // do not play silence !
+				 if (useFluidsynth == false)
 					 tracks[0].add(createNoteOffEvent(cNote.pitch, tick));
+				 else
+				 {
+					 textb = "fsnOff" + cNote.pitch;
+		  			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
+				 }
 			 }
-			 textb = "nOff" + cNote.pitch;
+
+			 textb = "nOff";
   			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 		 }
 		 String textend = "end";

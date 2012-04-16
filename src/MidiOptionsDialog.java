@@ -35,6 +35,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
@@ -211,9 +212,9 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 
 		instrumentsComboBox = new JComboBox();
 		instrumentsComboBox.setBounds(160, 70, 200, 25);
-		if (iList != null) 
+		if (iList != null && iList.size() > 0)
 		{
-            for (int i=0; i<iList.size(); i++) 
+            for (int i=0; i < iList.size(); i++) 
                 instrumentsComboBox.addItem(iList.get(i));
         }
 		else 
@@ -356,7 +357,9 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	public void reloadInstruments(List<String> iList)
 	{
 		instrumentsComboBox.removeAllItems();
-		if (iList != null) 
+		if (iList != null)
+			System.out.println("Number of instruments: " +  iList.size());
+		if (iList != null && iList.size() > 0)
 		{
             for (int i=0; i<iList.size(); i++) 
                 instrumentsComboBox.addItem(iList.get(i));
@@ -458,7 +461,9 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 			else if (idx == 1)
 				appPrefs.setProperty("synthDriver", "Fluidsynth,asio");
 			appPrefs.storeProperties();
-			this.firePropertyChange("newMidiDevice", false, true);
+			//this.firePropertyChange("newMidiDevice", false, true);
+			JOptionPane.showMessageDialog(this.getParent(), "<html><b>" + appBundle.getString("_alertRestart") + "</b></html>",
+					appBundle.getString("_menuMidi"), JOptionPane.WARNING_MESSAGE);
 		}
 		else if (ae.getSource() == sfSelectButton)
 		{

@@ -452,7 +452,8 @@ public class ScoreDate extends JFrame implements ActionListener
 						if (evt.getPropertyName() == "newMidiDevice")
 						{
 							System.out.println("Going to reconfigure MIDI system...");
-							//midiControl.initialize();
+							midiControl.close();
+							midiControl = null;
 							midiControl = new MidiController(prefs);
 							midiDev = midiControl.openInputDevice();
 							
@@ -470,8 +471,8 @@ public class ScoreDate extends JFrame implements ActionListener
 						             System.out.println(e);
 						             midiDev.close();
 						         }
-								 midiOptions.reloadInstruments(midiControl.getInstruments());
 							 }
+							 midiOptions.reloadInstruments(midiControl.getInstruments());
 						}
 						else if (evt.getPropertyName() == "newMidiInstrument")
 						{

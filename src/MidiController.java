@@ -156,13 +156,14 @@ public class MidiController
 	 
 	public List<String> getInstruments()
 	{
-		 if (useFluidsynth == false)
-		 {
-			 instrumentsList.clear();
-			 for (int i = 0; i < 20; i++)
-				 instrumentsList.add(jInstruments[i].getName());
-		 }
-		 return instrumentsList;
+		System.out.println("Number of instruments: " +  instrumentsList.size());
+		if (useFluidsynth == false)
+		{
+			instrumentsList.clear();
+			for (int i = 0; i < 20; i++)
+				instrumentsList.add(jInstruments[i].getName());
+		}
+		return instrumentsList;
 	}
 	 
 	public MidiDevice openInputDevice()
@@ -272,11 +273,11 @@ public class MidiController
 	                errorCode = 1;
 					return false;
 				}
+				String bankPath = appPrefs.getProperty("soundfontPath");
 				try {
-					fluidSynth.soundFontLoad(new File("metronome.sf2"));
-					String bankPath = appPrefs.getProperty("soundfontPath");
-					fluidSynth.soundFontLoad(new File(bankPath));
-					//fluidSynth.soundFontLoad(new File("D:\\Soundfont\\GM\\8MBGMSFX.SF2"));
+					fluidSynth.soundFontLoad(new File(getClass().getResource("/resources/metronome.sf2").getFile()));
+					if (bankPath != "-1")
+						fluidSynth.soundFontLoad(new File(bankPath));
 				} catch (IOException expected) {
 					System.out.println("Cannot load Fluidsynth soundfont !!");
 					fluidSynth.destroy();
@@ -284,16 +285,19 @@ public class MidiController
 					return false;
 				}
 				useFluidsynth = true;
-				List<String> programs = fluidSynth.getSoundfontPrograms();
-				int i = 0;
 				instrumentsList.clear();
-				for (String program : programs)
+				if (bankPath != "-1")
 				{
-					System.out.println("Program #" + i + ": " + program);
-					instrumentsList.add(program);
-					i++;
+					List<String> programs = fluidSynth.getSoundfontPrograms();
+					//int i = 0;
+					for (String program : programs)
+					{
+						//System.out.println("Program #" + i + ": " + program);
+						instrumentsList.add(program);
+						//i++;
+					}
+					setNewInstrument();
 				}
-				setNewInstrument();
 				return true;
 			}
 		 }

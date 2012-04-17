@@ -1,3 +1,8 @@
+April ??, 2012 - version 3.0
+
+- NEW: Integrated low latency sound synthesis through Fluidsynth
+- NEW: possibility to load user sound banks with Soundfont format 
+
 December 16th, 2011 - version 2.3
 
 - NEW: previously saved exercises can be modified

@@ -444,7 +444,7 @@ public class ScoreDate extends JFrame implements ActionListener
 			else if (s == "langFR") language = "fr";
 			else if (s == "midiOptions")
 			{
-				midiOptions = new MidiOptionsDialog(bundle, prefs, midiControl.getInstruments());
+				midiOptions = new MidiOptionsDialog(bundle, prefs, midiControl);
 				midiOptions.setVisible(true);
 				midiOptions.addPropertyChangeListener(new PropertyChangeListener() {
 					public void propertyChange(PropertyChangeEvent evt)
@@ -472,6 +472,7 @@ public class ScoreDate extends JFrame implements ActionListener
 						             midiDev.close();
 						         }
 							 }
+							 midiOptions.reloadDriversList(midiControl.getFluidDrivers());
 							 midiOptions.reloadInstruments(midiControl.getInstruments());
 						}
 						else if (evt.getPropertyName() == "newMidiInstrument")

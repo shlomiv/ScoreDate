@@ -46,4 +46,11 @@ public class NativeUtils {
     public static boolean isMac() {
             return System.getProperty("os.name").toLowerCase().contains("mac");
     }
+
+    public static boolean isLinux() {
+    	String os = System.getProperty("os.name").toLowerCase();
+		// linux or unix
+		return (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0);
+    }
+    
 }

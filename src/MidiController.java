@@ -53,9 +53,10 @@ public class MidiController
 	private Synthesizer midiSynth;
 	private Instrument[] jInstruments; // this is used only by the Java MIDI system
 	private List<String> instrumentsList;
+	private List<String> fluidDriversList;
     private boolean midierror = false;
     private MidiChannel[] allMC; // fixed channels are: 0 = user, 1 = playback, 2 = metronome
-    public MidiChannel midiOutChannel;
+    public MidiChannel midiOutChannel = null;
     
     private static final int ppq=1000;
 
@@ -160,8 +161,9 @@ public class MidiController
 		if (useFluidsynth == false)
 		{
 			instrumentsList.clear();
-			for (int i = 0; i < 20; i++)
-				instrumentsList.add(jInstruments[i].getName());
+			if (jInstruments != null && jInstruments.length > 0)
+				for (int i = 0; i < 20; i++)
+					instrumentsList.add(jInstruments[i].getName());
 		}
 		return instrumentsList;
 	}
@@ -238,15 +240,20 @@ public class MidiController
 	 {
          int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));
  		 if (midiSound == -1) midiSound = 0;
- 		   
- 		 midiOutChannel.programChange(midiSound);
+
+ 		 if (midiOutChannel != null)
+ 			 midiOutChannel.programChange(midiSound);
 	 }
 	 
 	 public boolean initFluidsynth(String drv)
 	 {
 		 midierror = false;
-		 String drvName = appPrefs.getProperty("fluidDriver");
-		 if (drvName == "-1") drvName = "dsound";
+		 fluidDriversList = new ArrayList<String>();
+		 String drvName = ""; //appPrefs.getProperty("fluidDriver");
+		 if (NativeUtils.isWindows())
+			 drvName = "dsound";
+		 else if (NativeUtils.isLinux())
+			 drvName = drv;
 
 		 if (fluidSynth != null)
 		 {
@@ -259,6 +266,10 @@ public class MidiController
 		 for (String driver : drivers)
 		 {
 			System.out.println(driver);
+			//if (drv.equals("default") && drvName == "" && NativeUtils.isLinux()) 
+			//	drvName = driver; 
+			if (!driver.equals("file"))
+				fluidDriversList.add(driver);
 			for (String device : Fluidsynth.getAudioDevices(driver))
 			{
 				System.out.println("  " + device);
@@ -298,7 +309,7 @@ public class MidiController
 					}
 					setNewInstrument();
 				}
-				return true;
+				//return true;
 			}
 		 }
 		 return true;
@@ -310,6 +321,11 @@ public class MidiController
  		 if (midiSound == -1) midiSound = 0;
 
 		 fluidSynth.send(0, ShortMessage.PROGRAM_CHANGE, midiSound, 0);
+	 }
+	 
+	 public List<String> getFluidDrivers()
+	 {
+		 return fluidDriversList;
 	 }
 	 
 	 public void playNote(int pitch, int volume)

@@ -75,7 +75,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
     JButton okButton;
     JButton cancelButton;
 
-	public MidiOptionsDialog(ResourceBundle b, Preferences p, List<String> iList)
+	public MidiOptionsDialog(ResourceBundle b, Preferences p, MidiController midiCtrl)
 	{
 		appBundle = b;
 		appPrefs = p;
@@ -138,7 +138,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         midiInPanel.add(midiInComboBox);
         tmpYpos+=55;
        
-        // ******************************* keyboard sound & lenght *****************************
+        // ******************************* keyboard sound & length *****************************
         RoundPanel soundPanel = new RoundPanel();
         soundPanel.setLayout(null);
         soundPanel.setBackground(Color.white);
@@ -151,19 +151,16 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         
         ButtonGroup rbGroup = new ButtonGroup();
         javaSynthButton = new JRadioButton("Java");
-        javaSynthButton.setBounds(160, 8, 80, 30);
+        javaSynthButton.setBounds(170, 8, 70, 30);
         javaSynthButton.addActionListener(this);
         fluidsynthButton = new JRadioButton("Fluidsynth");
-        fluidsynthButton.setBounds(240, 8, 80, 30);
+        fluidsynthButton.setBounds(240, 8, 90, 30);
         fluidsynthButton.addActionListener(this);
         rbGroup.add(javaSynthButton);
 		rbGroup.add(fluidsynthButton);
 		
 		fluidOutComboBox = new JComboBox();
-		fluidOutComboBox.setBounds(350, 10, 80, 25);
-		fluidOutComboBox.addItem("WDM");
-		fluidOutComboBox.addItem("ASIO");
-		fluidOutComboBox.addActionListener(this);
+		fluidOutComboBox.setBounds(350, 10, 120, 25);
 
 		soundPanel.add(javaSynthButton);
 		soundPanel.add(fluidsynthButton);
@@ -175,9 +172,26 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		else if (midiSynth.split(",")[0].equals("Fluidsynth"))
 		{
 			fluidsynthButton.setSelected(true);
-			if (midiSynth.split(",")[1].equals("asio"))
-				fluidOutComboBox.setSelectedIndex(1);
-			
+			String drvName = midiSynth.split(",")[1];
+			if (NativeUtils.isWindows())
+			{
+				fluidOutComboBox.addItem("WDM");
+				fluidOutComboBox.addItem("ASIO");
+				if (drvName.equals("asio"))
+					fluidOutComboBox.setSelectedIndex(1);
+			}
+			else if (NativeUtils.isLinux())
+			{
+				List<String> drvList = midiCtrl.getFluidDrivers();
+				if (drvList != null && drvList.size() > 0)
+					for (int d = 0; d < drvList.size(); d++)
+					{
+						fluidOutComboBox.addItem(drvList.get(d));
+						if (drvName.equals(drvList.get(d)))
+							fluidOutComboBox.setSelectedIndex(d);
+					}
+			}
+			fluidOutComboBox.addActionListener(this);
 		}
 		
 		JLabel soundBank = new JLabel(appBundle.getString("_midiLibrary"));
@@ -190,7 +204,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         	bankPath = appPrefs.getProperty("soundfontPath");
         if (bankPath == "-1") bankPath = "No soundfont selected";
         sbankPath = new JTextField(bankPath);
-        sbankPath.setBounds(160, 40, 250, 25);
+        sbankPath.setBounds(170, 40, 240, 25);
         soundPanel.add(sbankPath);
         
         sfSelectButton = new JButton("...");
@@ -212,6 +226,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 
 		instrumentsComboBox = new JComboBox();
 		instrumentsComboBox.setBounds(160, 70, 200, 25);
+		List<String> iList = midiCtrl.getInstruments();
 		if (iList != null && iList.size() > 0)
 		{
             for (int i=0; i < iList.size(); i++) 
@@ -370,6 +385,29 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         }
 	}
 	
+	public void reloadDriversList(List<String> drvList)
+	{
+		String midiSynth = appPrefs.getProperty("synthDriver");
+		String drvName = midiSynth.split(",")[1];
+		if (NativeUtils.isWindows())
+		{
+			fluidOutComboBox.addItem("WDM");
+			fluidOutComboBox.addItem("ASIO");
+			if (drvName.equals("asio"))
+				fluidOutComboBox.setSelectedIndex(1);
+		}
+		else if (NativeUtils.isLinux())
+		{
+			if (drvList != null && drvList.size() > 0)
+				for (int d = 0; d < drvList.size(); d++)
+				{
+					fluidOutComboBox.addItem(drvList.get(d));
+					if (drvName.equals(drvList.get(d)))
+						fluidOutComboBox.setSelectedIndex(d);
+				}
+		}
+	}
+	
 	public void actionPerformed(ActionEvent ae)
     {
 		if (ae.getSource() == okButton)
@@ -383,7 +421,15 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	    		appPrefs.setProperty("sound", "1");
 		    else 
 		    	appPrefs.setProperty("sound", "0");
-		    */ 
+		    */
+			if (javaSynthButton.isSelected() == true)
+				appPrefs.setProperty("synthDriver", "Java");
+			else
+			{
+				int idx = fluidOutComboBox.getSelectedIndex();
+				appPrefs.setProperty("synthDriver", "Fluidsynth," + fluidOutComboBox.getItemAt(idx).toString().toLowerCase());
+			}
+			
 	    	if (keyboardsoundCheckBox.isSelected())
 	    		appPrefs.setProperty("keyboardsound", "1");
 		    else 
@@ -442,7 +488,10 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		}
 		else if (ae.getSource() == fluidsynthButton)
 		{
-			appPrefs.setProperty("synthDriver", "Fluidsynth,wdm");
+			if (NativeUtils.isWindows())
+				appPrefs.setProperty("synthDriver", "Fluidsynth,wdm");
+			else
+				appPrefs.setProperty("synthDriver", "Fluidsynth,default");
 			appPrefs.storeProperties();
 			fluidOutComboBox.setVisible(true);
 			sfSelectButton.setVisible(true);
@@ -455,11 +504,10 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		}
 		else if (ae.getSource() == fluidOutComboBox)
 		{
+			if (fluidOutComboBox.getItemCount() == 0)
+				return;
 			int idx = fluidOutComboBox.getSelectedIndex();
-			if (idx == 0)
-				appPrefs.setProperty("synthDriver", "Fluidsynth,wdm");
-			else if (idx == 1)
-				appPrefs.setProperty("synthDriver", "Fluidsynth,asio");
+			appPrefs.setProperty("synthDriver", "Fluidsynth," + fluidOutComboBox.getItemAt(idx).toString().toLowerCase());
 			appPrefs.storeProperties();
 			//this.firePropertyChange("newMidiDevice", false, true);
 			JOptionPane.showMessageDialog(this.getParent(), "<html><b>" + appBundle.getString("_alertRestart") + "</b></html>",

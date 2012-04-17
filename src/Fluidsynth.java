@@ -8,8 +8,9 @@ import javax.sound.midi.ShortMessage;
 public class Fluidsynth {
 
 	private static final int NAME_MAX_LENGTH = 32;
-	private static String LIBS_PATH = "libs\\";
-	private static String ARCH_PATH = "win32\\";
+	private static String LIBS_PATH = "libs";
+	private static String WIN32_ARCH_PATH = "win32";
+	private static String LINUX_ARCH_PATH = "linux";
 	
 	private ByteBuffer context;
 
@@ -172,10 +173,12 @@ public class Fluidsynth {
 
 	public static void loadLibraries(String drv)
 	{
-		File directory = new File(LIBS_PATH + ARCH_PATH);
-		File driverDirectory = new File(LIBS_PATH + ARCH_PATH + drv + "\\");
+		File directory = null;
+		File driverDirectory = null;
 
 		if (NativeUtils.isWindows()) {
+			directory = new File(LIBS_PATH + File.separator + WIN32_ARCH_PATH + File.separator);
+			driverDirectory = new File(LIBS_PATH + File.separator + WIN32_ARCH_PATH + File.separator + drv + File.separator);
 			try {
 				NativeUtils.load(new File(directory, "libintl-8.dll"));
 				NativeUtils.load(new File(directory, "libglib-2.0-0.dll"));
@@ -191,6 +194,10 @@ public class Fluidsynth {
 			// libraries on mac include their install name, thus we cannot load
 			// the dependecies explicitly. Instead we depend on tweaked loader
 			// locations, see ./lib/mac/install_name_tool.sh
+		}
+		
+		if (NativeUtils.isLinux()) {
+			directory = new File(LIBS_PATH + File.separator + LINUX_ARCH_PATH + File.separator);
 		}
 
 		try {

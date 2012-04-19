@@ -104,9 +104,9 @@ public class NoteGenerator
     			baseList.add(pitch + sharpsMatrix[0][j]);
     			if (this.accidentals == null || this.accidentals.getType() == "")
     				alteredList.add(pitch + sharpsMatrix[0][j]);
-    			else if (this.accidentals.getType() == "#")
+    			else if (this.accidentals.getType().equals("#"))
     				alteredList.add(pitch + sharpsMatrix[0][j] + sharpsMatrix[this.accidentals.getNumber()][j]);
-    			else if (this.accidentals.getType() == "b")
+    			else if (this.accidentals.getType().equals("b"))
     				alteredList.add(pitch + flatsMatrix[0][j] - flatsMatrix[this.accidentals.getNumber()][j]);
     			
     		}

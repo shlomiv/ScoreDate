@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
@@ -44,6 +45,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	MidiController appMidi;
 	
 	Exercise currExercise;
+	Vector<Note> currNotes; // keep a temporary copy of notes not to affect main window
 
 	private RoundedButton wholeBtn, halfBtn, quartBtn, eightBtn;
 	private RoundedButton wholePauseBtn, halfPauseBtn, quartPauseBtn, eightPauseBtn;
@@ -54,7 +56,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	private JScrollPane scoreScrollPanel;
 	private JLayeredPane layers;
 	private Staff scoreStaff;
-	private NotesPanel notesLayer;
+	private NotesPanel notesEditLayer;
 	private NoteGenerator exerciseNG;
 	private Sequencer playback;
 	
@@ -78,6 +80,9 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		appFont = f;
 		appMidi = mc;
 		currExercise = e;
+		currNotes = new Vector<Note>();
+		for (int i = 0; i < e.notes.size(); i++)
+			currNotes.add(e.notes.get(i));
 
 		String title = appBundle.getString("_exWizard") + " 3/3";
 		setTitle(title);
@@ -249,13 +254,13 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, true, true);
 		else
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, false, true);
-		if (currExercise.notes.size() > 0)
+		if (currNotes.size() > 0)
         {
-			double lastTS = currExercise.notes.get(currExercise.notes.size() - 1).timestamp;
-			double lastDur = currExercise.notes.get(currExercise.notes.size() - 1).duration;
+			double lastTS = currNotes.get(currNotes.size() - 1).timestamp;
+			double lastDur = currNotes.get(currNotes.size() - 1).duration;
         	measuresNumber = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
 			staffW = (scoreStaff.getNotesDistance() * timeNumerator) * (measuresNumber + 2);
-			System.out.println("Existing exercise. Notes: " + currExercise.notes.size() + ", staffW: " + staffW);
+			System.out.println("Existing exercise. Notes: " + currNotes.size() + ", staffW: " + staffW);
 			layers.setPreferredSize(new Dimension(staffW, 145));
 			layers.setBounds(0, 0, staffW, 145);
 			System.out.println("Measures: " + measuresNumber + ", last timestamp: " + lastTS);
@@ -270,23 +275,23 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         scoreStaff.setTimeSignature(timeNumerator, timeDenominator);
        	scoreStaff.setMeasuresNumber(measuresNumber);
 
-        notesLayer = new NotesPanel(appFont, appPrefs, currExercise.notes, false);
-		notesLayer.setBounds(0, 0, staffW, 145);
-		notesLayer.setOpaque(false);
-		notesLayer.setClef(currExercise.clefMask);
+        notesEditLayer = new NotesPanel(appFont, appPrefs, currNotes, false);
+		notesEditLayer.setBounds(0, 0, staffW, 145);
+		notesEditLayer.setOpaque(false);
+		notesEditLayer.setClef(currExercise.clefMask);
 		if (e.type != 1)
-			notesLayer.setEditMode(true, false);
+			notesEditLayer.setEditMode(true, false);
 		else
-			notesLayer.setEditMode(true, true);
-		notesLayer.setStaffWidth(staffW /*scoreStaff.getStaffWidth()*/);
-		notesLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
-		notesLayer.setNotesPositions();
-		if (currExercise.notes.size() > 0)
-			notesLayer.setEditNoteIndex(currExercise.notes.size() - 1);
-		notesLayer.addPropertyChangeListener(this);
+			notesEditLayer.setEditMode(true, true);
+		notesEditLayer.setStaffWidth(staffW /*scoreStaff.getStaffWidth()*/);
+		notesEditLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
+		notesEditLayer.setNotesPositions();
+		if (currNotes.size() > 0)
+			notesEditLayer.setEditNoteIndex(currNotes.size() - 1);
+		notesEditLayer.addPropertyChangeListener(this);
 		
         layers.add(scoreStaff, new Integer(1));
-        layers.add(notesLayer, new Integer(2));
+        layers.add(notesEditLayer, new Integer(2));
         
         scoreScrollPanel = new JScrollPane(layers);
         scoreScrollPanel.setBounds(10, 120, 676, 166);
@@ -303,7 +308,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         backPanel.add(finishButton);
         
         exerciseNG = new NoteGenerator(appPrefs, currExercise.acc, true);
-        notesLayer.setEditNoteGenerator(exerciseNG);
+        notesEditLayer.setEditNoteGenerator(exerciseNG);
 
         add(backPanel);
         setButtonsState();
@@ -343,7 +348,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			quartBtn.setEnabled(quart);
 			quartPauseBtn.setEnabled(quart);
 		}
-		if (currExercise.notes.size() > 0)
+		if (currNotes.size() > 0)
 			finishButton.setEnabled(true);
 		else
 			finishButton.setEnabled(false);
@@ -360,8 +365,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			staffW += (scoreStaff.getNotesDistance() * timeNumerator);
 			scoreStaff.setBounds(0, 0, staffW, scoreStaff.getHeight());
 			scoreStaff.setMeasuresNumber(measuresNumber);
-			notesLayer.setBounds(0, 0, staffW, notesLayer.getHeight());
-			notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
+			notesEditLayer.setBounds(0, 0, staffW, notesEditLayer.getHeight());
+			notesEditLayer.setStaffWidth(scoreStaff.getStaffWidth());
 			layers.setPreferredSize(new Dimension(staffW, layers.getHeight()));
 			layers.setBounds(0, 0, staffW, layers.getHeight());
 			scoreScrollPanel.getHorizontalScrollBar().setValue(scoreScrollPanel.getHorizontalScrollBar().getMaximum());
@@ -386,11 +391,11 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		else
 		{
 			tmpNote = new Note(0, currExercise.clefMask, 12, pitch, (int)type, false, 0);
-			if (currExercise.notes.size() > 0 && currExercise.type == 2)
+			if (currNotes.size() > 0 && currExercise.type == 2)
 			{
-			  for (int i = currExercise.notes.size() - 1; i >= 0; i--)
+			  for (int i = currNotes.size() - 1; i >= 0; i--)
 			  {
-				Note nNote = currExercise.notes.get(i);
+				Note nNote = currNotes.get(i);
 				if ((int)Math.floor(nNote.timestamp / timeNumerator) != measuresNumber - 1)
 					break;
 				if ((nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7) &&
@@ -412,11 +417,11 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		tmpNote.setTimeStamp(timeCounter);
 		timeCounter += tmpNote.duration;
 
-		currExercise.notes.add(tmpNote);
+		currNotes.add(tmpNote);
 		if (isSilence == false)
-			checkAlterationButtons(currExercise.notes.size() - 1);
-		notesLayer.setEditNoteIndex(currExercise.notes.size() - 1);
-		notesLayer.setNotesPositions();
+			checkAlterationButtons(currNotes.size() - 1);
+		notesEditLayer.setEditNoteIndex(currNotes.size() - 1);
+		notesEditLayer.setNotesPositions();
 		layers.repaint();
 		removeNoteButton.setEnabled(true);
 		setButtonsState();
@@ -424,8 +429,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	
 	private void changeAlteration(int type)
 	{
-		int idx = notesLayer.getEditNoteIndex();
-		Note tmpNote = currExercise.notes.get(idx);
+		int idx = notesEditLayer.getEditNoteIndex();
+		Note tmpNote = currNotes.get(idx);
 		int currentMeasure = (int)Math.floor(tmpNote.timestamp / timeNumerator);
 		System.out.println("[changeAlteration] Current Measure = " + currentMeasure);
 		int naturalPitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
@@ -457,9 +462,9 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 				}
 			break;
 		}
-		for (int i = idx + 1; i < currExercise.notes.size(); i++)
+		for (int i = idx + 1; i < currNotes.size(); i++)
 		{
-			Note nNote = currExercise.notes.get(i);
+			Note nNote = currNotes.get(i);
 			if ((int)Math.floor(nNote.timestamp / timeNumerator) != currentMeasure)
 				break;
 			if (nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7)
@@ -505,7 +510,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		{
 			if (isPlaying == false)
 			{
-				playback = appMidi.createPlayback(appPrefs, currExercise.speed, currExercise.notes, timeDenominator / 4, true, 0);
+				playback = appMidi.createPlayback(appPrefs, currExercise.speed, currNotes, timeDenominator / 4, true, 0);
 				playback.addMetaEventListener(new MetaEventListener() {
 			          public void meta(MetaMessage meta) 
 			          {
@@ -534,9 +539,9 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		}
 		else if (ae.getSource() == removeNoteButton)
 		{
-			int lastIdx =  currExercise.notes.size() - 1;
-			measureCounter += currExercise.notes.get(lastIdx).duration;
-			timeCounter -= currExercise.notes.get(lastIdx).duration;
+			int lastIdx =  currNotes.size() - 1;
+			measureCounter += currNotes.get(lastIdx).duration;
+			timeCounter -= currNotes.get(lastIdx).duration;
 			if (measureCounter == timeNumerator)
 			{
 				measureCounter = 0;
@@ -547,25 +552,25 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 					staffW -= (scoreStaff.getNotesDistance() * timeNumerator);
 					scoreStaff.setBounds(0, 0, staffW, scoreStaff.getHeight());
 					scoreStaff.setMeasuresNumber(measuresNumber);
-					notesLayer.setBounds(0, 0, staffW, notesLayer.getHeight());
-					notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
+					notesEditLayer.setBounds(0, 0, staffW, notesEditLayer.getHeight());
+					notesEditLayer.setStaffWidth(scoreStaff.getStaffWidth());
 					layers.setPreferredSize(new Dimension(staffW, layers.getHeight()));
 					layers.setBounds(0, 0, staffW, layers.getHeight());
 					scoreScrollPanel.getHorizontalScrollBar().setValue(scoreScrollPanel.getHorizontalScrollBar().getMaximum());
 					scoreScrollPanel.repaint();
 				}
 			}
-			currExercise.notes.removeElementAt(lastIdx);
+			currNotes.removeElementAt(lastIdx);
 
-			if (currExercise.notes.size() > 0)
+			if (currNotes.size() > 0)
 			{
 				lastIdx--;
-				notesLayer.setEditNoteIndex(lastIdx);
+				notesEditLayer.setEditNoteIndex(lastIdx);
 			}
 			else
 				removeNoteButton.setEnabled(false);
 
-			notesLayer.setNotesPositions();
+			notesEditLayer.setNotesPositions();
 			layers.repaint();
 			setButtonsState();
 		}
@@ -582,9 +587,9 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		if (currExercise.type == 1)
 			return;
 		boolean showNormal = false;
-		int alt = currExercise.notes.get(idx).altType;
-		int pitch = currExercise.notes.get(idx).pitch;
-		int lev = currExercise.notes.get(idx).level;
+		int alt = currNotes.get(idx).altType;
+		int pitch = currNotes.get(idx).pitch;
+		int lev = currNotes.get(idx).level;
 		
 		if (alt == 2)
 			showNormal = true;
@@ -606,7 +611,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		if (evt.getPropertyName() == "selectionChanged")
 		{
 			int noteIdx = Integer.parseInt(evt.getNewValue().toString());
-			if (noteIdx == currExercise.notes.size() - 1)
+			if (noteIdx == currNotes.size() - 1)
 				removeNoteButton.setEnabled(true);
 			else
 				removeNoteButton.setEnabled(false);
@@ -614,11 +619,11 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		}
 		else if (evt.getPropertyName() == "levelChanged")
 		{
-			int idx = notesLayer.getEditNoteIndex();
-			Note tmpNote = currExercise.notes.get(idx);
+			int idx = notesEditLayer.getEditNoteIndex();
+			Note tmpNote = currNotes.get(idx);
 			for (int i = idx - 1; i >= 0; i--)
 			{
-				Note nNote = currExercise.notes.get(i);
+				Note nNote = currNotes.get(i);
 				if ((int)Math.floor(nNote.timestamp / timeNumerator) != measuresNumber - 1)
 					break;
 				if ((nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7) &&
@@ -631,18 +636,18 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 					break;
 				}
 			}
-			checkAlterationButtons(notesLayer.getEditNoteIndex());
+			checkAlterationButtons(notesEditLayer.getEditNoteIndex());
 		}
 		// if an altered note level changed, I must reset all the other altered notes 
 		// in the current measure with the same tone 
 		else if (evt.getPropertyName() == "levelWasAltered") 
 		{
-			int idx = notesLayer.getEditNoteIndex();
-			Note tmpNote = currExercise.notes.get(idx);
+			int idx = notesEditLayer.getEditNoteIndex();
+			Note tmpNote = currNotes.get(idx);
 			int currentMeasure = (int)Math.floor(tmpNote.timestamp / timeNumerator);
-			for (int i = idx + 1; i < currExercise.notes.size(); i++)
+			for (int i = idx + 1; i < currNotes.size(); i++)
 			{
-				Note nNote = currExercise.notes.get(i);
+				Note nNote = currNotes.get(i);
 				if ((int)Math.floor(nNote.timestamp / timeNumerator) != currentMeasure)
 					break;
 				if (nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7)

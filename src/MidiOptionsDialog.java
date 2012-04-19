@@ -146,21 +146,21 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         
         JLabel midiOut = new JLabel(appBundle.getString("_midiOutput"));
         midiOut.setFont(titleFont);
-        midiOut.setBounds(10, 5, 200, 40);
+        midiOut.setBounds(10, 5, 185, 40);
         soundPanel.add(midiOut);
         
         ButtonGroup rbGroup = new ButtonGroup();
         javaSynthButton = new JRadioButton("Java");
-        javaSynthButton.setBounds(170, 8, 70, 30);
+        javaSynthButton.setBounds(195, 8, 70, 30);
         javaSynthButton.addActionListener(this);
         fluidsynthButton = new JRadioButton("Fluidsynth");
-        fluidsynthButton.setBounds(240, 8, 90, 30);
+        fluidsynthButton.setBounds(260, 8, 90, 30);
         fluidsynthButton.addActionListener(this);
         rbGroup.add(javaSynthButton);
 		rbGroup.add(fluidsynthButton);
 		
 		fluidOutComboBox = new JComboBox();
-		fluidOutComboBox.setBounds(350, 10, 120, 25);
+		fluidOutComboBox.setBounds(360, 10, 120, 25);
 
 		soundPanel.add(javaSynthButton);
 		soundPanel.add(fluidsynthButton);
@@ -204,11 +204,11 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         	bankPath = appPrefs.getProperty("soundfontPath");
         if (bankPath == "-1") bankPath = "No soundfont selected";
         sbankPath = new JTextField(bankPath);
-        sbankPath.setBounds(170, 40, 240, 25);
+        sbankPath.setBounds(190, 40, 240, 25);
         soundPanel.add(sbankPath);
         
         sfSelectButton = new JButton("...");
-        sfSelectButton.setBounds(420, 40, 40, 25);
+        sfSelectButton.setBounds(440, 40, 40, 25);
         sfSelectButton.setFont(new Font("Arial", Font.BOLD, 13));
         sfSelectButton.addActionListener(this);
         if (javaSynthButton.isSelected() == true)
@@ -225,7 +225,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         	keyboardsoundCheckBox.setSelected(true);
 
 		instrumentsComboBox = new JComboBox();
-		instrumentsComboBox.setBounds(160, 70, 200, 25);
+		instrumentsComboBox.setBounds(160, 70, 190, 25);
 		List<String> iList = midiCtrl.getInstruments();
 		if (iList != null && iList.size() > 0)
 		{
@@ -245,7 +245,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		instrumentsComboBox.addActionListener(this);
 
         keyboardLengthComboBox = new JComboBox();
-        keyboardLengthComboBox.setBounds(370, 70, 110, 25);
+        keyboardLengthComboBox.setBounds(360, 70, 120, 25);
         keyboardLengthComboBox.addItem("73 " + appBundle.getString("_keys"));
         keyboardLengthComboBox.addItem("61 " + appBundle.getString("_keys"));
         if (Integer.parseInt(appPrefs.getProperty("keyboardlength")) == 61)
@@ -272,7 +272,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         
         JLabel keyLabel = new JLabel(appBundle.getString("_transposition"));
         keyLabel.setFont(titleFont);
-        keyLabel.setBounds(10, 5, 260, 40);
+        keyLabel.setBounds(10, 5, 350, 40);
 
         int trVal = Integer.parseInt(appPrefs.getProperty("transposition"));
         if (trVal == -1) trVal = 0;

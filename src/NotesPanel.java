@@ -129,6 +129,7 @@ public class NotesPanel extends JPanel implements MouseListener
     
     public void setStaffWidth(int w)
     {
+    	System.out.println("[NP] staff width: " + w);
     	staffWidth = w;
     }
     

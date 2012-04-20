@@ -8,9 +8,6 @@ import javax.sound.midi.ShortMessage;
 public class Fluidsynth {
 
 	private static final int NAME_MAX_LENGTH = 32;
-	private static String LIBS_PATH = "libs";
-	private static String WIN32_ARCH_PATH = "win32";
-	private static String LINUX_ARCH_PATH = "linux";
 	
 	private ByteBuffer context;
 
@@ -173,17 +170,35 @@ public class Fluidsynth {
 
 	public static void loadLibraries(String drv)
 	{
+		String LIBS_PATH = "libs";
+		String WIN32_ARCH_PATH = "win32";
+		String WIN64_ARCH_PATH = "win64";
+		String LINUX_ARCH_PATH = "linux";
 		File directory = null;
 		File driverDirectory = null;
+		String arch = System.getProperty("sun.arch.data.model");
+		System.out.println("Running on " + arch + "bit system");
 
 		if (NativeUtils.isWindows()) {
-			directory = new File(LIBS_PATH + File.separator + WIN32_ARCH_PATH + File.separator);
-			driverDirectory = new File(LIBS_PATH + File.separator + WIN32_ARCH_PATH + File.separator + drv + File.separator);
+			if (arch.equals("64"))
+			{
+				directory = new File(LIBS_PATH + File.separator + WIN64_ARCH_PATH + File.separator);
+				driverDirectory = new File(LIBS_PATH + File.separator + WIN64_ARCH_PATH + File.separator + drv + File.separator);
+			}
+			else
+			{
+				directory = new File(LIBS_PATH + File.separator + WIN32_ARCH_PATH + File.separator);
+				driverDirectory = new File(LIBS_PATH + File.separator + WIN32_ARCH_PATH + File.separator + drv + File.separator);
+			}
+			
 			try {
 				NativeUtils.load(new File(directory, "libintl-8.dll"));
 				NativeUtils.load(new File(directory, "libglib-2.0-0.dll"));
 				NativeUtils.load(new File(directory, "libgthread-2.0-0.dll"));
-				NativeUtils.load(new File(driverDirectory, "portaudio_x86.dll"));
+				if (arch.equals("64"))
+					NativeUtils.load(new File(driverDirectory, "portaudio_x64.dll"));
+				else
+					NativeUtils.load(new File(driverDirectory, "portaudio_x86.dll"));
 				NativeUtils.load(new File(directory, "libfluidsynth.dll"));
 			} catch (UnsatisfiedLinkError error) {
 				System.out.println("Dependencies not provided" + error);

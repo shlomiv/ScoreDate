@@ -45,7 +45,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	MidiController appMidi;
 	
 	Exercise currExercise;
-	Vector<Note> currNotes; // keep a temporary copy of notes not to affect main window
+	//Vector<Note> currNotes; // keep a temporary copy of notes not to affect main window
 
 	private RoundedButton wholeBtn, halfBtn, quartBtn, eightBtn;
 	private RoundedButton wholePauseBtn, halfPauseBtn, quartPauseBtn, eightPauseBtn;

@@ -286,7 +286,8 @@ public class MidiController
 				}
 				String bankPath = appPrefs.getProperty("soundfontPath");
 				try {
-					fluidSynth.soundFontLoad(new File(getClass().getResource("/resources/metronome.sf2").getFile()));
+					//fluidSynth.soundFontLoad(new File(getClass().getResource("/resources/metronome.sf2").getFile()));
+					fluidSynth.soundFontLoad(new File("metronome.sf2"));
 					if (bankPath != "-1")
 						fluidSynth.soundFontLoad(new File(bankPath));
 				} catch (IOException expected) {

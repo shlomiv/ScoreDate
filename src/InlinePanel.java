@@ -460,6 +460,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		if (velocity == 0)
 		{
 			appMidi.stopNote(pitch, 0);
+			piano.keyPressed(pitch, false);
 			if (fromPiano == true && gameSubType != appPrefs.NOTE_CHORDS && gameSubType != appPrefs.NOTE_INTERVALS &&  userNotes.size() != 0)
 			{
 				int idx = userNotes.indexOf(pitch);
@@ -506,11 +507,14 @@ public class InlinePanel extends JPanel implements ActionListener
 				if ((gameSubType == appPrefs.NOTE_CHORDS && userNotes.size() == 3) ||
 					gameSubType != appPrefs.NOTE_CHORDS)
 					updateGameStats(0);
-				
+				piano.keyPressed(pitch, true);
 			  }
 			}
 			else
+			{
 				appMidi.playNote(pitch, 90);
+				piano.keyPressed(pitch, true);
+			}
 		}
 	}
 

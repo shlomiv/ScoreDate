@@ -348,12 +348,12 @@ public class MidiController
 			 fluidSynth.send(0, ShortMessage.NOTE_OFF, pitch, volume);
 	 }
 	 
-	 private void handleAsyncMIDIevent(MetaMessage msg)
+	 private void fluidsynthAsyncMIDIevent(MetaMessage msg)
 	 {
 		byte[] metaData = msg.getData();
         String strData = new String(metaData);
        
-        //System.out.println("*INTERNAL* META message: text= " + strData);
+        //System.out.println("*FS* META message: text= " + strData);
 
         if ("fsbOnLow".equals(strData))
         	fluidSynth.send(9, ShortMessage.NOTE_ON, 77, 100);
@@ -541,7 +541,7 @@ public class MidiController
            sequencers[1].addMetaEventListener(new MetaEventListener() {
              public void meta(MetaMessage meta) 
              {
-             	handleAsyncMIDIevent(meta);
+             	fluidsynthAsyncMIDIevent(meta);
              }
  		   });
          }
@@ -624,7 +624,7 @@ public class MidiController
            sequencers[0].addMetaEventListener(new MetaEventListener() {
              public void meta(MetaMessage meta) 
              {
-             	handleAsyncMIDIevent(meta);
+            	 fluidsynthAsyncMIDIevent(meta);
              }
  		   });
          }

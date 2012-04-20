@@ -237,6 +237,10 @@ public class NoteGenerator
 			notesTypeList.add(3);
 		if (Integer.parseInt(appPrefs.getProperty("tripletNote")) == 1)
 			notesTypeList.add(4);
+		if (Integer.parseInt(appPrefs.getProperty("3_4_Note")) == 1)
+			notesTypeList.add(6);
+		if (Integer.parseInt(appPrefs.getProperty("3_8_Note")) == 1)
+			notesTypeList.add(7);
 		nType = Integer.parseInt(appPrefs.getProperty("silenceNote"));
 		if(nType == -1 || nType == 1)
 			notesTypeList.add(5);
@@ -562,6 +566,8 @@ public class NoteGenerator
     			else if (tmpNote.type == 5) // if this is silence, then set a random duration
     			{
     				int randTypeIdx = (int)((notesTypeList.size() - 1) * Math.random());
+    				if (notesTypeList.get(randTypeIdx) == 6 || notesTypeList.get(randTypeIdx) == 7)
+    					continue;
     				tmpNote.duration = tmpNote.getDuration(notesTypeList.get(randTypeIdx));
     				if (tmpNote.duration == (1.0 / 3.0))
     					continue;
@@ -583,7 +589,7 @@ public class NoteGenerator
     					eighthPresent = true;
     				tmpNote.setTimeStamp(timeCounter);
         			//System.out.println("Measure #" + i + ": timestamp: " + timeCounter);
-    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + tmpNote.pitch + ", level: " + tmpNote.level + ", ts: " + timeCounter);
+    				System.out.println("Random Note: #" + seq.size() + ": p: " + tmpNote.pitch + ", lev: " + tmpNote.level + ", type: " + tmpNote.type + ", ts: " + timeCounter);
     				timeCounter+=tmpNote.duration;
     			}
     			//System.out.println("tempMesCnt: " + measureCounter);

@@ -20,7 +20,7 @@ public class Note
 {
 	public int xpos;
 	public int ypos;
-	public int type; // 0 whole, 1 half, 2 quarter, 3 eighth, 4 triplet, 5 silence
+	public int type; // 0 whole, 1 half, 2 quarter, 3 eighth, 4 triplet, 5 silence, 6 half + quarter, 7 quarter + eighth
 	public double duration;
 	public double timestamp;
 
@@ -56,6 +56,8 @@ public class Note
 			case 3: duration = 0.5; break;
 			case 4: duration = 1.0 / 3.0; break;
 			case 5: duration = 0; level = 12; pitch = 71; break;
+			case 6: duration = 3; break;
+			case 7: duration = 1.5; break;
 		}
 		
 		//System.out.println("[Note] t: " + type + ", p: " + pitch + ", l: " + level + ", dur: " + duration + ", alt: " + altType);
@@ -74,6 +76,8 @@ public class Note
 			case 3: dur = 0.5; break;
 			case 4: dur = 1.0 / 3.0; break;
 			case 5: dur = 0; break;
+			case 6: dur = 3; break;
+			case 7: dur = 1.5; break;
 		}
 		return dur;
 	}

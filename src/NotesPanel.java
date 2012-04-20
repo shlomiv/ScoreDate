@@ -129,7 +129,7 @@ public class NotesPanel extends JPanel implements MouseListener
     
     public void setStaffWidth(int w)
     {
-    	System.out.println("[NP] staff width: " + w);
+    	//System.out.println("[NP] staff width: " + w);
     	staffWidth = w;
     }
     
@@ -211,12 +211,12 @@ public class NotesPanel extends JPanel implements MouseListener
 		
 		if (type == 0) // whole note
 			ypos++;
-		else if (type == 2) // quarter note
+		else if (type == 2 || type == 7) // quarter or quarter+eighth note
 		{
 			if (note.level < 12)
 				ypos += 41;
 		}
-		else if (type == 3) // eigth note
+		else if (type == 3) // eighth note
 		{
 			if (note.level < 12) 
 				ypos += 30;
@@ -410,11 +410,23 @@ public class NotesPanel extends JPanel implements MouseListener
 		
     	g.setFont(appFont.deriveFont(57f));
 		if (type == 0) symbol = "w"; // whole note
-		else if (type == 1) symbol = "h"; // half note 
-		else if (type == 2)
+		else if (type == 1 || type == 6)
+		{
+			symbol = "h"; // half note
+			if (type == 6)
+				g.fillOval(note.xpos + 15, note.ypos - 8, 5, 5);
+		}
+		else if (type == 2 || type == 7)
 		{
 			if (note.level >= 12) symbol = "q"; // quarter note upward
 			else symbol = "" + (char)0xF6; // quarter note downward
+			if (type == 7)
+			{
+				if (note.level >= 12)
+					g.fillOval(note.xpos + 15, note.ypos - 8, 5, 5);
+				else
+					g.fillOval(note.xpos + 15, note.ypos - 49, 5, 5);
+			}
 		}
 		else if (type == 3)
 		{

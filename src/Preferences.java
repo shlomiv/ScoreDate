@@ -44,6 +44,8 @@ import java.util.Properties;
  *  eighthNote       | 0: eighth notes disabled, 1: eighth notes enabled
  *  tripletNote      | 0: triplets disabled, 1: triplets enabled
  *  silenceNote      | 0: silence disabled, 1: silence enabled
+ *  3_4_Note		 | 0: 3/4 notes disabled, 1: 3/4 notes enabled
+ *  3_8_Note		 | 0: 3/8 notes disabled, 1: 3/8 notes enabled
  *  
  *  metromome	     | metronome - 0: disabled, 1: enabled 
  *  showBeats		 | show metronome beats - 0: disabled, 1: enabled

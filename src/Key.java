@@ -30,6 +30,7 @@ public class Key extends JButton
 	private static final long serialVersionUID = 8886689336934022704L;
 
     boolean is_black = false;
+    boolean is_highlighted = false;
     int pitch;
     int octave;
     int noteIndex; // holds the index of the seven note scale (C, D, E, F, G, A, B)
@@ -40,6 +41,7 @@ public class Key extends JButton
       pitch = kpitch;
       octave = koctave;
       is_black = black;
+      is_highlighted = false;
       noteIndex = idx;
       offx = offset;
       setBounds(x + offx, y, w, h);
@@ -49,10 +51,39 @@ public class Key extends JButton
       else
     	  setBackground(Color.white); 
     }
-
-    public int GetPitch()
+    
+    public void highlight(boolean on, boolean learning)
     {
-      return this.pitch;
+    	is_highlighted = on;
+    	if (on == true)
+    	{
+    		if (learning == false)
+    			setBackground(Color.decode("0x98FB98"));
+    		else
+    		{
+    			setBackground(Color.decode("0xE7A935"));
+    			is_highlighted = false;
+    		}
+    	}
+		else if (is_black == true)
+			setBackground(Color.black);
+		else
+			setBackground(Color.white); 
+    }
+    
+    public void setPressed(boolean on)
+    {
+    	if (on == true)
+    		setBackground(Color.decode("0xB8D8FF"));
+    	else
+    	{
+    		if (is_highlighted == true)
+    			setBackground(Color.decode("0x98FB98"));
+    		else if (is_black == true)
+    			setBackground(Color.black);
+    		else
+    			setBackground(Color.white); 
+    	}
     }
     
     public void setXpos(int newx)

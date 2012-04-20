@@ -1,8 +1,10 @@
 April ??, 2012 - version 3.0
 
 - NEW: Integrated low latency sound synthesis through Fluidsynth
-- NEW: possibility to load user sound banks with Soundfont format
-- NEW: added some more exercises 
+- NEW: possibility to load user sound banks with Soundfont format (.SF2)
+- NEW: added dotted half and quarter notes
+- NEW: highlight virtual piano keys when playing with an external MIDI device 
+- NEW: added some more exercises
 - fixed: editing of exercises with accidentals on clef
 - fixed: missing strings on some translations
 

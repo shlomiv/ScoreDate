@@ -105,7 +105,7 @@ public class Piano extends JPanel
     for (int i = 0; i < keys.size(); i++)
     {
     	if (keys.get(i).pitch == 60)
-    		keys.get(i).setBackground(new Color(255, 175, 175));
+    		keys.get(i).setBackground(Color.decode("0xFFAFAF"));
     	this.add(keys.get(i));
     }
   }
@@ -115,13 +115,15 @@ public class Piano extends JPanel
 	  for (int i = 0; i < whiteKeys.size(); i++)
 	  {
 		  if (highlightStart == true && whiteKeys.get(i).pitch == 60)
-			  whiteKeys.get(i).setBackground(new Color(255, 175, 175));
+			  whiteKeys.get(i).setBackground(Color.decode("0xFFAFAF"));
 		  else
 			  whiteKeys.get(i).setBackground(Color.white);
+		  whiteKeys.get(i).is_highlighted = false;
 	  }
 	  for (int i = 0; i < blackKeys.size(); i++)
 	  {
 		  blackKeys.get(i).setBackground(Color.black);
+		  blackKeys.get(i).is_highlighted = false;
 	  }
   }
 
@@ -132,24 +134,28 @@ public class Piano extends JPanel
 	  {
 		  if (keys.get(i).pitch == pitch)
 		  {
+			  keys.get(i).highlight(enable, true);
 			  if (enable == true)
-			  {
-				  keys.get(i).setBackground(Color.decode("0xE7A935"));
 			  	  selectedKeyIndex = i;
-			  }
 			  else
-			  {
-				  if (keys.get(i).is_black == true)
-					  keys.get(i).setBackground(Color.black);
-				  else
-					  keys.get(i).setBackground(Color.white);
 				  selectedKeyIndex = -1;
-			  }
 			  
 		  	  return keys.get(i).noteIndex;
 		  }
 	  }
 	  return 0;
+  }
+  
+  public void keyPressed(int pitch, boolean on)
+  {
+	  for (int i = 0; i < keys.size(); i++)
+	  {
+		  if (keys.get(i).pitch == pitch)
+		  {
+			  keys.get(i).setPressed(on);
+			  return;
+		  }
+	  }
   }
   
   public int getNoteIndexFromPitch(int pitch)
@@ -217,7 +223,7 @@ public class Piano extends JPanel
 	  for (int i = 0; i < whiteKeys.size(); i++)
 	  {
 		  if (whiteKeys.get(i).pitch >= low && whiteKeys.get(i).pitch <= high)
-		  	whiteKeys.get(i).setBackground(new Color(152, 251, 152));
+		  	whiteKeys.get(i).highlight(true, false); //setBackground(new Color(152, 251, 152));
 		  if (whiteKeys.get(i).pitch > high)
 			  break;
       }

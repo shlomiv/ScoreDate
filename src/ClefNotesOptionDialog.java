@@ -50,7 +50,9 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 	
 	JCheckBox wholeCB;
 	JCheckBox halfCB;
+	JCheckBox halfQuarterCB;
 	JCheckBox quarterCB;
+	JCheckBox quarterEighthCB;
 	JCheckBox eighthCB;
 	JCheckBox tripletCB;
 	JCheckBox silenceCB;
@@ -230,14 +232,30 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		halfCB.setFont(appFont.deriveFont(50f));
 		if (Integer.parseInt(appPrefs.getProperty("halfNote")) == 1)
 			halfCB.setSelected(true);
+		halfCB.addActionListener(this);
+		halfQuarterCB = new JCheckBox("d");
+		halfQuarterCB.setFont(appFont.deriveFont(50f));
+		if (Integer.parseInt(appPrefs.getProperty("3_4_Note")) == 1)
+			halfQuarterCB.setSelected(true);
+		halfQuarterCB.addActionListener(this);
 		quarterCB = new JCheckBox("q");
 		quarterCB.setFont(appFont.deriveFont(50f));
 		if (Integer.parseInt(appPrefs.getProperty("quarterNote")) == 1)
 			quarterCB.setSelected(true);
+		if (halfQuarterCB.isSelected() == true)
+			quarterCB.setEnabled(false);
+		quarterCB.addActionListener(this);
+		quarterEighthCB = new JCheckBox("j");
+		quarterEighthCB.setFont(appFont.deriveFont(50f));
+		if (Integer.parseInt(appPrefs.getProperty("3_8_Note")) == 1)
+			quarterEighthCB.setSelected(true);
+		quarterEighthCB.addActionListener(this);
 		eighthCB = new JCheckBox("" + (char)0xC8);
 		eighthCB.setFont(appFont.deriveFont(50f));
 		if (Integer.parseInt(appPrefs.getProperty("eighthNote")) == 1)
 			eighthCB.setSelected(true);
+		if (quarterEighthCB.isSelected() == true)
+			eighthCB.setEnabled(false);
 		tripletCB = new JCheckBox("T");
 		tripletCB.setFont(appFont.deriveFont(50f));
 		if (Integer.parseInt(appPrefs.getProperty("tripletNote")) == 1)
@@ -251,7 +269,9 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		notesTypePanel.add(nTypesLabel);
 		notesTypePanel.add(wholeCB);
 		notesTypePanel.add(halfCB);
+		notesTypePanel.add(halfQuarterCB);
 		notesTypePanel.add(quarterCB);
+		notesTypePanel.add(quarterEighthCB);
 		notesTypePanel.add(eighthCB);
 		notesTypePanel.add(tripletCB);
 		notesTypePanel.add(silenceCB);
@@ -378,8 +398,12 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			else appPrefs.setProperty("wholeNote", "0");
 			if (halfCB.isSelected() == true) appPrefs.setProperty("halfNote", "1");
 			else appPrefs.setProperty("halfNote", "0");
+			if (halfQuarterCB.isSelected() == true) appPrefs.setProperty("3_4_Note", "1");
+			else appPrefs.setProperty("3_4_Note", "0");
 			if (quarterCB.isSelected() == true) appPrefs.setProperty("quarterNote", "1");
 			else appPrefs.setProperty("quarterNote", "0");
+			if (quarterEighthCB.isSelected() == true) appPrefs.setProperty("3_8_Note", "1");
+			else appPrefs.setProperty("3_8_Note", "0");
 			if (eighthCB.isSelected() == true) appPrefs.setProperty("eighthNote", "1");
 			else appPrefs.setProperty("eighthNote", "0");
 			if (tripletCB.isSelected() == true) appPrefs.setProperty("tripletNote", "1");
@@ -400,6 +424,26 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			
 			this.firePropertyChange("updateParameters", false, true);
 			this.dispose();
+		}
+		else if (ae.getSource() == halfQuarterCB)
+		{
+			if (halfQuarterCB.isSelected() == true)
+			{
+				quarterCB.setSelected(true);
+				quarterCB.setEnabled(false);
+			}
+			else
+				quarterCB.setEnabled(true);
+		}
+		else if (ae.getSource() == quarterEighthCB)
+		{
+			if (quarterEighthCB.isSelected() == true)
+			{
+				eighthCB.setSelected(true);
+				eighthCB.setEnabled(false);
+			}
+			else
+				eighthCB.setEnabled(true);
 		}
 		else if (ae.getSource() == cancelButton)
 		{

@@ -47,8 +47,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	Exercise currExercise;
 	//Vector<Note> currNotes; // keep a temporary copy of notes not to affect main window
 
-	private RoundedButton wholeBtn, halfBtn, quartBtn, eightBtn;
-	private RoundedButton wholePauseBtn, halfPauseBtn, quartPauseBtn, eightPauseBtn;
+	private RoundedButton wholeBtn, halfBtn, quartBtn, eightBtn, dottedHalfBtn, dottedQuartBtn;
+	private RoundedButton wholePauseBtn, halfPauseBtn, quartPauseBtn, eightPauseBtn; 
 	private RoundedButton sharpBtn, flatBtn, normalBtn;
 	
 	private RoundedButton playBtn;
@@ -169,6 +169,21 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         eightPauseBtn.setBounds(xPos, 58, btnW, btnH);
         eightPauseBtn.addActionListener(this);
         xPos+= btnW + 5;
+        
+        dottedHalfBtn = new RoundedButton("d", appBundle, Color.decode("0xD6FFAA"));
+        dottedHalfBtn.setBackground(Color.decode("0xFFFFFF"));
+        dottedHalfBtn.setFont(notesFont);
+        dottedHalfBtn.setTextOffsets(8, 15);
+        dottedHalfBtn.setBounds(xPos, 10, btnW, btnH);
+        dottedHalfBtn.addActionListener(this);
+        
+        dottedQuartBtn = new RoundedButton("j", appBundle, Color.decode("0xD6FFAA"));
+        dottedQuartBtn.setBackground(Color.decode("0xFFFFFF"));
+        dottedQuartBtn.setFont(notesFont);
+        dottedQuartBtn.setTextOffsets(8, 15);
+        dottedQuartBtn.setBounds(xPos, 58, btnW, btnH);
+        dottedQuartBtn.addActionListener(this);
+        xPos+= btnW + 5;
 
         notesPanel.add(wholeBtn);
         notesPanel.add(halfBtn);
@@ -178,6 +193,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         notesPanel.add(halfPauseBtn);
         notesPanel.add(quartPauseBtn);
         notesPanel.add(eightPauseBtn);
+        notesPanel.add(dottedHalfBtn);
+        notesPanel.add(dottedQuartBtn);
         
         if (currExercise.type == 0)
         {
@@ -188,6 +205,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
         	halfPauseBtn.setEnabled(false);
         	quartPauseBtn.setEnabled(false);
         	eightPauseBtn.setEnabled(false);
+        	dottedHalfBtn.setEnabled(false);
+        	dottedQuartBtn.setEnabled(false);
         }
 
         if (currExercise.timeSign <= 0) timeNumerator = 4;
@@ -330,14 +349,21 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			halfPauseBtn.setEnabled(true);
 			quartBtn.setEnabled(true);
 			quartPauseBtn.setEnabled(true);
+			if (timeNumerator >= 3)
+				dottedHalfBtn.setEnabled(true);
+			dottedQuartBtn.setEnabled(true);
 		}
 		else
 		{
-			boolean whole = true, half = true, quart = true; 
+			boolean whole = true, half = true, quart = true, dothalf = true, dotquart = true;
 			if (measureCounter < 4)
 				whole = false;
+			if (measureCounter < 3)
+				dothalf = false;
 			if (measureCounter < 2)
 				half = false;
+			if (measureCounter < 1.5)
+				dotquart = false;
 			if (measureCounter < 1)
 				quart = false;
 
@@ -347,6 +373,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			halfPauseBtn.setEnabled(half);
 			quartBtn.setEnabled(quart);
 			quartPauseBtn.setEnabled(quart);
+			dottedHalfBtn.setEnabled(dothalf);
+			dottedQuartBtn.setEnabled(dotquart);
 		}
 		if (currExercise.notes.size() > 0)
 			finishButton.setEnabled(true);
@@ -487,8 +515,12 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			addEditNote(0, false);
 		else if (ae.getSource() == halfBtn)
 			addEditNote(1, false);
+		else if (ae.getSource() == dottedHalfBtn)
+			addEditNote(6, false);		
 		else if (ae.getSource() == quartBtn)
 			addEditNote(2, false);
+		else if (ae.getSource() == dottedQuartBtn)
+			addEditNote(7, false);
 		else if (ae.getSource() == eightBtn)
 			addEditNote(3, false);
 		else if (ae.getSource() == wholePauseBtn)

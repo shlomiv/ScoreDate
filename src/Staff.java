@@ -177,6 +177,11 @@ public class Staff extends JPanel
     	return scoreLineWidth;
     }
     
+    public int getStaffHeight()
+    {
+    	return (numberOfRows * rowsDistance) + scoreYpos;
+    }
+    
     public void setScale(double factor)
     {
     	globalScale = factor;

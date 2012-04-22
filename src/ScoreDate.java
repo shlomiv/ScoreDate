@@ -252,6 +252,8 @@ public class ScoreDate extends JFrame implements ActionListener
                System.out.println("Score Date is going to be closed !");
                if (midiControl != null)
             	   midiControl.close();
+               if (midiDev != null)
+			       midiDev.close();
              }
          });
 
@@ -452,8 +454,12 @@ public class ScoreDate extends JFrame implements ActionListener
 						if (evt.getPropertyName() == "newMidiDevice")
 						{
 							System.out.println("Going to reconfigure MIDI system...");
-							midiControl.close();
+							if (midiControl != null)
+								midiControl.close();
 							midiControl = null;
+							if (midiDev != null)
+								midiDev.close();
+							midiDev = null;
 							midiControl = new MidiController(prefs);
 							midiDev = midiControl.openInputDevice();
 							
@@ -473,7 +479,15 @@ public class ScoreDate extends JFrame implements ActionListener
 						         }
 							 }
 							 midiOptions.reloadDriversList(midiControl.getFluidDrivers());
+							 midiOptions.reloadDevicesList(midiControl.getFluidDevices());
 							 midiOptions.reloadInstruments(midiControl.getInstruments());
+						}
+						else if (evt.getPropertyName() == "newFluidDevice")
+						{
+							if (midiControl != null)
+								midiControl.close();
+							midiControl = null;
+							midiControl = new MidiController(prefs);
 						}
 						else if (evt.getPropertyName() == "newMidiInstrument")
 						{
@@ -596,8 +610,6 @@ public class ScoreDate extends JFrame implements ActionListener
                 		  scorePanel.noteEvent(pitch, vel);
                 	  else if (earPanel != null &&  earPanel.isVisible() == true)
                 		  earPanel.noteEvent(pitch, vel, false);
-                	  
-                	  
                   break;
 /*
                   case 0x80:

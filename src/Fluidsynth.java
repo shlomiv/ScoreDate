@@ -180,6 +180,7 @@ public class Fluidsynth {
 		System.out.println("Running on " + arch + "bit system");
 
 		if (NativeUtils.isWindows()) {
+			if (drv.equals("dsound")) drv = "wdm";
 			if (arch.equals("64"))
 			{
 				directory = new File(LIBS_PATH + File.separator + WIN64_ARCH_PATH + File.separator);

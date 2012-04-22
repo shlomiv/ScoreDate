@@ -54,6 +54,7 @@ public class MidiController
 	private Instrument[] jInstruments; // this is used only by the Java MIDI system
 	private List<String> instrumentsList;
 	private List<String> fluidDriversList;
+	private List<String> fluidDevicesList;
     private boolean midierror = false;
     private MidiChannel[] allMC; // fixed channels are: 0 = user, 1 = playback, 2 = metronome
     public MidiChannel midiOutChannel = null;
@@ -249,9 +250,14 @@ public class MidiController
 	 {
 		 midierror = false;
 		 fluidDriversList = new ArrayList<String>();
-		 String drvName = ""; //appPrefs.getProperty("fluidDriver");
+		 fluidDevicesList = new ArrayList<String>();
+		 String drvName = ""; 
+		 String devName = appPrefs.getProperty("fluidDevice");
 		 if (NativeUtils.isWindows())
-			 drvName = "dsound";
+		 {
+			 if (drv.equals("dsound")) drvName = drv;
+			 else drvName = "portaudio";
+		 }
 		 else if (NativeUtils.isLinux())
 			 drvName = drv;
 
@@ -266,19 +272,22 @@ public class MidiController
 		 for (String driver : drivers)
 		 {
 			System.out.println(driver);
-			//if (drv.equals("default") && drvName == "" && NativeUtils.isLinux()) 
-			//	drvName = driver; 
 			if (!driver.equals("file"))
 				fluidDriversList.add(driver);
-			for (String device : Fluidsynth.getAudioDevices(driver))
-			{
-				System.out.println("  " + device);
-			}
+			
 			if (drvName.equals(driver))
 			{
-				System.out.println("Fluidsynth is going to output on: " + driver);
+				for (String device : Fluidsynth.getAudioDevices(driver))
+				{
+					System.out.println("  " + device);
+					fluidDevicesList.add(device);
+				}
+				System.out.println("Fluidsynth is going to output on: " + driver + " (device: " + devName + ")");
 				try {
-					fluidSynth = new Fluidsynth("fluidDriver", 16, driver);
+					if (devName.equals("-1"))
+						fluidSynth = new Fluidsynth("fluidDriver", 16, driver);
+					else
+						fluidSynth = new Fluidsynth("fluidDriver", 1, 16, 256, 44100.0f, driver, devName, 8, 512, 0.5f,	0.5f, 0.5f, 0.5f, 0.5f);
 				} catch (IOException expected) {
 					System.out.println("Cannot open Fluidsynth audio output driver!!");
 	                errorCode = 1;
@@ -328,7 +337,12 @@ public class MidiController
 	 {
 		 return fluidDriversList;
 	 }
-	 
+
+	 public List<String> getFluidDevices()
+	 {
+		 return fluidDevicesList;
+	 }
+
 	 public void playNote(int pitch, int volume)
 	 {
 		 if (useFluidsynth == false)

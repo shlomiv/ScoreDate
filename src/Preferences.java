@@ -64,7 +64,7 @@ import java.util.Properties;
  *  audiosensitivity | audio sensitivity threshold
  *  
  *  synthDriver      | synthesizer system to be used (Java or Fluidsynth)
- *  fluidDriver		 | audio driver that Fluidsynth will use to output sounds     // TODO: not used yet
+ *  fluidDevice		 | audio device that Fluidsynth will use to output sounds     // TODO: not used yet
  *  soundfontPath    | path of the Soundfont to use when Fluidsynth is active
  */
 public class Preferences 

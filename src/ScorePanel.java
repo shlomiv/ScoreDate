@@ -232,6 +232,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 	        notesLayer.setNotesSequence(gameNotes);
 			notesLayer.setNotesPositions();
 		}
+		
 	}
 	
 	public void updateLanguage(ResourceBundle bundle)

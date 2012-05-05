@@ -60,6 +60,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
     private JRadioButtonMenuItem rblanguageko = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem rblanguageeo = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem rblanguagepl = new JRadioButtonMenuItem();
+    private JRadioButtonMenuItem rblanguagept = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem rblanguagehe = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem rblanguagehu = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem rblanguageru = new JRadioButtonMenuItem();
@@ -171,6 +172,12 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         bGroup.add(rblanguagepl);
         langMenu.add(rblanguagepl);
         
+        rblanguagept=new JRadioButtonMenuItem("Português");
+        rblanguagept.setMnemonic(KeyEvent.VK_P);
+        rblanguagept.addActionListener(this);
+        bGroup.add(rblanguagept);
+        langMenu.add(rblanguagept);
+        
         rblanguageru=new JRadioButtonMenuItem("Русский");
         rblanguageru.setMnemonic(KeyEvent.VK_R);
         rblanguageru.addActionListener(this);
@@ -198,6 +205,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         else if ("ko".equals(lang)) rblanguageko.setSelected(true);
         else if ("eo".equals(lang)) rblanguageeo.setSelected(true);
         else if ("pl".equals(lang)) rblanguagepl.setSelected(true);
+        else if ("pt".equals(lang)) rblanguagept.setSelected(true);
         else if ("hu".equals(lang)) rblanguagehu.setSelected(true);
         else if ("he".equals(lang)) rblanguagehe.setSelected(true);
         else if ("ru".equals(lang)) rblanguageru.setSelected(true);
@@ -282,6 +290,8 @@ public class SDMenuBar extends JMenuBar implements ActionListener
 			this.firePropertyChange("langEO", false, true);
 		else if (ae.getSource() == rblanguagepl)
 			this.firePropertyChange("langPL", false, true);
+		else if (ae.getSource() == rblanguagept)
+			this.firePropertyChange("langPT", false, true);
 		else if (ae.getSource() == rblanguagehu)
 			this.firePropertyChange("langHU", false, true);
 		else if (ae.getSource() == rblanguagehe)

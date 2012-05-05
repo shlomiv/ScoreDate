@@ -63,7 +63,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	 private ResourceBundle bundle;
 	 Font MusiSync; // font used to render scores
 	 private String language = "en";
-	 private String[] supportedLanguages = { "de", "da", "en", "eo", "es", "it", "fi", "ko", "pl", "hu", "he", "fr", "tr", "ru"};
+	 private String[] supportedLanguages = { "de", "da", "en", "eo", "es", "it", "fi", "ko", "pl", "pt", "hu", "he", "fr", "tr", "ru"};
 
 	 // GUI elements
 	 SDMenuBar menuBar;
@@ -440,6 +440,7 @@ public class ScoreDate extends JFrame implements ActionListener
 			else if (s == "langKO") language = "ko";
 			else if (s == "langEO") language = "eo";
 			else if (s == "langPL") language = "pl";
+			else if (s == "langPT") language = "pt";
 			else if (s == "langHU") language = "hu";
 			else if (s == "langHE") language = "he";
 			else if (s == "langRU") language = "ru";

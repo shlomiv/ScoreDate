@@ -1,4 +1,9 @@
-April ??, 2012 - version 3.0
+May ??, 2012 - version 3.1
+
+- NEW: Portoguese translation (thanks to Raquel)
+- fixed: do not play pauses of exercises played inline 
+
+April 22nd, 2012 - version 3.0
 
 - NEW: Integrated low latency sound synthesis through Fluidsynth
 - NEW: possibility to load user sound banks with Soundfont format (.SF2)

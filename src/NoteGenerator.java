@@ -254,7 +254,14 @@ public class NoteGenerator
     
     public void setNotesList(Vector<Note> n, boolean random)
     {
-    	randomPitchList = n;
+    	if (random == true)
+    		randomPitchList = n;
+    	else
+    	{
+    		for (int i = 0; i < n.size(); i++)
+    			if (n.get(i).type != 5)
+    				randomPitchList.add(n.get(i));
+    	}
     	randomEnabled = random;
     	notesListIndex = 0;
     }

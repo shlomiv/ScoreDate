@@ -22,6 +22,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
+import java.util.Vector;
+import java.util.Collections;
 import java.util.ResourceBundle;
 
 import javax.sound.midi.MidiDevice;
@@ -35,7 +37,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
@@ -46,6 +47,10 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import org.jpab.Device;
+import org.jpab.PortAudio;
+import org.jpab.PortAudioException;
+
 public class MidiOptionsDialog extends JDialog implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
@@ -53,6 +58,10 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	private Preferences appPrefs;
 	
 	JPanel backPanel;
+
+	private JRadioButton midiInputRadio;
+	private JRadioButton audioInputRadio;
+	private JComboBox inputDeviceComboBox;
 	
     //private JCheckBox soundOnCheckBox;
     private JComboBox instrumentsComboBox;
@@ -66,15 +75,14 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
     
     private JRadioButton javaSynthButton;
     private JRadioButton fluidsynthButton;
-    private JComboBox fluidOutComboBox;
     private JComboBox fluidDevComboBox;
     private JTextField sbankPath;
     private JButton sfSelectButton;
-
-    private JComboBox midiInComboBox;
     
     JButton okButton;
     JButton cancelButton;
+    
+    Vector <String>outDevList = new Vector<String>();
 
 	public MidiOptionsDialog(ResourceBundle b, Preferences p, MidiController midiCtrl)
 	{
@@ -84,7 +92,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		Font titleFont = new Font("Arial", Font.BOLD, 18);
 		
 		setTitle(appBundle.getString("_menuMidi"));
-        setSize(517, 455);
+        setSize(517, 485);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display
         setLayout(null);
@@ -93,7 +101,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		backPanel = new JPanel();
         backPanel.setLayout(null);
         backPanel.setBackground(Color.white);
-        backPanel.setBounds(0, 0, 517, 430);
+        backPanel.setBounds(0, 0, 517, 460);
         
         int tmpYpos = 5;
         
@@ -102,7 +110,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         RoundPanel midiInPanel = new RoundPanel();
         midiInPanel.setLayout(null);
         midiInPanel.setBackground(Color.white);
-        midiInPanel.setBounds(5, tmpYpos, 500, 50);
+        midiInPanel.setBounds(5, tmpYpos, 500, 80);
 
         JLabel midiLabel = new JLabel(appBundle.getString("_midiInput"));
         midiLabel.setFont(titleFont);
@@ -110,34 +118,26 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         midiInPanel.add(midiLabel);
         
         // MIDI IN panel
-    	midiInComboBox = new JComboBox();
-    	midiInComboBox.setBounds(250, 12, 230, 25);
-    	midiInComboBox.addItem(appBundle.getString("_nomidiin"));
-        MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
-        for (int i = 0; i < aInfos.length; i++) 
-        {
-            try 
-            {
-                MidiDevice device=MidiSystem.getMidiDevice(aInfos[i]);
-                boolean bAllowsInput = (device.getMaxTransmitters() != 0);
-
-                if (bAllowsInput) 
-                {
-                	midiInComboBox.addItem(aInfos[i].getName());
-                }
-
-            }
-            catch (MidiUnavailableException e) {  }
-        }
+        ButtonGroup inputGroup = new ButtonGroup();
+        midiInputRadio = new JRadioButton("MIDI");
+        midiInputRadio.setBounds(200, 12, 70, 25);
+        audioInputRadio = new JRadioButton("Audio");
+        audioInputRadio.setBounds(270, 12, 70, 25);
         
-        int midiDevIdx = Integer.parseInt(appPrefs.getProperty("mididevice"));
-        if (midiDevIdx < 0 || midiDevIdx >= midiInComboBox.getItemCount())
-        	midiInComboBox.setSelectedIndex(0);
-        else
-        	midiInComboBox.setSelectedIndex(midiDevIdx);
-
-        midiInPanel.add(midiInComboBox);
-        tmpYpos+=55;
+        inputGroup.add(midiInputRadio);
+        inputGroup.add(audioInputRadio);
+        
+    	inputDeviceComboBox = new JComboBox();
+    	inputDeviceComboBox.setBounds(200, 42, 260, 25);
+    	String midiInput = appPrefs.getProperty("inputDevice");
+		if (midiInput == "-1" || midiInput.split(",")[0].equals("MIDI"))
+			midiInputRadio.setSelected(true);
+		else if (midiInput.split(",")[0].equals("Audio"))
+			audioInputRadio.setSelected(true);
+        midiInPanel.add(midiInputRadio);
+        midiInPanel.add(audioInputRadio);
+        midiInPanel.add(inputDeviceComboBox);
+        tmpYpos+=85;
        
         // ******************************* MIDI playback panel *****************************
         RoundPanel soundPanel = new RoundPanel();
@@ -160,46 +160,21 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         rbGroup.add(javaSynthButton);
 		rbGroup.add(fluidsynthButton);
 		
-		fluidOutComboBox = new JComboBox();
-		fluidOutComboBox.setBounds(180, 38, 120, 25);
-		
-		fluidDevComboBox = new JComboBox();
-		fluidDevComboBox.setBounds(310, 38, 170, 25);
+		fluidDevComboBox = new JComboBox(outDevList);
+		fluidDevComboBox.setBounds(180, 38, 300, 25);
 
 		soundPanel.add(javaSynthButton);
 		soundPanel.add(fluidsynthButton);
-		soundPanel.add(fluidOutComboBox);
 		soundPanel.add(fluidDevComboBox);
 		
-		String midiSynth = appPrefs.getProperty("synthDriver");
+		String midiSynth = appPrefs.getProperty("outputDevice");
 		if (midiSynth == "-1" || midiSynth.equals("Java"))
 			javaSynthButton.setSelected(true);
 		else if (midiSynth.split(",")[0].equals("Fluidsynth"))
 		{
 			fluidsynthButton.setSelected(true);
+			/*
 			String drvName = midiSynth.split(",")[1];
-			if (NativeUtils.isWindows())
-			{
-				fluidOutComboBox.addItem("Direct Sound");
-				fluidOutComboBox.addItem("WDM");
-				fluidOutComboBox.addItem("ASIO");
-				if (drvName.equals("wdm"))
-					fluidOutComboBox.setSelectedIndex(1);
-				else if (drvName.equals("asio"))
-					fluidOutComboBox.setSelectedIndex(2);
-			}
-			else if (NativeUtils.isLinux())
-			{
-				List<String> drvList = midiCtrl.getFluidDrivers();
-				if (drvList != null && drvList.size() > 0)
-					for (int d = 0; d < drvList.size(); d++)
-					{
-						fluidOutComboBox.addItem(drvList.get(d));
-						if (drvName.equals(drvList.get(d)))
-							fluidOutComboBox.setSelectedIndex(d);
-					}
-			}
-			fluidOutComboBox.addActionListener(this);
 			
 			List<String> devList = midiCtrl.getFluidDevices();
 			String selDevice = appPrefs.getProperty("fluidDevice");
@@ -211,8 +186,8 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 					if (selDevice.equals(devList.get(d)))
 						fluidDevComboBox.setSelectedIndex(d);
 				}
-			
 			fluidDevComboBox.addActionListener(this);
+			*/
 		}
 		
 		JLabel soundBank = new JLabel(appBundle.getString("_midiLibrary"));
@@ -234,7 +209,6 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         sfSelectButton.addActionListener(this);
         if (javaSynthButton.isSelected() == true)
         {
-        	fluidOutComboBox.setVisible(false);
         	fluidDevComboBox.setVisible(false);
         	sfSelectButton.setVisible(false);
         }
@@ -388,7 +362,47 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         backPanel.add(buttonPanel);
         
         add(backPanel);
+        
+        reloadInputList();
 
+        if (fluidsynthButton.isSelected() == true)
+        {
+        	List<String> devList = null;
+        	if (NativeUtils.isWindows() == false) 
+        		devList = midiCtrl.getFluidDevices();
+        	reloadDevicesList(devList);
+        	fluidDevComboBox.addActionListener(this);
+        }
+
+	}
+	
+	public void reloadInputList()
+	{
+		String inputDev = appPrefs.getProperty("inputDevice");
+		int devIndex = -1;
+		if (inputDev != "-1")
+			devIndex = Integer.parseInt(inputDev.split(",")[1]);
+		
+		if (midiInputRadio.isSelected() == true)
+		{
+			inputDeviceComboBox.addItem(appBundle.getString("_nomidiin"));
+			MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
+			for (int i = 0; i < aInfos.length; i++) 
+			{
+				try 
+				{
+					MidiDevice device=MidiSystem.getMidiDevice(aInfos[i]);
+					boolean bAllowsInput = (device.getMaxTransmitters() != 0);
+					if (bAllowsInput) 
+						inputDeviceComboBox.addItem(aInfos[i].getName());
+				} catch (MidiUnavailableException e) {  }
+			}
+        
+			if (devIndex < 0 || devIndex >= inputDeviceComboBox.getItemCount())
+				inputDeviceComboBox.setSelectedIndex(0);
+			else
+				inputDeviceComboBox.setSelectedIndex(devIndex);
+		}
 	}
 	
 	public void reloadInstruments(List<String> iList)
@@ -407,49 +421,63 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         }
 	}
 	
-	public void reloadDriversList(List<String> drvList)
-	{
-		String midiSynth = appPrefs.getProperty("synthDriver");
-		if (midiSynth == "-1" || midiSynth.equals("Java"))
-			return;
-		String drvName = midiSynth.split(",")[1];
-		fluidOutComboBox.removeAllItems();
-		if (NativeUtils.isWindows())
-		{
-			fluidOutComboBox.addItem("Direct Sound");
-			fluidOutComboBox.addItem("WDM");
-			fluidOutComboBox.addItem("ASIO");
-			if (drvName.equals("wdm"))
-				fluidOutComboBox.setSelectedIndex(1);
-			else if (drvName.equals("asio"))
-				fluidOutComboBox.setSelectedIndex(2);
-		}
-		else if (NativeUtils.isLinux())
-		{
-			if (drvList != null && drvList.size() > 0)
-				for (int d = 0; d < drvList.size(); d++)
-				{
-					fluidOutComboBox.addItem(drvList.get(d));
-					if (drvName.equals(drvList.get(d)))
-						fluidOutComboBox.setSelectedIndex(d);
-				}
-		}
-	}
-	
 	public void reloadDevicesList(List<String> devList)
 	{
-		String midiSynth = appPrefs.getProperty("synthDriver");
-		if (midiSynth == "-1" || midiSynth.equals("Java"))
-			return;
-		String selDevice = appPrefs.getProperty("fluidDevice");
+		String outputDevice = appPrefs.getProperty("outputDevice");
+		String inputDevice = appPrefs.getProperty("inputDevice");
+		int inputDevIndex = -1, outputDevIndex = -1;
+		if (outputDevice != "-1")
+			outputDevIndex = Integer.parseInt(outputDevice.split(",")[1]);
+		if (inputDevice != "-1")
+			inputDevIndex = Integer.parseInt(inputDevice.split(",")[1]);
+		
+		outDevList.clear();
+		fluidDevComboBox.removeAllItems();
+		
+		if (NativeUtils.isWindows()) 
+		{
+			// since we use only PortAudio on Windows, retrieve the list directly from PortAudio
+			int inputIdx = 0, outputIdx = 0;
+			try {
+				PortAudio.initialize();
+				for (Device device : PortAudio.getDevices()) 
+				{
+					String devName = device.getName() + " [" + device.getHostAPI().getType() + "]";
+					if (device.getMaxOutputChannels() >= 2 && fluidsynthButton.isSelected() == true)
+					{
+						outDevList.add(devName);
+						//fluidDevComboBox.addItem(devName);
+						outputIdx++;
+					}
+					else if (device.getMaxInputChannels() > 0 &&  audioInputRadio.isSelected() == true)
+					{
+						inputDeviceComboBox.addItem(devName);
+						if (inputIdx == inputDevIndex)
+							inputDeviceComboBox.setSelectedIndex(inputDevIndex);						
+						inputIdx++;
+					}
+					//System.out.println(device);
+					//System.out.println("Host API ID: " + device.getHostAPI().toString());
+				}
+				PortAudio.terminate();
+			} catch (PortAudioException ex) {  }
 
-		if (devList != null && devList.size() > 0)
-			for (int d = 0; d < devList.size(); d++)
-			{
-				fluidDevComboBox.addItem(devList.get(d));
-				if (selDevice.equals(devList.get(d)))
-					fluidDevComboBox.setSelectedIndex(d);
-			}
+			outDevList.add("PortAudio Default"); // this is a dummy device added by Fluidsynth
+			Collections.sort(outDevList);
+			fluidDevComboBox.setSelectedIndex(outputDevIndex);
+		}
+		else
+		{
+			//String selDevice = appPrefs.getProperty("fluidDevice");
+
+			if (devList != null && devList.size() > 0)
+				for (int d = 0; d < devList.size(); d++)
+				{
+					fluidDevComboBox.addItem(devList.get(d));
+					if (outputDevIndex == d)
+						fluidDevComboBox.setSelectedIndex(d);
+				}
+		}
 	}
 	
 	public void actionPerformed(ActionEvent ae)
@@ -466,15 +494,34 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		    else 
 		    	appPrefs.setProperty("sound", "0");
 		    */
+			String inDev = appPrefs.getProperty("inputDevice");
+			String outDev = appPrefs.getProperty("outputDevice");
+			if (inDev == "-1" || Integer.parseInt(inDev.split(",")[1]) != inputDeviceComboBox.getSelectedIndex())
+	    		newMidiDev = true;
+			else if (inDev != "-1")
+			{
+				String inSys =  inDev.split(",")[0];
+				if (inSys.equals("MIDI") && audioInputRadio.isSelected() == true || 
+					inSys.equals("Audio") && midiInputRadio.isSelected() == true)
+						newMidiDev = true;
+			}
+			
+			if (outDev == "-1" || Integer.parseInt(outDev.split(",")[1]) != fluidDevComboBox.getSelectedIndex())
+				newMidiDev = true;
+			else if (outDev != "-1")
+			{
+				String outSys =  outDev.split(",")[0];
+				if (outSys.equals("Java") && fluidsynthButton.isSelected() == true || 
+					outSys.equals("Fluidsynth") && javaSynthButton.isSelected() == true)
+						newMidiDev = true;
+			}
+
 			if (javaSynthButton.isSelected() == true)
-				appPrefs.setProperty("synthDriver", "Java");
+				appPrefs.setProperty("outputDevice", "Java");
 			else
 			{
-				int idx = fluidOutComboBox.getSelectedIndex();
-				String driver = fluidOutComboBox.getItemAt(idx).toString().toLowerCase();
-				if (driver.equals("direct sound"))
-					driver = "dsound";
-				appPrefs.setProperty("synthDriver", "Fluidsynth," + driver);
+				int idx = fluidDevComboBox.getSelectedIndex();
+				appPrefs.setProperty("outputDevice", "Fluidsynth," + idx);
 			}
 			
 	    	if (keyboardsoundCheckBox.isSelected())
@@ -502,15 +549,16 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	    	else 
 	    		appPrefs.setProperty("keyboardlength","73");
 
-	    	if (Integer.parseInt(appPrefs.getProperty("mididevice")) != midiInComboBox.getSelectedIndex())
-	    		newMidiDev = true;
-	    	appPrefs.setProperty("mididevice",String.valueOf(midiInComboBox.getSelectedIndex()));
+	    	if (midiInputRadio.isSelected() == true)
+	    		appPrefs.setProperty("inputDevice", "MIDI," + String.valueOf(inputDeviceComboBox.getSelectedIndex()));
+	    	else
+	    		appPrefs.setProperty("inputDevice", "Audio," + String.valueOf(inputDeviceComboBox.getSelectedIndex()));
 	    	if (Integer.parseInt(appPrefs.getProperty("instrument")) != instrumentsComboBox.getSelectedIndex())
 	    		newInstrument = true;
 	    	appPrefs.setProperty("instrument",String.valueOf(instrumentsComboBox.getSelectedIndex())); 
 	    	appPrefs.setProperty("latency",String.valueOf(latencySlider.getValue()));
 	    	appPrefs.storeProperties();
-	    	
+
 	    	if (newMidiDev == true)
 	    		this.firePropertyChange("newMidiDevice", false, true);
 	    	if (newInstrument == true)
@@ -526,22 +574,17 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		}
 		else if (ae.getSource() == javaSynthButton)
 		{
-			appPrefs.setProperty("synthDriver", "Java");
+			appPrefs.setProperty("outputDevice", "Java");
 			appPrefs.storeProperties();
 			sbankPath.setText("Default Java soundbank");
-			fluidOutComboBox.setVisible(false);
 			fluidDevComboBox.setVisible(false);
 			sfSelectButton.setVisible(false);
 			this.firePropertyChange("newMidiDevice", false, true);
 		}
 		else if (ae.getSource() == fluidsynthButton)
 		{
-			if (NativeUtils.isWindows())
-				appPrefs.setProperty("synthDriver", "Fluidsynth,dsound");
-			else
-				appPrefs.setProperty("synthDriver", "Fluidsynth,default");
+			appPrefs.setProperty("outputDevice", "Fluidsynth,0");
 			appPrefs.storeProperties();
-			fluidOutComboBox.setVisible(true);
 			fluidDevComboBox.setVisible(true);
 			sfSelectButton.setVisible(true);
 			
@@ -551,30 +594,17 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 
 			this.firePropertyChange("newMidiDevice", false, true);
 		}
-		else if (ae.getSource() == fluidOutComboBox)
-		{
-			if (fluidOutComboBox.getItemCount() == 0)
-				return;
-			int idx = fluidOutComboBox.getSelectedIndex();
-			String driver = fluidOutComboBox.getItemAt(idx).toString().toLowerCase();
-			if (driver.equals("direct sound"))
-				driver = "dsound";
-			appPrefs.setProperty("synthDriver", "Fluidsynth," + driver);
-			appPrefs.setProperty("fluidDevice", "-1");
-			//appPrefs.storeProperties();
-			//this.firePropertyChange("newMidiDevice", false, true);
-			JOptionPane.showMessageDialog(this.getParent(), "<html><b>" + appBundle.getString("_alertRestart") + "</b></html>",
-					appBundle.getString("_menuMidi"), JOptionPane.WARNING_MESSAGE);
-		}
+		/*
 		else if (ae.getSource() == fluidDevComboBox)
 		{
 			if (fluidDevComboBox.getItemCount() == 0)
 				return;
 			int idx = fluidDevComboBox.getSelectedIndex();
-			appPrefs.setProperty("fluidDevice", fluidDevComboBox.getItemAt(idx).toString());
+			appPrefs.setProperty("outputDevice", "Fluidsynth," + idx);
 			appPrefs.storeProperties();
 			this.firePropertyChange("newFluidDevice", false, true);
 		}
+		*/
 		else if (ae.getSource() == sfSelectButton)
 		{
 			final JFileChooser fc = new JFileChooser();

@@ -82,7 +82,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         audioGroup.add(midiMenu);
         
         // TODO: unfinished work on audio input. Comment the following
-        /*
+        
         audioMenu = new JRadioButtonMenuItem(new ImageIcon(getClass().getResource("/resources/microphone.png")));
         audioMenu.setText(appBundle.getString("_menuAudio"));
         audioMenu.addActionListener(this);
@@ -92,7 +92,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         	audioMenu.setSelected(true);
         else
         	midiMenu.setSelected(true);
-        */
+        
 
         statsCheck = new JCheckBoxMenuItem(new ImageIcon(getClass().getResource("/resources/stats.png")));
         statsCheck.setText(appBundle.getString("_menuSaveStatistics"));
@@ -221,7 +221,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         exitMenu.addActionListener(this);
 
         configMenu.add(midiMenu);
-        //configMenu.add(audioMenu); // TODO: AUDIO unfinished
+        configMenu.add(audioMenu); // TODO: AUDIO unfinished
         configMenu.addSeparator();
         configMenu.add(statsCheck);
         configMenu.addSeparator();
@@ -254,7 +254,7 @@ public class SDMenuBar extends JMenuBar implements ActionListener
     	
     	configMenu.setText(appBundle.getString("_menuPreferences"));
 		midiMenu.setText(appBundle.getString("_menuMidi"));
-		//audioMenu.setText(appBundle.getString("_menuAudio")); // TODO: AUDIO unfinished
+		audioMenu.setText(appBundle.getString("_menuAudio")); // TODO: AUDIO unfinished
 		langMenu.setText(appBundle.getString("_menuLanguage"));
 		statsCheck.setText(appBundle.getString("_menuSaveStatistics"));
 		exitMenu.setText(appBundle.getString("_menuExit"));

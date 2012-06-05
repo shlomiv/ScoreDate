@@ -81,8 +81,7 @@ static void onOption(void* vdata, char* name, char* value) {
 }
 
 JNIEXPORT
-jobject JNICALL Java_Fluidsynth_init(JNIEnv* env, jclass jclass, jstring jname, jint jcores, jint jchannels, jint jpolyphony, jfloat jsampleRate, jstring jaudioDriver, jstring jaudioDevice, jint jbuffers, jint jbufferSize,
-			jfloat joverflowAge, jfloat joverflowPercussion, jfloat joverflowReleased, jfloat joverflowSustained, jfloat joverflowVolume) {
+jobject JNICALL Java_Fluidsynth_init(JNIEnv* env, jclass jclass, jstring jname, jint jcores, jint jchannels, jint jpolyphony, jfloat jsampleRate, jstring jaudioDriver, jstring jaudioDevice, jint jdeviceIndex, jint jbuffers, jint jbufferSize, jfloat joverflowAge, jfloat joverflowPercussion, jfloat joverflowReleased, jfloat joverflowSustained, jfloat joverflowVolume) {
 			
 	Context* context = createContext();
 
@@ -116,6 +115,9 @@ jobject JNICALL Java_Fluidsynth_init(JNIEnv* env, jclass jclass, jstring jname, 
 			strcat(key, suffix);
 			fluid_settings_setstr(context->settings, key, (char*)audioDevice);
 			free(key);
+			
+			if (strcmp(audioDriver, "portaudio") == 0 && jdeviceIndex >= 0)
+				fluid_settings_setint(context->settings, "audio.portaudio.index", jdeviceIndex);
 
 			env->ReleaseStringUTFChars(jaudioDevice, audioDevice);
 		}

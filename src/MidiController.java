@@ -53,7 +53,6 @@ public class MidiController
 	private Synthesizer midiSynth;
 	private Instrument[] jInstruments; // this is used only by the Java MIDI system
 	private List<String> instrumentsList;
-	private List<String> fluidDriversList;
 	private List<String> fluidDevicesList;
     private boolean midierror = false;
     private MidiChannel[] allMC; // fixed channels are: 0 = user, 1 = playback, 2 = metronome
@@ -73,12 +72,12 @@ public class MidiController
 	{
 		appPrefs = p;
 		instrumentsList = new ArrayList<String>();
-		String driver = appPrefs.getProperty("synthDriver");
-		System.out.println("----------> Selected driver = " + driver);
-		if (driver == "-1" || driver.equals("Java"))
+		String outDevice = appPrefs.getProperty("outputDevice");
+		System.out.println("----------> Selected driver = " + outDevice);
+		if (outDevice == "-1" || outDevice.equals("Java"))
 			initJavaSynth();
-		else if (driver.split(",")[0].equals("Fluidsynth"))
-			initFluidsynth(driver.split(",")[1]);
+		else if (outDevice.split(",")[0].equals("Fluidsynth"))
+			initFluidsynth(Integer.parseInt(outDevice.split(",")[1]));
 	}
 	
 	public void close()
@@ -92,6 +91,7 @@ public class MidiController
 		{
 			if (fluidSynth != null)
 				fluidSynth.destroy();
+			fluidSynth = null;
 		}
 	}
 	
@@ -171,21 +171,24 @@ public class MidiController
 	 
 	public MidiDevice openInputDevice()
 	{
-		 int selectedDeviceIdx = Integer.parseInt(appPrefs.getProperty("mididevice"));
+		String inDev = appPrefs.getProperty("inputDevice");
+		if(inDev.split(",")[0].equals("MIDI") == false)
+			return null;
+		int selectedDeviceIdx = Integer.parseInt(inDev.split(",")[1]);
 
-		 if (inputDevice != null && inputDevice.isOpen())
-			 inputDevice.close();
+		if (inputDevice != null && inputDevice.isOpen())
+			inputDevice.close();
 		 
-		 //System.out.println("[TEST] selectedDeviceIdx: " + selectedDeviceIdx);
+		//System.out.println("[TEST] selectedDeviceIdx: " + selectedDeviceIdx);
 
-		 if (selectedDeviceIdx > 0) // 0 means there are no available MIDI devices 
-		 {
-			 MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
-			 MidiDevice tmpDevice = null;
-			 String deviceName = "";
-			 int tmpIdx = 0;
-		     for (int i = 0; i < aInfos.length; i++) 
-		     {
+		if (selectedDeviceIdx > 0) // 0 means there are no available MIDI devices 
+		{
+			MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
+			MidiDevice tmpDevice = null;
+			String deviceName = "";
+			int tmpIdx = 0;
+		    for (int i = 0; i < aInfos.length; i++) 
+		    {
 	            try 
 	            {
 	                tmpDevice = MidiSystem.getMidiDevice(aInfos[i]);
@@ -246,20 +249,11 @@ public class MidiController
  			 midiOutChannel.programChange(midiSound);
 	 }
 	 
-	 public boolean initFluidsynth(String drv)
+	 public boolean initFluidsynth(int devIndex)
 	 {
 		 midierror = false;
-		 fluidDriversList = new ArrayList<String>();
 		 fluidDevicesList = new ArrayList<String>();
-		 String drvName = ""; 
-		 String devName = appPrefs.getProperty("fluidDevice");
-		 if (NativeUtils.isWindows())
-		 {
-			 if (drv.equals("dsound")) drvName = drv;
-			 else drvName = "portaudio";
-		 }
-		 else if (NativeUtils.isLinux())
-			 drvName = drv;
+		 int matchIdx = 0;
 
 		 if (fluidSynth != null)
 		 {
@@ -267,59 +261,59 @@ public class MidiController
 		    fluidSynth = null;
 		 }
 
-		 Fluidsynth.loadLibraries(drv);
+		 Fluidsynth.loadLibraries();
 		 List<String> drivers = Fluidsynth.getAudioDrivers();
 		 for (String driver : drivers)
 		 {
 			System.out.println(driver);
-			if (!driver.equals("file"))
-				fluidDriversList.add(driver);
+			if (driver.equals("file"))
+				continue;
 			
-			if (drvName.equals(driver))
+			if (NativeUtils.isWindows() && driver.equals("portaudio") == false)
+				continue;
+			
+			for (String device : Fluidsynth.getAudioDevices(driver))
 			{
-				for (String device : Fluidsynth.getAudioDevices(driver))
+				System.out.println("  " + device);
+				fluidDevicesList.add(device + "[" + driver + "]");
+				if (matchIdx == devIndex)
 				{
-					System.out.println("  " + device);
-					fluidDevicesList.add(device);
-				}
-				System.out.println("Fluidsynth is going to output on: " + driver + " (device: " + devName + ")");
-				try {
-					if (devName.equals("-1"))
-						fluidSynth = new Fluidsynth("fluidDriver", 16, driver);
-					else
-						fluidSynth = new Fluidsynth("fluidDriver", 1, 16, 256, 44100.0f, driver, devName, 8, 512, 0.5f,	0.5f, 0.5f, 0.5f, 0.5f);
-				} catch (IOException expected) {
-					System.out.println("Cannot open Fluidsynth audio output driver!!");
-	                errorCode = 1;
-					return false;
-				}
-				String bankPath = appPrefs.getProperty("soundfontPath");
-				try {
-					//fluidSynth.soundFontLoad(new File(getClass().getResource("/resources/metronome.sf2").getFile()));
-					fluidSynth.soundFontLoad(new File("metronome.sf2"));
-					if (bankPath != "-1")
-						fluidSynth.soundFontLoad(new File(bankPath));
-				} catch (IOException expected) {
-					System.out.println("Cannot load Fluidsynth soundfont !!");
-					fluidSynth.destroy();
-	                errorCode = 2;
-					return false;
-				}
-				useFluidsynth = true;
-				instrumentsList.clear();
-				if (bankPath != "-1")
-				{
-					List<String> programs = fluidSynth.getSoundfontPrograms();
-					//int i = 0;
-					for (String program : programs)
-					{
-						//System.out.println("Program #" + i + ": " + program);
-						instrumentsList.add(program);
-						//i++;
+					System.out.println("Fluidsynth is going to output on: " + driver + " (device: " + device + ")");
+					try {
+						fluidSynth = new Fluidsynth("fluidDriver", 1, 16, 256, 44100.0f, driver, device, devIndex, 8, 1024, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
+					} catch (IOException expected) {
+						System.out.println("Cannot open Fluidsynth audio output driver!!");
+						errorCode = 1;
+						return false;
 					}
-					setNewInstrument();
+					String bankPath = appPrefs.getProperty("soundfontPath");
+					try {
+						//fluidSynth.soundFontLoad(new File(getClass().getResource("/resources/metronome.sf2").getFile()));
+						fluidSynth.soundFontLoad(new File("metronome.sf2"));
+						if (bankPath != "-1")
+							fluidSynth.soundFontLoad(new File(bankPath));
+					} catch (IOException expected) {
+						System.out.println("Cannot load Fluidsynth soundfont !!");
+						fluidSynth.destroy();
+						errorCode = 2;
+						return false;
+					}
+					useFluidsynth = true;
+					instrumentsList.clear();
+					if (bankPath != "-1")
+					{
+						List<String> programs = fluidSynth.getSoundfontPrograms();
+						//int i = 0;
+						for (String program : programs)
+						{
+							//System.out.println("Program #" + i + ": " + program);
+							instrumentsList.add(program);
+							//i++;
+						}
+						setNewInstrument();
+					}
 				}
-				//return true;
+				matchIdx++;
 			}
 		 }
 		 return true;
@@ -333,11 +327,6 @@ public class MidiController
 		 fluidSynth.send(0, ShortMessage.PROGRAM_CHANGE, midiSound, 0);
 	 }
 	 
-	 public List<String> getFluidDrivers()
-	 {
-		 return fluidDriversList;
-	 }
-
 	 public List<String> getFluidDevices()
 	 {
 		 return fluidDevicesList;

@@ -203,7 +203,7 @@ public class ScoreDate extends JFrame implements ActionListener
         	System.exit(0);
          }
 
-         //audioControl = new AudioInputController(prefs); // TODO: AUDIO unfinished
+         audioControl = new AudioInputController(prefs); // TODO: AUDIO unfinished
 
          menuBar = new SDMenuBar(bundle, prefs);
          setJMenuBar(menuBar);
@@ -479,7 +479,7 @@ public class ScoreDate extends JFrame implements ActionListener
 						             midiDev.close();
 						         }
 							 }
-							 midiOptions.reloadDriversList(midiControl.getFluidDrivers());
+							 //midiOptions.reloadDriversList(midiControl.getFluidDrivers());
 							 midiOptions.reloadDevicesList(midiControl.getFluidDevices());
 							 midiOptions.reloadInstruments(midiControl.getInstruments());
 						}

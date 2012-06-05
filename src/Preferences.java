@@ -66,6 +66,9 @@ import java.util.Properties;
  *  synthDriver      | synthesizer system to be used (Java or Fluidsynth)
  *  fluidDevice		 | audio device that Fluidsynth will use to output sounds     // TODO: not used yet
  *  soundfontPath    | path of the Soundfont to use when Fluidsynth is active
+ *  
+ *  inputDevice      | input device to use to acquire notes [MIDI | Audio],index
+ *  outputDevice     | outputDevice to reproduce notes [Java | Fluidsynth],index
  */
 public class Preferences 
 {

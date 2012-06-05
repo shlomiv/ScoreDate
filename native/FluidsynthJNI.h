@@ -15,7 +15,7 @@ extern "C" {
  * Signature: (Ljava/lang/String;IIIFLjava/lang/String;Ljava/lang/String;IIFFFFF)Ljava/nio/ByteBuffer;
  */
 JNIEXPORT jobject JNICALL Java_Fluidsynth_init
-  (JNIEnv *, jclass, jstring, jint, jint, jint, jfloat, jstring, jstring, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat);
+  (JNIEnv *, jclass, jstring, jint, jint, jint, jfloat, jstring, jstring, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     Fluidsynth

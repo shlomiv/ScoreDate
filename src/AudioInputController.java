@@ -17,44 +17,37 @@ along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
 **********************************************/
 
 import java.util.Vector;
-import java.util.List;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Arrays;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.Line;
 import javax.sound.sampled.TargetDataLine;
-import javax.sound.sampled.LineUnavailableException;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.channels.FileChannel;
+import java.io.FileOutputStream;
+
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import com.synthbot.jasiohost.*;
+import org.jpab.*;
+import org.jpab.StreamConfiguration.SampleFormat;
 
-public class AudioInputController implements AsioDriverListener 
+public class AudioInputController
 {
 	Preferences appPrefs;
 	Vector<Double> freqList = new Vector<Double>(); // vector holding the generated frequencies lookup table
 	Vector<String> audioDevList = new Vector<String>(); // list of available device (Java + ASIO)
-	private byte[] javaSoundBuffer;
 	
-	// ASIO variables
-	private AsioDriver asioDriver = null;
-	private Set<AsioChannel> asioChannels;
-	private float[] asioBuffer;
-	private float[] asioSoundBuffer; // buffer on which FFT is performed. Try to reach 4k
-	private int asioBufferSize = 0; // buffer received from ASIO. Can have any user-defined size
-	private int asioBufferMax = 0;  // number of ASIO buffer to accumulate into asioSoundBuffer
-	private int asioBufferCount = 0; // counter of cumulative ASIO buffers
-	boolean ASIOsupported = false;
-	boolean ASIOmode = false;
+	// PortAudio variables
+	Device paInputDev = null;
+	Stream paStream = null;
+	//private float[] PortAudioFFTBuffer; // buffer on which FFT is performed. Try to reach 4k
+	//private int PortAudioBufferSize = 0; // buffer received from ASIO. Can have any user-defined size
+	//private int PortAudioBufferMax = 0;  // number of ASIO buffer to accumulate into asioSoundBuffer
+	//private int PortAudioBufferCount = 0; // counter of cumulative ASIO buffers
 
 	float sampleRate = 44100;
-	int sampleSizeInBits = 8;
+	int sampleSizeInBits = 16;
 	int bufferSize = 4096;
 	AudioFormat inputFormat;
 	TargetDataLine inputLine;
@@ -66,7 +59,7 @@ public class AudioInputController implements AsioDriverListener
 	AudioMonitor audioMon;
 	int currentVolume = 0;
 
-	private AudioCaptureThread captureThread = null;
+	//private AudioCaptureThread captureThread = null;
 	boolean captureStarted = false;
 
 	public AudioInputController(Preferences p)
@@ -77,11 +70,6 @@ public class AudioInputController implements AsioDriverListener
 
 	public boolean initialize() 
 	{
-	    int channels = 1;
-	    boolean signed = true;
-	    boolean bigEndian = true;
-	    inputFormat =  new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
-	    
 	    initFrequenciesList();
 
 	    String userAudioDev = appPrefs.getProperty("audiodevice");
@@ -118,74 +106,22 @@ public class AudioInputController implements AsioDriverListener
 	public Vector<String> getDevicesList(String userAudioDev)
 	{
 		Vector<String> devList = new Vector<String>();
-		
-		try 
-	    {
-			for (Mixer.Info thisMixerInfo : AudioSystem.getMixerInfo()) 
-		    {
-		    	Mixer thisMixer = AudioSystem.getMixer(thisMixerInfo);
-		    	for (Line.Info thisLineInfo:thisMixer.getTargetLineInfo()) 
-		    	{
-		    		//System.out.println("Class name: " + thisLineInfo.getLineClass().getName());
-		    		if (thisLineInfo.getLineClass().getName().equals("javax.sound.sampled.TargetDataLine")) 
-		    		{
-				    	System.out.println("Mixer: "+ thisMixerInfo.getDescription() + " ["+thisMixerInfo.getName()+"]");
-		    			devList.add(thisMixerInfo.getName());
-		    			if (userAudioDev != "" && userAudioDev.equals(thisMixerInfo.getName()))
-			    		{
-		    				System.out.println("Found the user selected device. Open it !");
-		    				if (inputLine!= null && inputLine.isOpen())
-		    					inputLine.close();
-		    				inputLine = (TargetDataLine)thisMixer.getLine(thisLineInfo);
-			    		}
-		    			break;
-		    		}
-		    	}
-		    }
-	    } catch (Exception e) { e.printStackTrace();}
 
-		// check if ASIO dll is present and if we're running on Windows
-		File f = new File("jasiohost.dll");
-		if (f.exists() && System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) 
-		{
-			ASIOsupported = true;
-			
-			List<String> ASIOlist = AsioDriver.getDriverNames();
-			if (ASIOlist.size() > 0)
+		try {
+			PortAudio.initialize();
+			for (Device device : PortAudio.getDevices()) 
 			{
-				for (int i = 0; i < ASIOlist.size(); i++)
+				if (device.getMaxInputChannels() > 0)
 				{
-					devList.add(ASIOlist.get(i));
-					System.out.println("ASIO: " + ASIOlist.get(i));
-					if (userAudioDev != "" && userAudioDev.equals(ASIOlist.get(i)))
-		    		{
-	    				System.out.println("Found the ASIO user selected device. Open it ! (" + userAudioDev + ")");
-	    				if (asioDriver != null)
-	    				{
-	    					asioDriver.shutdownAndUnloadDriver();
-	    					asioDriver = null;
-	    				}
-	    				try
-	    				{
-	    					final AsioDriverListener host = this;
-	    					System.out.println("----- 1 -----");
-	    					asioDriver = AsioDriver.getDriver(userAudioDev);
-	    					System.out.println("----- 2 -----");
-	    					asioDriver.addAsioDriverListener(host);
-	    					System.out.println("----- 3 -----");
-	    					asioChannels = new HashSet<AsioChannel>();
-	    					System.out.println("----- 4 -----");
-	    					ASIOmode = true;
-	    				}
-	    				catch (AsioException e)
-	    				{
-	    					System.err.println("[getDevicesList] ASIO exception: " + e);
-	    				}
-	    				break;
-		    		}
+					//System.out.println(device);
+					devList.add(device.getName());
+					if (device.getName().equals(userAudioDev))
+						paInputDev = device;
 				}
 			}
-		}
+		} catch (PortAudioException e) { 
+			e.printStackTrace();
+		};
 		return devList;
 	}
 	
@@ -216,211 +152,113 @@ public class AudioInputController implements AsioDriverListener
 
 	public void startCapture()
 	{
-		if (ASIOmode == false)
+		if (captureStarted == true)
 		{
-		  if (inputLine == null)
-			return;
-		  if (inputLine.isOpen() == true)
-			inputLine.close();
-	      javaSoundBuffer = new byte[bufferSize];
-		  try 
-		  {
-			inputLine.open(inputFormat);
-			inputLine.start();
-			captureThread = new AudioCaptureThread();
-			captureStarted = true;
-			captureThread.start();
-		  }
-		  catch (LineUnavailableException e) 
-		  {
-			System.err.println("Line unavailable: " + e);
-		  }
-		  catch (IllegalArgumentException e)
-		  {
-			  int channels = 1;
-			  boolean signed = true;
-			  boolean bigEndian = true;
-			  sampleSizeInBits = 16; // 8 doesn't work ? try 16
-			  inputFormat =  new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
-			  try 
-			  {
-				inputLine.open(inputFormat);
-				inputLine.start();
-				captureThread = new AudioCaptureThread();
-				captureStarted = true;
-				captureThread.start();
-			  }
-			  catch (LineUnavailableException ex) 
-			  {
-				System.err.println("Line unavailable: " + ex);
-			  }
-		  }
+			try {
+				paStream.stop();
+			} catch (PortAudioException ex) {  }
+			paStream = null;
 		}
+		StreamConfiguration InputStream = new StreamConfiguration();
+		InputStream.setMode(StreamConfiguration.Mode.INPUT_ONLY);
+		InputStream.setInputDevice(paInputDev);
+		if (sampleSizeInBits == 16)
+			InputStream.setInputFormat(SampleFormat.SIGNED_INTEGER_16);
 		else
-		{
-			if (asioDriver == null)
-			  return;
-			asioChannels.clear();
-			asioChannels.add(asioDriver.getChannelInput(0));
-			asioBufferSize = asioDriver.getBufferPreferredSize();
-            asioBuffer = new float[asioBufferSize];
-            if (asioBufferSize > 4096)
-            {
-            	asioBufferMax = 1; // one buffer will be enough
-            	bufferSize = asioBufferSize;
-            }
-            else
-            {
-            	asioBufferMax = (int)Math.floor( 4096 / asioBufferSize );
-            	bufferSize = asioBufferSize * asioBufferMax;
-            	System.out.println("[startCapture] ASIO buffer size: " + asioBufferSize + ", needed: " + asioBufferMax);
-            }
-            asioSoundBuffer = new float[bufferSize];
-	        sampleRate = (float)asioDriver.getSampleRate();
-	        asioDriver.createBuffers(asioChannels);
-	        System.out.println("[startCapture] ASIO samplerate: " + sampleRate + ", buffer size: " + bufferSize + " bytes");
-	        latency = (int)(asioDriver.getLatencyInput() / sampleRate) * 1000;
-	        System.out.println("[startCapture] ASIO latency: " + latency + "ms");
-	        asioDriver.start();
-		}
+			InputStream.setInputFormat(SampleFormat.SIGNED_INTEGER_8);
+		//InputStream.setSampleRate(paInputDev.getDefaultSampleRate());
+		InputStream.setSampleRate(sampleRate);
+		InputStream.setInputLatency(paInputDev.getDefaultLowInputLatency());
+		InputStream.setInputChannels(1);
+		try {
+			paStream = PortAudio.createStream(InputStream, new Callback() {
+			public State callback(ByteBuffer input, ByteBuffer output) {
+				System.out.println("Input buffer received ! Size: " + input.capacity() );
+				performPeakDetection(input); // <------- perform magic here :)
+				return State.RUNNING;
+			  }
+			}, new Runnable() {
+				public void run() {
+					try {
+						PortAudio.terminate();
+					} catch (PortAudioException ignore) { ignore.printStackTrace(); }
+				}
+			});
+			paStream.start();
+			//Thread.sleep(24000);
+		} catch (PortAudioException ex) {  }
+		captureStarted = true;
 	}
 
 	public void stopCapture()
 	{
-		if (ASIOmode == false)
-		{
-		  if (inputLine == null || inputLine.isOpen() == false)
-			return;
-		  try 
-		  {
-			captureStarted = false;
-			inputLine.stop();
-			inputLine.close();
-		  }
-		  catch (Exception e) 
-		  {
-			System.err.println("[stopCapture] exception: " + e);
-		  }
-		}
-		else
-		{
-		  if (asioDriver == null)
-			return;
-		  asioDriver.stop();
-		  asioDriver.disposeBuffers();
-		  asioChannels.clear();
-		  asioDriver.shutdownAndUnloadDriver();
-		  asioDriver = null;
-		}
+		try {
+			if (paStream != null)
+				paStream.stop();
+		} catch (PortAudioException ex) {  }
+		paStream = null;
+		captureStarted = false;
 	}
 	
-	// *********************** ASIO related events ***************************
-	public static float[] concat(float[] first, float[] second) 
+	public void saveToFile(ByteBuffer buf)
 	{
-		float[] result = Arrays.copyOf(first, first.length + second.length);
-		System.arraycopy(second, 0, result, first.length, second.length);
-		return result;
+		File file = new File("audioCap.wav");
+
+		// Set to true if the bytes should be appended to the file;
+		// set to false if the bytes should replace current bytes
+		// (if the file exists)
+		boolean append = true;
+
+		try {
+		    // Create a writable file channel
+		    FileChannel wChannel = new FileOutputStream(file, append).getChannel();
+
+		    // Write the ByteBuffer contents; the bytes between the ByteBuffer's
+		    // position and the limit is written to the file
+		    wChannel.write(buf);
+
+		    // Close the file
+		    wChannel.close();
+		} catch (IOException e) { }
 	}
 	
-	public void bufferSwitch(long systemTime, long samplePosition, Set<AsioChannel> channels) 
+	private void performPeakDetection(ByteBuffer tmpBuf)
 	{
-		for (AsioChannel channelInfo : channels) 
-		{
-			//System.out.println("[bufferSwitch] called for " + channelInfo.toString());
-		    channelInfo.read(asioBuffer);
-		    if (asioBufferCount == 0)
-		    	asioSoundBuffer = asioBuffer;
-		    else
-		    	asioSoundBuffer = concat(asioSoundBuffer, asioBuffer);
-		    //System.out.println("[bufferSwitch] asioSoundBuffer bytes: " + asioSoundBuffer.length);
-		    asioBufferCount++;
-		}
-		if (asioBufferCount == asioBufferMax)
-		{
-			performPeakDetection();
-			asioBufferCount = 0;
-		}
-	}
-	
-	public void resetRequest() 
-	{
-	    System.out.println("resetRequest() callback received.");
-	}
-
-	public void bufferSizeChanged(int bufferSize) 
-	{
-	    System.out.println("bufferSizeChanged() callback received.");
-	}
-
-	public void latenciesChanged(int inputLatency, int outputLatency) 
-	{
-	    System.out.println("latenciesChanged() callback received.");
-	}
-
-	public void resyncRequest() 
-	{
-		System.out.println("resyncRequest() callback received.");
-	}
-
-	public void sampleRateDidChange(double sampleRate) 
-	{
-		System.out.println("sampleRateDidChange() callback received.");
-	}
-	// *********************************************************************
-	
-	public void performPeakDetection()
-	{
-		int bufLength = 0;
-		if (ASIOmode == false)
-			bufLength = javaSoundBuffer.length;
-		else
-			bufLength = asioSoundBuffer.length;
-		
+		int bufLength = tmpBuf.capacity();
+		//saveToFile(tmpBuf); // Just for debug: this call prevents the FFT to work
+		System.out.println("Performing FFT on " + bufLength + " bytes");
 		DoubleFFT_1D fft = new DoubleFFT_1D(bufLength);
 		double[] audioDataDoubles = new double[bufLength*2];
 
 	    currentVolume = 0;
-	    if (ASIOmode == false)
+	    
+        if (sampleSizeInBits == 8)
 	    {
-	      if (sampleSizeInBits == 8)
-	      {
     	    for (int i = 0, j = 0; i < bufLength; i++, j+=2)
 		    {
-    	    	if (infoEnabled == true && javaSoundBuffer[i] > currentVolume)
-    	    		currentVolume = (int)javaSoundBuffer[i];
-    	    	if (javaSoundBuffer[i] < -5 || javaSoundBuffer[i] > 5)
-    	    		audioDataDoubles[j] = (double)javaSoundBuffer[i]; // real part
+    	    	byte tmpByte = tmpBuf.get();
+    	    	if (infoEnabled == true && tmpByte > currentVolume)
+    	    		currentVolume = (int)tmpByte;
+    	    	if (tmpByte < -5 || tmpByte > 5)
+    	    		audioDataDoubles[j] = (double)tmpByte; // real part
     	    	else
     	    		audioDataDoubles[j] = 0;
     	    	audioDataDoubles[j + 1] = 0; // imaginary part
 		    }
-	      }
-	      else if (sampleSizeInBits == 16)
-	      {
+	    }
+	    else if (sampleSizeInBits == 16)
+	    {
 	        for (int j = 0; j < bufLength; j+=2) // convert audio data to double[] real, imaginary
 	        {
-	        	int sampleInt = javaSoundBuffer[j] << 8 + javaSoundBuffer[j + 1];
+	        	byte tmpByteMSB = tmpBuf.get();
+	        	byte tmpByteLSB = tmpBuf.get();
+	        	int sampleInt = tmpByteMSB << 8 + tmpByteLSB;
 	        	if (infoEnabled == true && sampleInt > currentVolume)
 	        		currentVolume = sampleInt;
 	    		
 	        	audioDataDoubles[j] = (double)sampleInt; // real part
 	        	audioDataDoubles[j + 1] = 0; // imaginary part
 	        }
-	      }
-	    	   
-	    }
-	    else // ASIO: convert from float[] to double[] real, imaginary
-	    {
-	      float tmpVol = 0;
-	      for (int i = 0, j = 0; i < bufLength; i++, j+=2)
-		  {
-	    	if (infoEnabled == true && asioSoundBuffer[i] > tmpVol)
-	    		tmpVol = asioSoundBuffer[i];
-	    	audioDataDoubles[j] = (double)asioSoundBuffer[i]; // real part
-	    	audioDataDoubles[j + 1] = 0; // imaginary part
-		  }
-	      currentVolume = (int)(tmpVol * 100);
-	      //System.out.println("Current volume = " + currentVolume + "(float: " + tmpVol);
 	    }
 	    
 	    if (infoEnabled == true)
@@ -458,8 +296,9 @@ public class AudioInputController implements AsioDriverListener
 		}
 		previousVolume = currentVolume;
 	}
-
+/*
 	// ************************** capture thread ******************************
+
 	private class AudioCaptureThread extends Thread 
 	{
 		int readBytes = 0;
@@ -508,4 +347,5 @@ public class AudioInputController implements AsioDriverListener
 			}
 		}
 	}
+*/
 }

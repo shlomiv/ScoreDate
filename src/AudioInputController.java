@@ -72,8 +72,13 @@ public class AudioInputController
 	{
 	    initFrequenciesList();
 
-	    String userAudioDev = appPrefs.getProperty("audiodevice");
-	    audioDevList = getDevicesList(userAudioDev);
+	    String userAudioDev = appPrefs.getProperty("inputDevice");
+		if (userAudioDev == "-1" || userAudioDev.split(",")[0].equals("MIDI"))
+			return false;
+		
+		int audioDevIndex = Integer.parseInt(userAudioDev.split(",")[1]);
+			
+	    audioDevList = getDevicesList(audioDevIndex);
 
 		return true;
 	}
@@ -103,8 +108,9 @@ public class AudioInputController
 		}
 	}
 
-	public Vector<String> getDevicesList(String userAudioDev)
+	public Vector<String> getDevicesList(int devIdx)
 	{
+		int tmpIdx = 0;
 		Vector<String> devList = new Vector<String>();
 
 		try {
@@ -115,8 +121,9 @@ public class AudioInputController
 				{
 					//System.out.println(device);
 					devList.add(device.getName());
-					if (device.getName().equals(userAudioDev))
+					if (tmpIdx == devIdx)
 						paInputDev = device;
+					tmpIdx++;
 				}
 			}
 		} catch (PortAudioException e) { 

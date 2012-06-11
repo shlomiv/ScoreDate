@@ -74,19 +74,9 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         configMenu = new JMenu();
         configMenu.setText(appBundle.getString("_menuPreferences"));
         
-        ButtonGroup audioGroup = new ButtonGroup();
-        
-        midiMenu = new JRadioButtonMenuItem(new ImageIcon(getClass().getResource("/resources/midi.png")));
+        midiMenu = new JMenuItem(new ImageIcon(getClass().getResource("/resources/midi.png")));
         midiMenu.setText(appBundle.getString("_menuMidi"));
         midiMenu.addActionListener(this);
-        audioGroup.add(midiMenu);
-        
-        // TODO: unfinished work on audio input. Comment the following
-        
-        audioMenu = new JRadioButtonMenuItem(new ImageIcon(getClass().getResource("/resources/microphone.png")));
-        audioMenu.setText(appBundle.getString("_menuAudio"));
-        audioMenu.addActionListener(this);
-        audioGroup.add(audioMenu);
         
         if (Integer.parseInt(appPrefs.getProperty("defaultInput")) == 1)
         	audioMenu.setSelected(true);
@@ -221,7 +211,6 @@ public class SDMenuBar extends JMenuBar implements ActionListener
         exitMenu.addActionListener(this);
 
         configMenu.add(midiMenu);
-        configMenu.add(audioMenu); // TODO: AUDIO unfinished
         configMenu.addSeparator();
         configMenu.add(statsCheck);
         configMenu.addSeparator();

@@ -21,7 +21,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -41,7 +40,6 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
 	AudioInputController audioControl;
 	
 	JPanel backPanel;
-	private JComboBox audioInComboBox;
 	private JSlider sensitivitySlider;
 	private RoundedButton testBtn;
 	private AudioMonitor audioMon;
@@ -59,7 +57,7 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
 		audioControl = ac;
 		
 		setTitle(appBundle.getString("_menuAudio"));
-        setSize(600, 380);
+        setSize(600, 290);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display
         setLayout(null);
@@ -70,62 +68,9 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
 		backPanel = new JPanel();
         backPanel.setLayout(null);
         backPanel.setBackground(Color.white);
-        backPanel.setBounds(0, 0, 600, 380);
+        backPanel.setBounds(0, 0, 600, 290);
         
         int tmpYpos = 5;
-        
-        // AUDIO IN panel
-        RoundPanel audioInPanel = new RoundPanel();
-        audioInPanel.setLayout(null);
-        audioInPanel.setBackground(Color.white);
-        audioInPanel.setBounds(5, tmpYpos, 583, 50);
-        
-        JLabel audioDevLabel = new JLabel(appBundle.getString("_audioIn"));
-        audioDevLabel.setFont(titleFont);
-        audioDevLabel.setBounds(10, 5, 300, 40);
-        audioInPanel.add(audioDevLabel);
-        
-        audioInComboBox = new JComboBox();
-        audioInComboBox.setBounds(320, 12, 250, 25);
-        currAudioDevice = appPrefs.getProperty("audiodevice");
-        Vector<String> tmpList = audioControl.getDevicesList("");
-        
-        if (tmpList.size() == 0)
-        	audioInComboBox.addItem(appBundle.getString("_noAudioIn"));
-        else
-        {
-        	for (int i = 0; i < tmpList.size(); i++)
-        	{
-        		audioInComboBox.addItem(tmpList.get(i));
-        		if (currAudioDevice.equals(tmpList.get(i)))
-        			audioInComboBox.setSelectedIndex(i);
-        	}
-        }
-        audioInPanel.add(audioInComboBox);
-        tmpYpos+=55;
-        
-     // ******************************* audio sensitivity panel *****************************
-        RoundPanel audioSensitivityPanel = new RoundPanel();
-        audioSensitivityPanel.setLayout(null);
-        audioSensitivityPanel.setBackground(Color.white);
-        audioSensitivityPanel.setBounds(5, tmpYpos, 583, 50);
-        
-        JLabel audioSensLabel = new JLabel(appBundle.getString("_audioSensitivity"));
-        audioSensLabel.setFont(titleFont);
-        audioSensLabel.setBounds(10, 5, 300, 40);
-        audioSensitivityPanel.add(audioSensLabel);
-        
-        sensitivitySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
-        sensitivitySlider.setBounds(365, -6, 200, 60);
-        sensitivitySlider.setMajorTickSpacing(10);
-        sensitivitySlider.setSnapToTicks(true);
-        //sensitivitySlider.setMinorTickSpacing(10);
-        sensitivitySlider.setPaintTicks(true);
-        //sensitivitySlider.setPaintLabels(true);
-        sensitivitySlider.addChangeListener(this);
-        
-        audioSensitivityPanel.add(sensitivitySlider);
-        tmpYpos+=55;
         
      // ******************************* audio test panel *****************************
         RoundPanel audioTestPanel = new RoundPanel();
@@ -148,10 +93,33 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
         audioTestPanel.add(audioMon);
         tmpYpos+=155;
         
+        // ******************************* audio sensitivity panel *****************************
+        RoundPanel audioSensitivityPanel = new RoundPanel();
+        audioSensitivityPanel.setLayout(null);
+        audioSensitivityPanel.setBackground(Color.white);
+        audioSensitivityPanel.setBounds(5, tmpYpos, 583, 50);
+        
+        JLabel audioSensLabel = new JLabel(appBundle.getString("_audioSensitivity"));
+        audioSensLabel.setFont(titleFont);
+        audioSensLabel.setBounds(10, 5, 300, 40);
+        audioSensitivityPanel.add(audioSensLabel);
+        
+        sensitivitySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
+        sensitivitySlider.setBounds(365, -6, 200, 60);
+        sensitivitySlider.setMajorTickSpacing(10);
+        sensitivitySlider.setSnapToTicks(true);
+        //sensitivitySlider.setMinorTickSpacing(10);
+        sensitivitySlider.setPaintTicks(true);
+        //sensitivitySlider.setPaintLabels(true);
+        sensitivitySlider.addChangeListener(this);
+        
+        audioSensitivityPanel.add(sensitivitySlider);
+        tmpYpos+=55;
+        
         // ******************************* buttons panel *****************************
     	JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.white);
-        buttonPanel.setBounds(5, tmpYpos, 500, 40);
+        buttonPanel.setBounds(5, tmpYpos, 583, 40);
 
     	okButton = new JButton(appBundle.getString("_buttonok"));
         okButton.setIcon(new ImageIcon(getClass().getResource("/resources/correct.png")));
@@ -163,8 +131,7 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
 
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
-        
-        backPanel.add(audioInPanel);
+
         backPanel.add(audioSensitivityPanel);
         backPanel.add(audioTestPanel);
         backPanel.add(buttonPanel);
@@ -176,11 +143,6 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
     {
 		if (ae.getSource() == okButton)
 		{
-			if (appPrefs.getProperty("audiodevice") != audioInComboBox.getSelectedItem().toString())
-			{
-				appPrefs.setProperty("audiodevice", audioInComboBox.getSelectedItem().toString());
-				appPrefs.storeProperties();
-			}
 			this.dispose();
 		}
 		else if (ae.getSource() == cancelButton)
@@ -193,7 +155,6 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
 			{
 				testBtn.setLabel("Stop");
 				audioControl.enableInfo(audioMon);
-				audioControl.getDevicesList(audioInComboBox.getSelectedItem().toString());
 				audioControl.startCapture();
 				testInProgress = true;
 			}

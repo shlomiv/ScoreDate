@@ -81,7 +81,6 @@ public class ScoreDate extends JFrame implements ActionListener
 	 
 	 // Audio Resources
 	 AudioInputController audioControl;
-	 AudioOptionDialog audioOptions;
 	 
 	 // MIDI option dialog
 	 private MidiOptionsDialog midiOptions;
@@ -447,7 +446,7 @@ public class ScoreDate extends JFrame implements ActionListener
 			else if (s == "langFR") language = "fr";
 			else if (s == "midiOptions")
 			{
-				midiOptions = new MidiOptionsDialog(bundle, prefs, midiControl);
+				midiOptions = new MidiOptionsDialog(bundle, prefs, midiControl, audioControl);
 				midiOptions.setVisible(true);
 				midiOptions.addPropertyChangeListener(new PropertyChangeListener() {
 					public void propertyChange(PropertyChangeEvent evt)
@@ -483,13 +482,6 @@ public class ScoreDate extends JFrame implements ActionListener
 							 midiOptions.reloadDevicesList(midiControl.getFluidDevices());
 							 midiOptions.reloadInstruments(midiControl.getInstruments());
 						}
-						else if (evt.getPropertyName() == "newFluidDevice")
-						{
-							if (midiControl != null)
-								midiControl.close();
-							midiControl = null;
-							midiControl = new MidiController(prefs);
-						}
 						else if (evt.getPropertyName() == "newMidiInstrument")
 						{
 							System.out.println("Set new MIDI instrument...");
@@ -502,11 +494,6 @@ public class ScoreDate extends JFrame implements ActionListener
 						}
 					}
 				});
-			}
-			else if (s == "audioOptions")
-			{
-				audioOptions = new AudioOptionDialog(bundle, prefs, audioControl);
-				audioOptions.setVisible(true);
 			}
 			else if (s == "exitProgram")
 			{

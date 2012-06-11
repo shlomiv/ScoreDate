@@ -1,7 +1,9 @@
-May ??, 2012 - version 3.1
+June ??, 2012 - version 3.1
 
 - NEW: Portoguese translation (thanks to Raquel)
-- fixed: do not play pauses of exercises played inline 
+- changed: simplified MIDI output device selection
+- fixed: do not play pauses of exercises played inline
+- fixed: stop last suspended note when listening with Fluidsynth 
 
 April 22nd, 2012 - version 3.0
 

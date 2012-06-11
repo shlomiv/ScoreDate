@@ -67,6 +67,7 @@ public class MidiController
     
     int errorCode = 0;
     private boolean useFluidsynth = false;
+    int lastNote = -1;
 	
 	public MidiController(Preferences p)
 	{
@@ -365,9 +366,15 @@ public class MidiController
         else if ("fsbOff".equals(strData))
         	fluidSynth.send(9, ShortMessage.NOTE_OFF, 77, 0);
         else if ("fsnOn".equals(strData.substring(0, 5)))
-        	fluidSynth.send(0, ShortMessage.NOTE_ON, Integer.parseInt(strData.substring(5)), 100);
+        {
+        	lastNote = Integer.parseInt(strData.substring(5));
+        	fluidSynth.send(0, ShortMessage.NOTE_ON, lastNote, 100);
+        }
         else if ("fsnOff".equals(strData.substring(0, 6)))
+        {
         	fluidSynth.send(0, ShortMessage.NOTE_OFF, Integer.parseInt(strData.substring(6)), 0);
+        	lastNote = -1;
+        }
 	 }
 	 
 	 private void addMidiEvent(Track track, int type, byte[] data, long tick) 
@@ -639,5 +646,8 @@ public class MidiController
 	 {
 		 sequencers[0].stop();
 		 sequencers[0].close();
+		 // stop last note in case there's one suspended...
+		 if (lastNote != -1 && useFluidsynth == true)
+			 fluidSynth.send(0, ShortMessage.NOTE_OFF, lastNote, 0);
 	 }
 }

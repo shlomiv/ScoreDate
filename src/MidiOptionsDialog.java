@@ -342,7 +342,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
     	// ******************************* buttons panel *****************************
     	JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.white);
-        buttonPanel.setBounds(5, tmpYpos, 500, 40);
+        buttonPanel.setBounds(5, tmpYpos, 517, 40);
 
     	okButton = new JButton(appBundle.getString("_buttonok"));
         okButton.setIcon(new ImageIcon(getClass().getResource("/resources/correct.png")));

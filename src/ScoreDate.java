@@ -249,10 +249,13 @@ public class ScoreDate extends JFrame implements ActionListener
              public void windowClosing(WindowEvent e) 
              {
                System.out.println("Score Date is going to be closed !");
-               if (midiControl != null)
-            	   midiControl.close();
                if (midiDev != null)
 			       midiDev.close();
+               midiDev = null;
+               if (midiControl != null)
+            	   midiControl.close();
+               midiControl = null;
+               System.exit(0);
              }
          });
 

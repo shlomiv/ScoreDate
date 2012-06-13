@@ -93,6 +93,12 @@ public class MidiController
 			if (fluidSynth != null)
 				fluidSynth.destroy();
 			fluidSynth = null;
+/*
+			try{
+			  Thread.sleep(1000);//sleep for 1000 ms
+			}
+			catch(InterruptedException ie){	}
+*/
 		}
 	}
 	
@@ -269,10 +275,10 @@ public class MidiController
 			System.out.println(driver);
 			if (driver.equals("file"))
 				continue;
-			
+
 			if (NativeUtils.isWindows() && driver.equals("portaudio") == false)
 				continue;
-			
+
 			for (String device : Fluidsynth.getAudioDevices(driver))
 			{
 				System.out.println("  " + device);

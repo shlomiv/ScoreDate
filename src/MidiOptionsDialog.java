@@ -441,26 +441,17 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		if (NativeUtils.isWindows()) 
 		{
 			// since we use only PortAudio on Windows, retrieve the list directly from PortAudio
-			int inputIdx = 0, outputIdx = 0;
 			try {
 				PortAudio.initialize();
 				for (Device device : PortAudio.getDevices()) 
 				{
 					String devName = device.getName() + " [" + device.getHostAPI().getType() + "]";
 					if (device.getMaxOutputChannels() >= 2 && fluidsynthRadio.isSelected() == true)
-					{
 						outDevList.add(devName);
-						//fluidDevComboBox.addItem(devName);
-						outputIdx++;
-					}
 					else if (device.getMaxInputChannels() > 0 &&  audioInputRadio.isSelected() == true)
-					{
 						inputDeviceComboBox.addItem(devName);
-						if (inputIdx == inputDevIndex)
-							inputDeviceComboBox.setSelectedIndex(inputDevIndex);						
-						inputIdx++;
-					}
 					//System.out.println(device);
+					//System.out.println(device.getName());
 					//System.out.println("Host API ID: " + device.getHostAPI().toString());
 				}
 				PortAudio.terminate();
@@ -469,6 +460,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 			outDevList.add("PortAudio Default"); // this is a dummy device added by Fluidsynth
 			Collections.sort(outDevList);
 			fluidDevComboBox.setSelectedIndex(outputDevIndex);
+			inputDeviceComboBox.setSelectedIndex(inputDevIndex);
 		}
 		else
 		{

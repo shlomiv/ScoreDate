@@ -45,7 +45,7 @@ JNIEXPORT void JNICALL Java_org_jpab_PortAudio_terminate
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_org_jpab_PortAudio_abortStream
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_jpab_PortAudio
@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL Java_org_jpab_PortAudio_abortStream
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_org_jpab_PortAudio_closeStream
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_jpab_PortAudio
@@ -117,7 +117,7 @@ JNIEXPORT jobject JNICALL Java_org_jpab_PortAudio_getHostAPIsDevicesAsBuffer
  * Signature: (I)D
  */
 JNIEXPORT jdouble JNICALL Java_org_jpab_PortAudio_getStreamCpuLoad
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_jpab_PortAudio
@@ -125,7 +125,7 @@ JNIEXPORT jdouble JNICALL Java_org_jpab_PortAudio_getStreamCpuLoad
  * Signature: (I)D
  */
 JNIEXPORT jdouble JNICALL Java_org_jpab_PortAudio_getStreamTime
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_jpab_PortAudio
@@ -141,7 +141,7 @@ JNIEXPORT void JNICALL Java_org_jpab_PortAudio_isFormatSupported
  * Signature: (I)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_jpab_PortAudio_isStreamActive
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_jpab_PortAudio
@@ -149,7 +149,7 @@ JNIEXPORT jboolean JNICALL Java_org_jpab_PortAudio_isStreamActive
  * Signature: (I)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_jpab_PortAudio_isStreamStopped
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_jpab_PortAudio
@@ -165,7 +165,7 @@ JNIEXPORT jint JNICALL Java_org_jpab_PortAudio_openStream
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_org_jpab_PortAudio_startStream
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_jpab_PortAudio
@@ -173,7 +173,7 @@ JNIEXPORT void JNICALL Java_org_jpab_PortAudio_startStream
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_org_jpab_PortAudio_stopStream
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
 }

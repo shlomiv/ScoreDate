@@ -63,7 +63,7 @@ typedef struct {
     jmethodID callback;
 	jclass clazz;
 	JNIEnv * env;
-    UINT32 id;
+    UINT64 id;
     SINT32 input_frame_size;
 	SINT32 output_frame_size;
 	UINT8 attached;
@@ -267,21 +267,21 @@ JNIEXPORT void JNICALL Java_org_jpab_PortAudio_terminate(JNIEnv *env, jclass paC
     if (error != paNoError) org_jpab_throw_exception(env, &error);
 }
 
-JNIEXPORT void JNICALL Java_org_jpab_PortAudio_abortStream(JNIEnv *env, jclass paClass, jint stream_id) {
+JNIEXPORT void JNICALL Java_org_jpab_PortAudio_abortStream(JNIEnv *env, jclass paClass, jlong stream_id) {
     PaError error = Pa_AbortStream((PaStream *) stream_id);
     if (error != paNoError) org_jpab_throw_exception(env, &error);
 }
 
-JNIEXPORT void JNICALL Java_org_jpab_PortAudio_closeStream(JNIEnv *env, jclass paClass, jint stream_id) {
+JNIEXPORT void JNICALL Java_org_jpab_PortAudio_closeStream(JNIEnv *env, jclass paClass, jlong stream_id) {
     PaError error = Pa_CloseStream((PaStream *) stream_id);
     if (error != paNoError) org_jpab_throw_exception(env, &error);
 }
 
-JNIEXPORT jdouble JNICALL Java_org_jpab_PortAudio_getStreamCpuLoad(JNIEnv *env, jclass paClass, jint stream_id) {
+JNIEXPORT jdouble JNICALL Java_org_jpab_PortAudio_getStreamCpuLoad(JNIEnv *env, jclass paClass, jlong stream_id) {
 	return Pa_GetStreamCpuLoad((PaStream *) stream_id);
 }
 
-JNIEXPORT jdouble JNICALL Java_org_jpab_PortAudio_getStreamTime(JNIEnv *env, jclass paClass, jint stream_id) {
+JNIEXPORT jdouble JNICALL Java_org_jpab_PortAudio_getStreamTime(JNIEnv *env, jclass paClass, jlong stream_id) {
     return Pa_GetStreamTime((PaStream *) stream_id);
 }
 
@@ -306,13 +306,13 @@ JNIEXPORT void JNICALL Java_org_jpab_PortAudio_isFormatSupported(JNIEnv *env, jc
 	if (error != 0) org_jpab_throw_exception(env, &error);
 }
 
-JNIEXPORT jboolean JNICALL Java_org_jpab_PortAudio_isStreamActive(JNIEnv *env, jclass paClass, jint stream_id) {
+JNIEXPORT jboolean JNICALL Java_org_jpab_PortAudio_isStreamActive(JNIEnv *env, jclass paClass, jlong stream_id) {
     PaError error = (UINT32) Pa_IsStreamActive((PaStream *) stream_id);
     if (error < 0) org_jpab_throw_exception(env, (PaError *) &error);
 	return error == 1 ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_org_jpab_PortAudio_isStreamStopped(JNIEnv *env, jclass paClass, jint stream_id) {
+JNIEXPORT jboolean JNICALL Java_org_jpab_PortAudio_isStreamStopped(JNIEnv *env, jclass paClass, jlong stream_id) {
     PaError error = Pa_IsStreamStopped((PaStream *) stream_id);
     if (error < 0) org_jpab_throw_exception(env, (PaError *) &error);
     return error == 1 ? JNI_TRUE : JNI_FALSE;
@@ -351,16 +351,16 @@ JNIEXPORT jint JNICALL Java_org_jpab_PortAudio_openStream(JNIEnv *env, jclass pa
         org_jpab_throw_exception(env, & error);
 		return -1;
 	}
-	data->id = (int) stream;
+	data->id = (long long) stream;
 	return data->id;
 }
 
-JNIEXPORT void JNICALL Java_org_jpab_PortAudio_startStream(JNIEnv *env, jclass paClass, jint stream_id) {
+JNIEXPORT void JNICALL Java_org_jpab_PortAudio_startStream(JNIEnv *env, jclass paClass, jlong stream_id) {
     PaError error = Pa_StartStream((PaStream *) stream_id);
     if (error != paNoError) org_jpab_throw_exception(env, (PaError *) &error);
 }
 
-JNIEXPORT void JNICALL Java_org_jpab_PortAudio_stopStream(JNIEnv *env, jclass paClass, jint stream_id) {
+JNIEXPORT void JNICALL Java_org_jpab_PortAudio_stopStream(JNIEnv *env, jclass paClass, jlong stream_id) {
     PaError error = Pa_StopStream((PaStream *) stream_id);
     if (error != paNoError) org_jpab_throw_exception(env, (PaError *) &error);
 }

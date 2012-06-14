@@ -24,7 +24,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;

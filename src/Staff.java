@@ -152,6 +152,11 @@ public class Staff extends JPanel
     	return noteDistance;
     }
     
+    public int getRowsNumber()
+    {
+    	return numberOfRows;
+    }
+    
     public int getFirstNoteXPosition()
     {
     	if (acc != null)

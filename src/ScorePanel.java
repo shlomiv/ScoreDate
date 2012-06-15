@@ -439,7 +439,16 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
         else if ("nOff".equals(strData))
         {
         	if (gameType == appPrefs.SCORE_GAME_LISTEN)
+        	{
         		notesLayer.highlightNote(currentNoteIndex, false);
+	        	if (scoreScrollPanel.getVerticalScrollBar().isVisible() == true)
+	        	{
+	        		int scrollAmount = scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount();
+	        		int newPos = (scrollAmount * ((currentNoteIndex * 100) / gameNotes.size())) / 100;
+	        		//System.out.println("Scrollbar amount: " + newPos);
+	        		scoreScrollPanel.getVerticalScrollBar().setValue(newPos);
+	        	}
+        	}
         	currentNoteIndex++;
         	gameBar.progress.setValue((currentNoteIndex * 100) / gameNotes.size());
         }
@@ -598,11 +607,8 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		}
 		notesLayer.setStaffWidth(staffLayer.getStaffWidth());
 		notesLayer.setNotesPositions();
-		
 		scoreScrollPanel.setBounds(0, staffVMargin - 10, getWidth(), visibleStaffHeight + 15);
-		//layers.revalidate();
-		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
-		
+		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);		
 
 		//System.out.println("--------- REFRESH PANEL **********");
 		/*
@@ -619,6 +625,10 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		int noteDistance = staffLayer.getNotesDistance();
 		//int beatsPerRow = (staffLayer.getWidth() - staffLayer.getFirstNoteXPosition()) / noteDistance;
 		int cursorXlimit = staffLayer.getStaffWidth();
+		//int scrollAmount = scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount();
+		//int totalPixels = (cursorXlimit - cursorStartX) * (staffLayer.getRowsNumber() - 1);
+		//int drawnPixels = 0 - (cursorXlimit - cursorStartX);
+		int scrollStep = (scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount()) / (staffLayer.getRowsNumber() - 3);
 
 		private ScoreGameThread()
 		{
@@ -631,11 +641,11 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			{
 				try
 				{
-					
 					if (startTime != 0)
 					{
 						cursorX = cursorStartX + ((int)(System.currentTimeMillis() - startTime) * (noteDistance*timeDivision))/(60000 / currentSpeed);
 						notesLayer.drawCursor(cursorX, cursorY, false);
+
 						if (cursorX >= cursorXlimit)
 						{
 							notesLayer.drawCursor(cursorX, cursorY, true);
@@ -643,6 +653,22 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 							cursorStartX = staffLayer.getFirstNoteXPosition() - 10;
 							cursorX = cursorStartX;
 							startTime = System.currentTimeMillis();
+							if (cursorY > 10 + rowsDistance)
+							{
+								//System.out.println("Scrollbar min: " + scoreScrollPanel.getVerticalScrollBar().getMinimum() + ", max: "
+								//		+ scoreScrollPanel.getVerticalScrollBar().getMaximum());
+								//System.out.println("Scrollbar value: " + scoreScrollPanel.getVerticalScrollBar().getValue());
+								//System.out.println("Scrollbar amount: " + scoreScrollPanel.getVerticalScrollBar().getVisibleAmount());
+								
+					        	if (scoreScrollPanel.getVerticalScrollBar().isVisible() == true)
+					        	{
+					        		//int newPos = (scrollAmount * (drawnPixels + cursorX - cursorStartX)) / totalPixels;
+					        		//System.out.println("Scrollbar amount: " + newPos);
+					        		int newPos = scoreScrollPanel.getVerticalScrollBar().getValue() + scrollStep;
+					        		scoreScrollPanel.getVerticalScrollBar().setValue(newPos);
+					        	}
+							}
+							//drawnPixels += (cursorXlimit - cursorStartX);
 							continue;
 						}
 					}
@@ -653,6 +679,5 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			}
 		}
 	}
-
 	
 }

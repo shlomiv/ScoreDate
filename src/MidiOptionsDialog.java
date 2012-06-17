@@ -459,7 +459,12 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 
 			outDevList.add("PortAudio Default"); // this is a dummy device added by Fluidsynth
 			Collections.sort(outDevList);
+			if (outputDevIndex >= fluidDevComboBox.getItemCount())
+				outputDevIndex = 0;
 			fluidDevComboBox.setSelectedIndex(outputDevIndex);
+
+			if (inputDevIndex >= inputDeviceComboBox.getItemCount())
+				inputDevIndex = 0;
 			inputDeviceComboBox.setSelectedIndex(inputDevIndex);
 		}
 		else

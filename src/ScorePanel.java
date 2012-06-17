@@ -55,6 +55,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 	private JLayeredPane layers;
 	private Staff staffLayer;
 	private NotesPanel notesLayer;
+	private AnswersPanel answersLayer;
 	private GameBar gameBar;
 	private Accidentals scoreAccidentals;
 	private NoteGenerator scoreNG;
@@ -158,8 +159,14 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		notesLayer.setBounds(0, 0, panelsWidth, staffHeight);
 		notesLayer.setOpaque(false);
 		
+		answersLayer = new AnswersPanel();
+		answersLayer.setPreferredSize( new Dimension(panelsWidth, staffHeight));
+		answersLayer.setBounds(0, 0, panelsWidth, staffHeight);
+		answersLayer.setOpaque(false);
+		
 		layers.add(staffLayer, new Integer(1));
 		layers.add(notesLayer, new Integer(2));
+		layers.add(answersLayer, new Integer(3));
 		
 		scoreScrollPanel = new JScrollPane(layers, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scoreScrollPanel.getViewport().setBackground(Color.white);
@@ -208,6 +215,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		}
 		
 		notesLayer.setStaffWidth(staffLayer.getStaffWidth());
+		answersLayer.clearSurface();
 		
 		timeDenominator = 4;
 		if (tsIdx <= 0) timeNumerator = 4;
@@ -221,9 +229,9 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		notesLayer.setFirstNoteXPosition(staffLayer.getFirstNoteXPosition());
 		
 		if (Integer.parseInt(appPrefs.getProperty("showBeats")) == 1)
-			notesLayer.enableCursor(true);
+			answersLayer.enableCursor(true);
 		else
-			notesLayer.enableCursor(false);
+			answersLayer.enableCursor(false);
 		
 		latency = Integer.parseInt(appPrefs.getProperty("latency"));
 		if (latency < 0) latency = 0;
@@ -342,7 +350,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			// still not found ? Display a warning
 			if (noteFound == false)
 			{
-				notesLayer.drawAnswer(2, currPos, cursorY);
+				answersLayer.drawAnswer(2, currPos, cursorY);
 				lookupIndex = currentNoteIndex;
 			}
 			else
@@ -353,12 +361,12 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 					gameType == appPrefs.RHTYHM_GAME_USER) && // any pitch is OK for rhythm game 
 					gameNotes.get(lookupIndex).type != 5)  
 					{
-						notesLayer.drawAnswer(1, currPos, cursorY); // pitch and rhythm correct
+						answersLayer.drawAnswer(1, currPos, cursorY); // pitch and rhythm correct
 						updateGameStats(1);
 					}
 				else
 				{
-					notesLayer.drawAnswer(0, currPos, cursorY); // wrong pitch
+					answersLayer.drawAnswer(0, currPos, cursorY); // wrong pitch
 					updateGameStats(0);
 				}
 			}
@@ -384,8 +392,8 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			if (((currPos < releaseXpos && currPos > cursorStartX + accuracy) || 
 				 currPos > releaseXpos + accuracy) && currPos > gameNotes.get(currentNoteIndex).xpos + accuracy)
 			{
-					notesLayer.drawAnswer(2, currPos, cursorY);
-					updateGameStats(2);
+				answersLayer.drawAnswer(2, currPos, cursorY);
+				updateGameStats(2);
 			}
 		}
 	}
@@ -417,12 +425,12 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
         if ("beat".equals(strData)) 
         {
         	if (gameType != appPrefs.SCORE_GAME_LISTEN && sBar.metronomeCheckBox.isSelected() == true)
-        		notesLayer.drawMetronome(cursorX, cursorY);
+        		answersLayer.drawMetronome(cursorX, cursorY);
         }
         else if ("gameOn".equals(strData))
         {
         	// this is a workaround
-        	notesLayer.drawCursor(cursorX, cursorY, true);
+        	answersLayer.drawCursor(cursorX, cursorY, true);
         }
         else if ("cursorOn".equals(strData))
         {
@@ -461,7 +469,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
 			sBar.playBtn.repaint();
 			startTime = 0;
-			notesLayer.drawCursor(cursorX, cursorY, true);
+			answersLayer.drawCursor(cursorX, cursorY, true);
 			if (gameType != appPrefs.SCORE_GAME_LISTEN)
 				gameFinished();
 			gameType = appPrefs.GAME_STOPPED;
@@ -560,6 +568,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 				else 
 					gameType = appPrefs.SCORE_GAME_USER;
 				notesLayer.repaint();
+				answersLayer.clearSurface();
 				gameBar.precisionCnt.setText("");
 				gameBar.scoreCnt.setText("");
 				gameBar.progress.setValue(0);
@@ -595,15 +604,18 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		int totalStaffHeight = staffLayer.getStaffHeight() - 20;
 		
 		layers.setPreferredSize(new Dimension(getWidth(), totalStaffHeight));
+		int w = getWidth() - (staffHMargin * 2);
 		if (totalStaffHeight > visibleStaffHeight)
 		{
-			staffLayer.setBounds(staffHMargin, 0, getWidth() - (staffHMargin * 2), totalStaffHeight);
-			notesLayer.setBounds(staffHMargin, 0, getWidth() - (staffHMargin * 2), totalStaffHeight);
+			staffLayer.setBounds(staffHMargin, 0, w, totalStaffHeight);
+			notesLayer.setBounds(staffHMargin, 0, w, totalStaffHeight);
+			answersLayer.setBounds(staffHMargin, 0, w, totalStaffHeight);
 		}
 		else
 		{
-			staffLayer.setBounds(staffHMargin, 0, getWidth() - (staffHMargin * 2), visibleStaffHeight);
-			notesLayer.setBounds(staffHMargin, 0, getWidth() - (staffHMargin * 2), visibleStaffHeight);			
+			staffLayer.setBounds(staffHMargin, 0, w, visibleStaffHeight);
+			notesLayer.setBounds(staffHMargin, 0, w, visibleStaffHeight);			
+			answersLayer.setBounds(staffHMargin, 0, w, visibleStaffHeight);
 		}
 		notesLayer.setStaffWidth(staffLayer.getStaffWidth());
 		notesLayer.setNotesPositions();
@@ -644,11 +656,11 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 					if (startTime != 0)
 					{
 						cursorX = cursorStartX + ((int)(System.currentTimeMillis() - startTime) * (noteDistance*timeDivision))/(60000 / currentSpeed);
-						notesLayer.drawCursor(cursorX, cursorY, false);
+						answersLayer.drawCursor(cursorX, cursorY, false);
 
 						if (cursorX >= cursorXlimit)
 						{
-							notesLayer.drawCursor(cursorX, cursorY, true);
+							answersLayer.drawCursor(cursorX, cursorY, true);
 							cursorY+=rowsDistance;
 							cursorStartX = staffLayer.getFirstNoteXPosition() - 10;
 							cursorX = cursorStartX;

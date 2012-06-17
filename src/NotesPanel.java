@@ -21,13 +21,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Vector;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -52,19 +50,8 @@ public class NotesPanel extends JPanel implements MouseListener
 
 	private boolean inlineMode = false;
 	private int singleNoteIndex = -1; // force the painting of a single note
-	private boolean showCursorAndBeats = false;
 	
 	private JLabel learningText;
-	Image rightImg = null;
-	Image wrongImg = null;
-	Image warnImg = null;
-	
-	int scheduleFlag = -1;
-	int schParam1 = -1;
-	int schParam2 = -1;
-	int schParam3 = -1;
-	int cursorXpos = -1;
-	int cursorYpos = -1;
 	
 	// edit mode, activated from the exercise panel
 	boolean editMode = false;
@@ -81,10 +68,6 @@ public class NotesPanel extends JPanel implements MouseListener
 		notes = n;
 		inlineMode = inline;
 		globalScale = 1.0;
-		
-		rightImg = new ImageIcon(getClass().getResource("/resources/correct.png")).getImage();
-		wrongImg = new ImageIcon(getClass().getResource("/resources/wrong.png")).getImage();
-		warnImg = new ImageIcon(getClass().getResource("/resources/warning.png")).getImage();
 		
 		learningText = new JLabel("", null, JLabel.CENTER);
 		learningText.setForeground(Color.decode("0x869EBA"));
@@ -260,54 +243,6 @@ public class NotesPanel extends JPanel implements MouseListener
     	notes.get(index).highlight = enable;
     	repaint();
     	singleNoteIndex = -1;
-    }
-    
-    public void enableCursor(boolean on)
-    {
-    	showCursorAndBeats = on;
-    }
-    
-    public void drawCursor(int x, int y, boolean clean)
-    {
-    	if (showCursorAndBeats == false || x < 0 || y < 0)
-    		return;
-
-    	Graphics g = this.getGraphics();
-    	if (clean == false)
-    		g.setColor(Color.orange);
-    	else
-    		g.setColor(Color.white);
-    	g.fillRect(0, y, x, 3);
-
-/*
-    	scheduleFlag = 3;
-    	schParam1 = x;
-    	schParam2 = y;
-    	schParam3 = (clean == true)?1:0;
-    	this.repaint(0, schParam2, schParam1, 3);
-*/
-    }
-    
-
-    public void drawMetronome(int x, int y)
-    {
-    	if (showCursorAndBeats == false)
-    		return;
-    	scheduleFlag = 1;
-    	schParam1 = x + 2;
-    	schParam2 = y - 8;
-    	this.repaint(schParam1, schParam2, 5, 8);
-    	//Graphics g = this.getGraphics();
-    }
-    
-    public void drawAnswer(int type, int x, int y)
-    {
-    	//Graphics g = this.getGraphics();
-    	scheduleFlag = 2;
-    	schParam1 = x;
-    	schParam2 = y;
-    	schParam3 = type;
-    	this.repaint(x, y, 16, 16);
     }
     
     public void mouseClicked(MouseEvent e) 
@@ -544,44 +479,10 @@ public class NotesPanel extends JPanel implements MouseListener
  	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		//super.paintComponent(g);
-		
+
 		if (globalScale != 1.0)
 			((Graphics2D) g).scale(globalScale, globalScale);
-		
-		if (scheduleFlag != -1)
-		{
-			switch (scheduleFlag)
-			{
-				case 1: // Metronome
-					g.setColor(Color.black);
-					g.fillRect(schParam1, schParam2, 5, 8);
-				break;
-				case 2: // answer
-					
-			    	if (schParam3 == 0)
-			    		g.drawImage(wrongImg, schParam1, schParam2, null);
-			    	else if (schParam3 == 1)
-			    		g.drawImage(rightImg, schParam1, schParam2, null);
-			    	else if (schParam3 == 2)
-			    		g.drawImage(warnImg, schParam1, schParam2, null);
-				break;
-				case 3: // cursor
-					/*
-					if (schParam3 == 0)
-			    		g.setColor(Color.orange);
-			    	else
-			    		g.setColor(Color.blue);
-			    	g.fillRect(0, schParam2, schParam1, 3);
-			    	*/
-				break;
-			}
-			scheduleFlag = -1;
-			schParam1 = -1;
-			schParam2 = -1;
-			schParam3 = -1;
-			return;
-		}
-    	
+
     	if (singleNoteIndex == -1)
     	{
         	g.setColor(Color.black);

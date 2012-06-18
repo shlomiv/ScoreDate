@@ -46,7 +46,6 @@ import javax.sound.midi.Transmitter;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-//import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -464,6 +463,12 @@ public class ScoreDate extends JFrame implements ActionListener
 								midiDev.close();
 							midiDev = null;
 							midiControl = new MidiController(prefs);
+							if (midiControl.checkError() != 0)
+							{
+								JOptionPane.showMessageDialog(null, "<html><b>" + bundle.getString("_alertRestart") + "</b></html>",
+										bundle.getString("_menuMidi"), JOptionPane.WARNING_MESSAGE);
+								return;
+							}
 							midiDev = midiControl.openInputDevice();
 							
 							 if (midiDev != null)

@@ -23,7 +23,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 import java.util.Vector;
-import java.util.Collections;
 import java.util.ResourceBundle;
 
 import javax.sound.midi.MidiDevice;
@@ -84,6 +83,8 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
     JButton cancelButton;
     
     Vector <String>outDevList = new Vector<String>();
+    Vector <Integer>portaudioOutputIndexes = new Vector<Integer>();
+    Vector <Integer>portaudioInputIndexes = new Vector<Integer>();
     AudioOptionDialog audioOptions;
     AudioInputController appAudioController;
 
@@ -425,6 +426,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	
 	public void reloadDevicesList(List<String> devList)
 	{
+		int idx = 0;
 		String outputDevice = appPrefs.getProperty("outputDevice");
 		String inputDevice = appPrefs.getProperty("inputDevice");
 		int inputDevIndex = -1, outputDevIndex = -1;
@@ -434,6 +436,8 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 			inputDevIndex = Integer.parseInt(inputDevice.split(",")[1]);
 		
 		outDevList.clear();
+		portaudioOutputIndexes.clear();
+		portaudioInputIndexes.clear();
 		fluidDevComboBox.removeAllItems();
 		if (audioInputRadio.isSelected() == true)
 			inputDeviceComboBox.removeAllItems();
@@ -447,25 +451,32 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 				{
 					String devName = device.getName() + " [" + device.getHostAPI().getType() + "]";
 					if (device.getMaxOutputChannels() >= 2 && fluidsynthRadio.isSelected() == true)
-						outDevList.add(devName);
+					{
+						fluidDevComboBox.addItem(devName);
+						portaudioOutputIndexes.add(idx);
+						if (outputDevIndex == idx)
+							fluidDevComboBox.setSelectedIndex(fluidDevComboBox.getItemCount() - 1);
+					}
 					else if (device.getMaxInputChannels() > 0 &&  audioInputRadio.isSelected() == true)
+					{
 						inputDeviceComboBox.addItem(devName);
+						portaudioInputIndexes.add(idx);
+						if (inputDevIndex == idx)
+							inputDeviceComboBox.setSelectedIndex(inputDeviceComboBox.getItemCount() - 1);
+					}
 					//System.out.println(device);
-					//System.out.println(device.getName());
+					System.out.println("Dev #" + idx + ": " + device.getName());
 					//System.out.println("Host API ID: " + device.getHostAPI().toString());
+					idx++;
 				}
 				PortAudio.terminate();
 			} catch (PortAudioException ex) {  }
 
-			outDevList.add("PortAudio Default"); // this is a dummy device added by Fluidsynth
-			Collections.sort(outDevList);
-			if (outputDevIndex >= fluidDevComboBox.getItemCount())
-				outputDevIndex = 0;
-			fluidDevComboBox.setSelectedIndex(outputDevIndex);
+			if (outputDevIndex == -1)
+				fluidDevComboBox.setSelectedIndex(0);
 
-			if (inputDevIndex >= inputDeviceComboBox.getItemCount())
-				inputDevIndex = 0;
-			inputDeviceComboBox.setSelectedIndex(inputDevIndex);
+			if (inputDevIndex == -1)
+				inputDeviceComboBox.setSelectedIndex(0);
 		}
 		else
 		{
@@ -497,8 +508,13 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		    */
 			String inDev = appPrefs.getProperty("inputDevice");
 			String outDev = appPrefs.getProperty("outputDevice");
-			if (inDev == "-1" || Integer.parseInt(inDev.split(",")[1]) != inputDeviceComboBox.getSelectedIndex())
-	    		newMidiDev = true;
+			int inputDevIdx = -1;
+			if (inDev != "-1")
+				inputDevIdx = Integer.parseInt(inDev.split(",")[1]);
+			if (inDev == "-1" ||  
+				(midiInputRadio.isSelected() == true && inputDevIdx != inputDeviceComboBox.getSelectedIndex()) ||
+				(audioInputRadio.isSelected() == true && inputDevIdx != portaudioInputIndexes.get(inputDeviceComboBox.getSelectedIndex())))
+	    			newMidiDev = true;
 			else if (inDev != "-1")
 			{
 				String inSys =  inDev.split(",")[0];
@@ -506,8 +522,13 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 					inSys.equals("Audio") && midiInputRadio.isSelected() == true)
 						newMidiDev = true;
 			}
+	    	if (midiInputRadio.isSelected() == true)
+	    		appPrefs.setProperty("inputDevice", "MIDI," + String.valueOf(inputDeviceComboBox.getSelectedIndex()));
+	    	else
+	    		appPrefs.setProperty("inputDevice", "Audio," + String.valueOf(portaudioInputIndexes.get(inputDeviceComboBox.getSelectedIndex())));
+
 			
-			if (outDev == "-1" || Integer.parseInt(outDev.split(",")[1]) != fluidDevComboBox.getSelectedIndex())
+			if (outDev == "-1" || Integer.parseInt(outDev.split(",")[1]) != portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex()))
 				newMidiDev = true;
 			else if (outDev != "-1")
 			{
@@ -521,7 +542,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 				appPrefs.setProperty("outputDevice", "Java");
 			else
 			{
-				int idx = fluidDevComboBox.getSelectedIndex();
+				int idx = portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex());
 				appPrefs.setProperty("outputDevice", "Fluidsynth," + idx);
 			}
 			
@@ -550,10 +571,6 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	    	else 
 	    		appPrefs.setProperty("keyboardlength","73");
 
-	    	if (midiInputRadio.isSelected() == true)
-	    		appPrefs.setProperty("inputDevice", "MIDI," + String.valueOf(inputDeviceComboBox.getSelectedIndex()));
-	    	else
-	    		appPrefs.setProperty("inputDevice", "Audio," + String.valueOf(inputDeviceComboBox.getSelectedIndex()));
 	    	if (Integer.parseInt(appPrefs.getProperty("instrument")) != instrumentsComboBox.getSelectedIndex())
 	    		newInstrument = true;
 	    	appPrefs.setProperty("instrument",String.valueOf(instrumentsComboBox.getSelectedIndex())); 

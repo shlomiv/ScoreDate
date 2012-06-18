@@ -1,7 +1,10 @@
 June ??, 2012 - version 3.1
 
+- NEW: exercises bigger than the current window can now be scrolled
+- NEW: automatic scroll of long exercises during listening and playback 
 - NEW: Portoguese translation (thanks to Raquel)
 - changed: simplified MIDI output device selection
+- fixed: improved display of exercises answers 
 - fixed: do not play pauses of exercises played inline
 - fixed: stop last suspended note when listening with Fluidsynth 
 

@@ -71,6 +71,7 @@ public class MidiController
 	
 	public MidiController(Preferences p)
 	{
+		errorCode = 0;
 		appPrefs = p;
 		instrumentsList = new ArrayList<String>();
 		String outDevice = appPrefs.getProperty("outputDevice");
@@ -269,14 +270,23 @@ public class MidiController
 		 }
 
 		 Fluidsynth.loadLibraries();
-		 List<String> drivers = Fluidsynth.getAudioDrivers();
-		 for (String driver : drivers)
+		 if (NativeUtils.isWindows())
 		 {
+			try {
+				fluidSynth = new Fluidsynth("fluidDriver", 1, 16, 256, 44100.0f, "portaudio", "", devIndex, 8, 1024, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
+			} catch (IOException expected) {
+				System.out.println("Cannot open Fluidsynth audio output driver!!");
+				errorCode = 1;
+				return false;
+			}
+		 }
+		 else // linux case
+		 {
+		   List<String> drivers = Fluidsynth.getAudioDrivers();
+		   for (String driver : drivers)
+		   {
 			System.out.println(driver);
 			if (driver.equals("file"))
-				continue;
-
-			if (NativeUtils.isWindows() && driver.equals("portaudio") == false)
 				continue;
 
 			for (String device : Fluidsynth.getAudioDevices(driver))
@@ -293,36 +303,37 @@ public class MidiController
 						errorCode = 1;
 						return false;
 					}
-					String bankPath = appPrefs.getProperty("soundfontPath");
-					try {
-						//fluidSynth.soundFontLoad(new File(getClass().getResource("/resources/metronome.sf2").getFile()));
-						fluidSynth.soundFontLoad(new File("metronome.sf2"));
-						if (bankPath != "-1")
-							fluidSynth.soundFontLoad(new File(bankPath));
-					} catch (IOException expected) {
-						System.out.println("Cannot load Fluidsynth soundfont !!");
-						fluidSynth.destroy();
-						errorCode = 2;
-						return false;
-					}
-					useFluidsynth = true;
-					instrumentsList.clear();
-					if (bankPath != "-1")
-					{
-						List<String> programs = fluidSynth.getSoundfontPrograms();
-						//int i = 0;
-						for (String program : programs)
-						{
-							//System.out.println("Program #" + i + ": " + program);
-							instrumentsList.add(program);
-							//i++;
-						}
-						setNewInstrument();
-					}
+					break;
 				}
 				matchIdx++;
 			}
+		   }
 		 }
+		String bankPath = appPrefs.getProperty("soundfontPath");
+		try {
+			fluidSynth.soundFontLoad(new File("metronome.sf2"));
+			if (bankPath != "-1")
+				fluidSynth.soundFontLoad(new File(bankPath));
+		} catch (IOException expected) {
+			System.out.println("Cannot load Fluidsynth soundfont !!");
+			fluidSynth.destroy();
+			errorCode = 2;
+			return false;
+		}
+		useFluidsynth = true;
+		instrumentsList.clear();
+		if (bankPath != "-1")
+		{
+			List<String> programs = fluidSynth.getSoundfontPrograms();
+			//int i = 0;
+			for (String program : programs)
+			{
+				//System.out.println("Program #" + i + ": " + program);
+				instrumentsList.add(program);
+				//i++;
+			}
+			setNewInstrument();
+		}
 		 return true;
 	 }
 	 

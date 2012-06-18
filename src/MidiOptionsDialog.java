@@ -465,17 +465,17 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 							inputDeviceComboBox.setSelectedIndex(inputDeviceComboBox.getItemCount() - 1);
 					}
 					//System.out.println(device);
-					System.out.println("Dev #" + idx + ": " + device.getName());
+					System.out.println("Dev #" + idx + ": " + devName);
 					//System.out.println("Host API ID: " + device.getHostAPI().toString());
 					idx++;
 				}
 				PortAudio.terminate();
 			} catch (PortAudioException ex) {  }
 
-			if (outputDevIndex == -1)
+			if (outputDevIndex == -1 && fluidDevComboBox.getItemCount() > 0)
 				fluidDevComboBox.setSelectedIndex(0);
 
-			if (inputDevIndex == -1)
+			if (inputDevIndex == -1 && inputDeviceComboBox.getItemCount() > 0)
 				inputDeviceComboBox.setSelectedIndex(0);
 		}
 		else
@@ -528,8 +528,9 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	    		appPrefs.setProperty("inputDevice", "Audio," + String.valueOf(portaudioInputIndexes.get(inputDeviceComboBox.getSelectedIndex())));
 
 			
-			if (outDev == "-1" || Integer.parseInt(outDev.split(",")[1]) != portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex()))
-				newMidiDev = true;
+			if (outDev == "-1" || 
+				(fluidsynthRadio.isSelected() == true && Integer.parseInt(outDev.split(",")[1]) != portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex())))
+					newMidiDev = true;
 			else if (outDev != "-1")
 			{
 				String outSys =  outDev.split(",")[0];
@@ -616,7 +617,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		}
 		else if (ae.getSource() == fluidsynthRadio)
 		{
-			appPrefs.setProperty("outputDevice", "Fluidsynth,0");
+			appPrefs.setProperty("outputDevice", "Fluidsynth,-1");
 			appPrefs.storeProperties();
 			fluidDevComboBox.setVisible(true);
 			sfSelectButton.setVisible(true);
@@ -624,8 +625,8 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 			String bankPath = appPrefs.getProperty("soundfontPath");
 	        if (bankPath == "-1") bankPath = "No soundfont selected";
 	        sbankPath.setText(bankPath);
-
-			this.firePropertyChange("newMidiDevice", false, true);
+	        reloadDevicesList(null);
+			//this.firePropertyChange("newMidiDevice", false, true);
 		}
 		else if (ae.getSource() == sfSelectButton)
 		{

@@ -527,9 +527,13 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	    	else
 	    		appPrefs.setProperty("inputDevice", "Audio," + String.valueOf(portaudioInputIndexes.get(inputDeviceComboBox.getSelectedIndex())));
 
-			
+	    	int outIdx = 0;
+	    	if (NativeUtils.isWindows())
+	    		outIdx = portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex());
+            else
+            	outIdx = fluidDevComboBox.getSelectedIndex();
 			if (outDev == "-1" || 
-				(fluidsynthRadio.isSelected() == true && Integer.parseInt(outDev.split(",")[1]) != portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex())))
+				(fluidsynthRadio.isSelected() == true && Integer.parseInt(outDev.split(",")[1]) != outIdx))
 					newMidiDev = true;
 			else if (outDev != "-1")
 			{
@@ -543,8 +547,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 				appPrefs.setProperty("outputDevice", "Java");
 			else
 			{
-				int idx = portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex());
-				appPrefs.setProperty("outputDevice", "Fluidsynth," + idx);
+				appPrefs.setProperty("outputDevice", "Fluidsynth," + outIdx);
 			}
 			
 	    	if (keyboardsoundCheckBox.isSelected())

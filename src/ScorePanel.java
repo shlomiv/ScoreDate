@@ -284,7 +284,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		int wrong = stats.getWrongNumber();
 		int rhythms = stats.getWrongRhythms();
 		
-		if (wrong == 0)
+		if (wrong == 0 && correct > 0)
 		{
 			title = appBundle.getString("_congratulations");
 			type = JOptionPane.INFORMATION_MESSAGE;
@@ -442,21 +442,21 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
         else if ("nOn".equals(strData))
         {
         	if (gameType == appPrefs.SCORE_GAME_LISTEN)
-        		notesLayer.highlightNote(currentNoteIndex, true);
-        }
-        else if ("nOff".equals(strData))
-        {
-        	if (gameType == appPrefs.SCORE_GAME_LISTEN)
         	{
-        		notesLayer.highlightNote(currentNoteIndex, false);
+        		notesLayer.highlightNote(currentNoteIndex, true);
 	        	if (scoreScrollPanel.getVerticalScrollBar().isVisible() == true)
 	        	{
-	        		int scrollAmount = scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount();
+	        		int scrollAmount = scoreScrollPanel.getVerticalScrollBar().getMaximum() + rowsDistance - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount();
 	        		int newPos = (scrollAmount * ((currentNoteIndex * 100) / gameNotes.size())) / 100;
 	        		//System.out.println("Scrollbar amount: " + newPos);
 	        		scoreScrollPanel.getVerticalScrollBar().setValue(newPos);
 	        	}
         	}
+        }
+        else if ("nOff".equals(strData))
+        {
+        	if (gameType == appPrefs.SCORE_GAME_LISTEN)
+        		notesLayer.highlightNote(currentNoteIndex, false);
         	currentNoteIndex++;
         	gameBar.progress.setValue((currentNoteIndex * 100) / gameNotes.size());
         }

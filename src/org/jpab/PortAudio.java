@@ -36,16 +36,19 @@ public final class PortAudio
 		if (os.contains("win") == true)
 		{
 			if (arch.equals("64"))
+			{
 				directory = new File(LIBS_PATH + File.separator + WIN64_ARCH_PATH + File.separator);
+				load(new File(directory, System.mapLibraryName("portaudio_x64")));
+			}
 			else
+			{
 				directory = new File(LIBS_PATH + File.separator + WIN32_ARCH_PATH + File.separator);
+				load(new File(directory, System.mapLibraryName("portaudio_x86")));
+			}
 		}
 		if (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0)
 			directory = new File(LIBS_PATH + File.separator + LINUX_ARCH_PATH + File.separator);
-
-		//System.loadLibrary("portaudio_x86");
-		//System.loadLibrary("PortAudioJNI");
-		load(new File(directory, System.mapLibraryName("portaudio_x86")));
+		
 		load(new File(directory, System.mapLibraryName("PortAudioJNI")));
 	}
 	

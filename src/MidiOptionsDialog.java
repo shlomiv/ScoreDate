@@ -623,7 +623,11 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 			sfSelectButton.setVisible(true);
 			
 			String bankPath = appPrefs.getProperty("soundfontPath");
-	        if (bankPath == "-1") bankPath = "No soundfont selected";
+	        if (bankPath == "-1")
+	        {
+	        	bankPath = "No soundfont selected";
+	        	instrumentsComboBox.removeAllItems();
+	        }
 	        sbankPath.setText(bankPath);
 	        reloadDevicesList(null);
 			//this.firePropertyChange("newMidiDevice", false, true);
@@ -641,6 +645,8 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	            System.out.println("Opening: " + file.getAbsolutePath() + "(" + file.getName() + ")");
 	            sbankPath.setText(file.getAbsolutePath());
 	            appPrefs.setProperty("soundfontPath", file.getAbsolutePath());
+	            int idx = portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex());
+				appPrefs.setProperty("outputDevice", "Fluidsynth," + idx);
 	            appPrefs.storeProperties();
 	            this.firePropertyChange("newMidiDevice", false, true);
 	        } 

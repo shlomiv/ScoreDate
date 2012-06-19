@@ -281,32 +281,28 @@ public class MidiController
 			}
 		 }
 		 else // linux case
-		 {
+		 { 
 		   List<String> drivers = Fluidsynth.getAudioDrivers();
+		   if (devIndex == -1) devIndex = 0;
 		   for (String driver : drivers)
 		   {
 			System.out.println(driver);
 			if (driver.equals("file"))
 				continue;
 
-			for (String device : Fluidsynth.getAudioDevices(driver))
+			fluidDevicesList.add(driver);
+			if (matchIdx == devIndex)
 			{
-				System.out.println("  " + device);
-				fluidDevicesList.add(device + "[" + driver + "]");
-				if (matchIdx == devIndex)
-				{
-					System.out.println("Fluidsynth is going to output on: " + driver + " (device: " + device + ")");
-					try {
-						fluidSynth = new Fluidsynth("fluidDriver", 1, 16, 256, 44100.0f, driver, device, devIndex, 8, 1024, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
-					} catch (IOException expected) {
-						System.out.println("Cannot open Fluidsynth audio output driver!!");
-						errorCode = 1;
-						return false;
-					}
-					break;
+				System.out.println("Fluidsynth is going to output on: " + driver);
+				try {
+					fluidSynth = new Fluidsynth("fluidDriver", 1, 16, 256, 44100.0f, driver, null, devIndex, 8, 1024, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
+				} catch (IOException expected) {
+					System.out.println("Cannot open Fluidsynth audio output driver!!");
+					errorCode = 1;
+					return false;
 				}
-				matchIdx++;
 			}
+			matchIdx++;
 		   }
 		 }
 		String bankPath = appPrefs.getProperty("soundfontPath");

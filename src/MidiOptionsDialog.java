@@ -630,7 +630,8 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	        }
 	        sbankPath.setText(bankPath);
 	        reloadDevicesList(null);
-			//this.firePropertyChange("newMidiDevice", false, true);
+	        if (NativeUtils.isWindows() == false) 
+	        	this.firePropertyChange("newMidiDevice", false, true); 
 		}
 		else if (ae.getSource() == sfSelectButton)
 		{
@@ -640,12 +641,16 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 
 	        if (returnVal == JFileChooser.APPROVE_OPTION) 
 	        {
+	        	int idx = 0;
 	            File file = fc.getSelectedFile();
 	            //This is where a real application would open the file.
 	            System.out.println("Opening: " + file.getAbsolutePath() + "(" + file.getName() + ")");
 	            sbankPath.setText(file.getAbsolutePath());
 	            appPrefs.setProperty("soundfontPath", file.getAbsolutePath());
-	            int idx = portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex());
+	            if (NativeUtils.isWindows())
+	            	idx = portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex());
+	            else
+	            	idx = fluidDevComboBox.getSelectedIndex();
 				appPrefs.setProperty("outputDevice", "Fluidsynth," + idx);
 	            appPrefs.storeProperties();
 	            this.firePropertyChange("newMidiDevice", false, true);

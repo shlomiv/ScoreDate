@@ -37,6 +37,7 @@ public class SoundbankDownloader extends JDialog
 	public SoundbankDownloader()
 	{
 		setTitle("Downloading...please wait");
+		setAlwaysOnTop(true);
         setSize(400, 100);
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);

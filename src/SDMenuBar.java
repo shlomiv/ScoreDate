@@ -299,8 +299,8 @@ public class SDMenuBar extends JMenuBar implements ActionListener
 			openURL("http://www.mindmatter.it/scoredate/");
 		else if (ae.getSource() == creditsMenu)
 		{
-			String text = "<html><b>ScoreDate v. 3.0<br>written by Massimo Callegari<br><br>";
-			text += "This is an open source software written in Java, inspired<br>by the Jalmus project by Richard Christophe<br><br>";
+			String text = "<html><b>ScoreDate v. 3.1<br>written by Massimo Callegari<br><br>";
+			text += "This is an open source software written in Java, inspired<br>by the Jalmus project<br><br>";
 			text += "It is distributed under the GPL 3.0 license<br>(http://www.gnu.org/licenses/gpl-3.0.txt)";
 			text += "</b></html>";
 			JOptionPane.showMessageDialog(this.getParent(), text, 

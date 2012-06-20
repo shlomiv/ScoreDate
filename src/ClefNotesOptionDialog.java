@@ -78,6 +78,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
         setSize(700, 510);
 		String title = appBundle.getString("_menuClef") + " & " + appBundle.getString("_menuNotes");
 		setTitle(title);
+		setAlwaysOnTop(true);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display
 

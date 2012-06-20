@@ -54,6 +54,7 @@ public class ExerciseWizard extends JDialog
         setSize(600, 270);
 		String title = appBundle.getString("_exWizard") + " 1/3";
 		setTitle(title);
+		setAlwaysOnTop(true);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display
         setLayout(null);
@@ -136,6 +137,7 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 
 		String title = appBundle.getString("_exWizard") + " 2/3";
 		setTitle(title);
+		setAlwaysOnTop(true);
         setLayout(null);
         
         JPanel backPanel = new JPanel();

@@ -57,6 +57,7 @@ public class AudioOptionDialog extends JDialog implements ActionListener, Change
 		audioControl = ac;
 		
 		setTitle(appBundle.getString("_menuAudio"));
+		setAlwaysOnTop(true);
         setSize(600, 290);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display

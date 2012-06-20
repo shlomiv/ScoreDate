@@ -97,6 +97,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 		Font titleFont = new Font("Arial", Font.BOLD, 18);
 		
 		setTitle(appBundle.getString("_menuMidi"));
+		setAlwaysOnTop(true);
         setSize(517, 485);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display
@@ -151,7 +152,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 			audioTestButton.setVisible(false);
 
         midiInPanel.add(midiInputRadio);
-        midiInPanel.add(audioInputRadio);
+        //midiInPanel.add(audioInputRadio);    // TODO: audio unfinished business
         midiInPanel.add(inputDeviceComboBox);
         midiInPanel.add(audioTestButton);
         tmpYpos+=85;

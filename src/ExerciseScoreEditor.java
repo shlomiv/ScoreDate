@@ -84,6 +84,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		//	currNotes.add(e.notes.get(i));
 
 		String title = appBundle.getString("_exWizard") + " 3/3";
+		setAlwaysOnTop(true);
 		setTitle(title);
         setLayout(null);
 		setSize(700, 380);

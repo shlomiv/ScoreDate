@@ -194,7 +194,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		
 		if (type == 0) // whole note
 			ypos++;
-		else if (type == 2 || type == 7) // quarter or quarter+eighth note
+		else if (type == 2 || type == 7) // quarter or dotted quarter note
 		{
 			if (note.level < 12)
 				ypos += 41;
@@ -348,14 +348,14 @@ public class NotesPanel extends JPanel implements MouseListener
 		else if (type == 1 || type == 6)
 		{
 			symbol = "h"; // half note
-			if (type == 6)
+			if (type == 6) // dotted half
 				g.fillOval(note.xpos + 15, note.ypos - 8, 5, 5);
 		}
 		else if (type == 2 || type == 7)
 		{
 			if (note.level >= 12) symbol = "q"; // quarter note upward
 			else symbol = "" + (char)0xF6; // quarter note downward
-			if (type == 7)
+			if (type == 7) // dotted quarter
 			{
 				if (note.level >= 12)
 					g.fillOval(note.xpos + 15, note.ypos - 8, 5, 5);
@@ -426,7 +426,7 @@ public class NotesPanel extends JPanel implements MouseListener
 			g.setFont(appFont.deriveFont(50f));
 			if (note.level < 12)
 			{
-				if (note.type == 2) 
+				if (note.type == 2 || note.type == 7) 
 					altYOff = -41;
 				else if (note.type == 3)
 					altYOff = -30;

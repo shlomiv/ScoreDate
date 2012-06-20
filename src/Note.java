@@ -20,7 +20,7 @@ public class Note
 {
 	public int xpos;
 	public int ypos;
-	public int type; // 0 whole, 1 half, 2 quarter, 3 eighth, 4 triplet, 5 silence, 6 half + quarter, 7 quarter + eighth
+	public int type; // 0 whole, 1 half, 2 quarter, 3 eighth, 4 triplet, 5 silence, 6 dotted half, 7 dotted quarter
 	public double duration;
 	public double timestamp;
 

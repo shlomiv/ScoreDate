@@ -4,10 +4,11 @@ June 20th, 2012 - version 3.1
 - NEW: automatic scroll of long exercises during listening and playback 
 - NEW: Portuguese translation (thanks to Raquel)
 - changed: simplified output device selection
-- fixed: improved display of exercises answers 
+- fixed: improved display of exercises answers
 - fixed: do not play pauses of exercises played inline
 - fixed: stop last suspended note when listening with Fluidsynth
-- fixed: all the dialog windows will stay always on top  
+- fixed: all the dialog windows will stay always on top
+- fixed: dotted quarter accidental position  
 
 April 22nd, 2012 - version 3.0
 

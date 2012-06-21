@@ -383,6 +383,7 @@ public class ScoreDate extends JFrame implements ActionListener
 		 // ***************************** EXERCISE PANEL BUTTONS ***************************
 	     else if (exsPanel != null && ae.getSource() == exsPanel.homeBtn)
 	     {
+	    	 exsPanel.stopPlayback();
 	    	 this.remove(exsPanel);
 	    	 exsPanel = null;
 	    	 getContentPane().add(homePanel);
@@ -391,6 +392,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	     }
 	     else if (exsPanel != null && ae.getSource() == exsPanel.exLineBtn)
 	     {
+	    	 exsPanel.stopPlayback();
 	    	 prefs.setExerciseMode(true, exsPanel.getSelectedExercise());
 	    	 this.remove(exsPanel);
 	    	 exsPanel = null;
@@ -403,6 +405,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	     }
 	     else if (exsPanel != null && ae.getSource() == exsPanel.exRhythmBtn)
 	     {
+	    	 exsPanel.stopPlayback();
 	    	 prefs.setExerciseMode(true, exsPanel.getSelectedExercise());
 	    	 this.remove(exsPanel);
 	    	 exsPanel = null;
@@ -415,6 +418,7 @@ public class ScoreDate extends JFrame implements ActionListener
 	     }
 	     else if (exsPanel != null && ae.getSource() == exsPanel.exScoreBtn)
 	     {
+	    	 exsPanel.stopPlayback();
 	    	 prefs.setExerciseMode(true, exsPanel.getSelectedExercise());
 	    	 this.remove(exsPanel);
 	    	 exsPanel = null;

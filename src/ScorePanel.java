@@ -242,7 +242,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		{
 			gameNotes = currEx.notes;
 			double totalDuration = currEx.notes.get(currEx.notes.size() - 1).timestamp + currEx.notes.get(currEx.notes.size() - 1).duration;
-	        staffLayer.setMeasuresNumber((int)Math.ceil(totalDuration / timeNumerator));
+	        staffLayer.setMeasuresNumber((int)Math.ceil(totalDuration / (timeNumerator / (timeDenominator / 4))));
 	        notesLayer.setNotesSequence(gameNotes);
 			notesLayer.setNotesPositions();
 		}
@@ -620,9 +620,10 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		notesLayer.setStaffWidth(staffLayer.getStaffWidth());
 		notesLayer.setNotesPositions();
 		scoreScrollPanel.setBounds(0, staffVMargin - 10, getWidth(), visibleStaffHeight + 15);
+		scoreScrollPanel.validate();
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);		
 
-		//System.out.println("--------- REFRESH PANEL **********");
+		//System.out.println("--------- REFRESH PANEL ********** w: " + w + ", vH: " + visibleStaffHeight + ", tH: " + totalStaffHeight);
 		/*
 		rowsDistance = scoreNG.getRowsDistance();
 		staffLayer.setRowsDistance(rowsDistance);

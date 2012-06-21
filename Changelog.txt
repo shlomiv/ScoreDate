@@ -1,4 +1,4 @@
-June 20th, 2012 - version 3.1
+June 21st, 2012 - version 3.1
 
 - NEW: exercises bigger than the window size can now be scrolled
 - NEW: automatic scroll of long exercises during listening and playback 
@@ -8,7 +8,9 @@ June 20th, 2012 - version 3.1
 - fixed: do not play pauses of exercises played inline
 - fixed: stop last suspended note when listening with Fluidsynth
 - fixed: all the dialog windows will stay always on top
-- fixed: dotted quarter accidental position  
+- fixed: dotted quarter accidental position
+- fixed: stop playback when closing the exercise view
+- fixed: staff rendering of exercises with 6/8 time signature
 
 April 22nd, 2012 - version 3.0
 

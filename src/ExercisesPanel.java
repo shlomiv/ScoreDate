@@ -64,6 +64,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 	
 	private JLabel exerciseTitle;
 	
+	private JScrollPane exerciseScrollPanel;
 	private JLayeredPane layers;
 	private Staff scoreStaff;
 	private NotesPanel notesLayer;
@@ -146,56 +147,60 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		exerciseTitle.setBounds(350, 10, getWidth() - 360, 30);
 
 		int panelsWidth = getWidth() - 360;
-		int panelsHeight = getHeight() - 140;
-		int scaledWidth = (int)(panelsWidth * 1.66);
+		int panelsHeight = getHeight() - 150;
+		int scaledWidth = (int)(panelsWidth * 1.66) - 10;
 		int scaledHeight = (int)(panelsHeight * 1.66);
 
 		layers = new JLayeredPane();
 		layers.setPreferredSize(new Dimension(panelsWidth, panelsHeight));
-		layers.setBounds(350, 40, panelsWidth, panelsHeight);
+		//layers.setBounds(350, 40, panelsWidth, panelsHeight);
 
 		scoreStaff = new Staff(appFont, appBundle, appPrefs, null, false, true);
 		scoreStaff.setPreferredSize( new Dimension(scaledWidth, scaledHeight));
-		scoreStaff.setBounds(0, 0, scaledWidth, scaledHeight);
+		scoreStaff.setBounds(10, 0, scaledWidth, scaledHeight);
 		scoreStaff.setScale(0.6);
 		scoreStaff.setMeasuresNumber(10);
 		scoreStaff.setOpaque(true);
 
 		notesLayer = new NotesPanel(appFont, appPrefs, null, false);
 		notesLayer.setPreferredSize( new Dimension(scaledWidth, scaledHeight));
-		notesLayer.setBounds(0, 0, scaledWidth, scaledHeight);
+		notesLayer.setBounds(10, 0, scaledWidth, scaledHeight);
 		notesLayer.setScale(0.6);
 		notesLayer.setOpaque(false);
 
 		layers.add(scoreStaff, new Integer(1));
 		layers.add(notesLayer, new Integer(2));
 		
+		exerciseScrollPanel = new JScrollPane(layers, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		exerciseScrollPanel.getViewport().setBackground(Color.white);
+		exerciseScrollPanel.setBounds(340, 40, panelsWidth + 10, panelsHeight);
+		
 		exLineBtn = new RoundedButton(appBundle.getString("_menuNotereading"), appBundle, Color.decode("0xA2DDFF"));
-		exLineBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 110, 200, 40);
+		exLineBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 100, 200, 40);
 		exLineBtn.setBackground(Color.decode("0xA1C5FF"));
 		exLineBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		exLineBtn.setVisible(false);
 		
 		exRhythmBtn = new RoundedButton(appBundle.getString("_menuRythmreading"), appBundle, Color.decode("0xA2DDFF"));
-		exRhythmBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 110, 200, 40);
+		exRhythmBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 100, 200, 40);
 		exRhythmBtn.setBackground(Color.decode("0xA1C5FF"));
 		exRhythmBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		exRhythmBtn.setVisible(false);
 		
 		exScoreBtn = new RoundedButton(appBundle.getString("_menuScorereading"), appBundle, Color.decode("0xA2DDFF"));
-		exScoreBtn.setBounds(350 + ((getWidth() - 330) / 2), getHeight() - 110, 200, 40);
+		exScoreBtn.setBounds(350 + ((getWidth() - 330) / 2), getHeight() - 100, 200, 40);
 		exScoreBtn.setBackground(Color.decode("0xA1C5FF"));
 		exScoreBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		exScoreBtn.setVisible(false);
 
 		add(leftPanel);
 		add(exerciseTitle);
-		add(layers);
-		
+		add(exerciseScrollPanel);
+
 		add(exLineBtn);
 		add(exRhythmBtn);
 		add(exScoreBtn);
-		
+
 		updateTreeList();
 	}
 	
@@ -297,6 +302,15 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 	{
 		return selectedExercise;
 	}
+	
+	public void stopPlayback()
+	{
+		if (isPlaying == false)
+			return;
+		
+		appMidi.stopPlayback();
+		isPlaying = false;
+	}
 
 // **************************************************************************************************
 // *                                             EVENTS                                             *
@@ -382,6 +396,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 	
 	public void valueChanged(TreeSelectionEvent e) 
 	{
+		System.out.println("valueChanged---");
 		//Returns the last path element of the selection.
 	    DefaultMutableTreeNode selNode = (DefaultMutableTreeNode)exercisesList.getLastSelectedPathComponent();
 	    
@@ -410,7 +425,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         	{ timeNumerator = 6; timeDenominator = 8; }
         scoreStaff.setTimeSignature(timeNumerator, timeDenominator);
         double totalDuration = selectedExercise.notes.get(selectedExercise.notes.size() - 1).timestamp + selectedExercise.notes.get(selectedExercise.notes.size() - 1).duration;
-        scoreStaff.setMeasuresNumber((int)Math.ceil(totalDuration / timeNumerator));
+        scoreStaff.setMeasuresNumber((int)Math.ceil(totalDuration / (timeNumerator / (timeDenominator / 4))));
         playbackSpeed = selectedExercise.speed;
         
         notesLayer.setClef(selectedExercise.clefMask);
@@ -419,7 +434,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         notesLayer.setNotesSequence(selectedExercise.notes);
         notesLayer.setNotesPositions();
         listenBtn.setEnabled(true);
-
+    
         exLineBtn.setVisible(false);
         exRhythmBtn.setVisible(false);
         exScoreBtn.setVisible(false);
@@ -437,35 +452,41 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         	exLineBtn.setBounds(exRhythmBtn.getX() - 120, exRhythmBtn.getY(), 200, 40);
         	exLineBtn.setVisible(true);
         }
-        editExerciseBtn.setEnabled(true);
+        editExerciseBtn.setEnabled(true);      
 	}
 	
 	protected void paintComponent(Graphics g) 
 	{
 		g.setColor(this.getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
-		
+
 		leftPanel.setBounds(5, 10, 330, getHeight() - 20);
 		exercisesList.setBounds(0, 0, 290, getHeight() - 120);
 		treeScrollPanel.setBounds(10, 85, 310, getHeight() - 110);
-		
-		exerciseTitle.setBounds(350, 10, getWidth() - 360, 30);
-		int panelsWidth = getWidth() - 360;
-		int panelsHeight = getHeight() - 120;
-		int scaledWidth = (int)(panelsWidth * 1.66);
-		int scaledHeight = (int)(panelsHeight * 1.66);
+		//exercisesList.scrollPathToVisible(exercisesList.getSelectionPath());
 
-		layers.setBounds(350, 40, panelsWidth, panelsHeight);
-		scoreStaff.setBounds(0, 0, scaledWidth, scaledHeight);
-		notesLayer.setBounds(0, 0, scaledWidth, scaledHeight);
+		exerciseTitle.setBounds(350, 10, getWidth() - 360, 30);
+		int panelsWidth = getWidth() - 355;
+		int panelsHeight = getHeight() - 100;
+		int totalStaffHeight = (int)(scoreStaff.getStaffHeight() / 1.66) - 20;
+		int scaledWidth = (int)(panelsWidth * 1.66) - 10;
+		//int scaledHeight = (int)(totalStaffHeight * 1.66);
+
+		//System.out.println("panelsW: " + panelsWidth + ", panelsH: " + panelsHeight + ", totalH:" + totalStaffHeight + ", scaledW: " + scaledWidth + ", scaledH: " + scaledHeight);
+
+		layers.setPreferredSize(new Dimension(panelsWidth, totalStaffHeight));
+		scoreStaff.setBounds(10, 0, scaledWidth, totalStaffHeight);
+		notesLayer.setBounds(10, 0, scaledWidth, totalStaffHeight);
 		notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
 		notesLayer.setNotesPositions();
-		
+		exerciseScrollPanel.setBounds(340, 40, panelsWidth + 10, panelsHeight);
+		exerciseScrollPanel.validate();
+
 		if (selectedExercise != null && selectedExercise.type == 0)
-			exLineBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 55, 200, 40);
+			exLineBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 50, 200, 40);
 		else
-			exLineBtn.setBounds(130 + ((getWidth() - 330) / 2), getHeight() - 55, 200, 40);
-		exRhythmBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 55, 200, 40);
-		exScoreBtn.setBounds(350 + ((getWidth() - 330) / 2), getHeight() - 55, 200, 40);
+			exLineBtn.setBounds(130 + ((getWidth() - 330) / 2), getHeight() - 50, 200, 40);
+		exRhythmBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 50, 200, 40);
+		exScoreBtn.setBounds(350 + ((getWidth() - 330) / 2), getHeight() - 50, 200, 40);
 	}
 }

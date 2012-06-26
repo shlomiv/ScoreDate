@@ -57,6 +57,7 @@ public class NotesPanel extends JPanel implements MouseListener
 	boolean editMode = false;
 	boolean editModeRhythm = false;
 	int editNoteIndex = -1;
+	int editNoteSelX = -1, editNoteSelY = -1, editNoteSelW = -1, editNoteSelH = -1;
 	NoteGenerator editNG;
 	
 	private double globalScale = 1.0;
@@ -176,7 +177,9 @@ public class NotesPanel extends JPanel implements MouseListener
 
 		if (note.secondRow == true)
 			yOffset += (rowsDistance / 2);
-		
+
+		note.addLinesNumber = 0;
+
 		if (note.level < 7)
 		{
 			note.addLinesNumber = 4 - (note.level / 2);
@@ -250,23 +253,25 @@ public class NotesPanel extends JPanel implements MouseListener
 		//System.out.println("Mouse clicked (# of clicks: " + e.getClickCount() + ")");
     	int mouseX = e.getX();
     	int mouseY = e.getY();
-		System.out.println("X pos: " + mouseX + ", Y pos: " + mouseY);
+		System.out.println("[Edit mode] clicked X pos: " + mouseX + ", Y pos: " + mouseY);
+		//System.out.println("editNoteSelX: " + editNoteSelX + ",editNoteSelY: " + editNoteSelY + ", editNoteSelW: " + editNoteSelW + ", editNoteSelH: "+ editNoteSelH);
 		
 		if (editMode == false || editModeRhythm == true)
 			return;
 		
-		if (editNoteIndex != -1 && mouseX >= notes.get(editNoteIndex).xpos - 5 &&
-			mouseX < (int)(notes.get(editNoteIndex).xpos + notes.get(editNoteIndex).duration * noteDistance))
+		if (editNoteIndex != -1 && mouseX >= editNoteSelX && mouseX < editNoteSelX + editNoteSelW && 
+			mouseY >= editNoteSelY && mouseY < editNoteSelY + editNoteSelH)
 		{
-			if (mouseY > 128) return;
+			//if (mouseY > 128) return;
 			// clicked over the currently selected note. Act on the pitch
 			Note tmpNote = notes.get(editNoteIndex);
 			int origLevel = tmpNote.level;
-			int newLevel = (mouseY - 4) / 5;
+			int newLevel = (mouseY - editNoteSelY - 4) / 5;
 			if (newLevel != origLevel)
 			{
-				tmpNote.level = (mouseY - 4) / 5;
+				tmpNote.level = (mouseY - editNoteSelY - 4) / 5;
 				tmpX = tmpNote.xpos; // must 'rewind' xpos to avoid wrong check for second line
+				tmpY = editNoteSelY;
 				setSingleNotePosition(tmpNote, false); // do not touch X position !
 				tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(0), tmpNote.level); // retrieve the base pitch of this level and clef
 				tmpNote.pitch = editNG.getAlteredFromBase(tmpNote.pitch); // retrieve a new pitch if it is altered
@@ -281,17 +286,30 @@ public class NotesPanel extends JPanel implements MouseListener
 		}
 		else
 		{
+			System.out.println("[Edit mode] look for a note to select...");
 			// look for a note to select
+			int lookupX = firstNoteXPos, lookupY = 0;
+			
 			for (int i = 0; i < notes.size(); i++)
 			{
-				int noteXpos = notes.get(i).xpos;
-				if (mouseX >= noteXpos - 5 && mouseX < (int)(noteXpos + notes.get(i).duration * noteDistance))
+				Note tmpNote = notes.get(i);
+
+				//System.out.println("#" + i + ": ypos: " + tmpNote.ypos + ", floor: " + (int)Math.floor((double)tmpNote.ypos / rowsDistance));
+				System.out.println("#" + i + ": nX: " + (lookupX - 5) + ", nY: " + lookupY + ", nX1: " + (int)(lookupX + (tmpNote.duration * noteDistance)) + ", nY1: " + (tmpY + rowsDistance));
+				if (mouseX >= lookupX - 5 && mouseX < (int)(lookupX + (tmpNote.duration * noteDistance)) && 
+					mouseY >= lookupY && mouseY < lookupY + rowsDistance)
 				{
-					System.out.println("[Edit mode] selected note #" + i + ", pitch = " + notes.get(i).pitch);
+					System.out.println("[Edit mode] selected note #" + i + ", pitch = " + tmpNote.pitch);
 					this.firePropertyChange("selectionChanged", editNoteIndex, i);
-					editNoteIndex = i;
+					setEditNoteIndex(i);
 					repaint();
 					return;
+				}
+				lookupX += (tmpNote.duration * noteDistance);
+				if (lookupX >= staffWidth)
+				{
+					lookupX = firstNoteXPos;
+					lookupY += rowsDistance;
 				}
 			}
 		}
@@ -326,8 +344,23 @@ public class NotesPanel extends JPanel implements MouseListener
 
 		if (editMode == true && index == editNoteIndex)
 		{
+			// gotta find the original note Y base position :'(
+			int lookupX = firstNoteXPos, lookupY = 0; 
+			for (int i = 0; i < editNoteIndex; i++)
+			{
+				lookupX += (notes.get(i).duration * noteDistance);
+				if (lookupX >= staffWidth)
+				{
+					lookupX = firstNoteXPos;
+					lookupY += rowsDistance;
+				}
+			}
 			g.setColor(new Color(0xA2, 0xDD, 0xFF, 0x7F));
-			g.fillRoundRect(note.xpos - 5, 5, (int)(note.duration * noteDistance), 130, 10, 10);
+			editNoteSelX = note.xpos - 5;
+			editNoteSelY = lookupY;
+			editNoteSelW = (int)(note.duration * noteDistance);
+			editNoteSelH = 130;
+			g.fillRoundRect(editNoteSelX, editNoteSelY, editNoteSelW, editNoteSelH, 10, 10);
 		}
 
 		if (note.highlight == true)

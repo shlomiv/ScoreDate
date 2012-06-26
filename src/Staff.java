@@ -184,6 +184,7 @@ public class Staff extends JPanel
     
     public int getStaffHeight()
     {
+    	calculateSize();
     	return (numberOfRows * rowsDistance) + scoreYpos;
     }
     
@@ -192,20 +193,8 @@ public class Staff extends JPanel
     	globalScale = factor;
     }
     
-    // Draw staff. Includes clefs, alterations, time signature
- 	protected void paintComponent(Graphics g) 
- 	{
- 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
- 		super.paintComponent(g);
- 		if (globalScale != 1.0)
-			((Graphics2D) g).scale(globalScale, globalScale);
- 		
- 		g.setColor(Color.white);
- 		g.fillRect(0, 0, getWidth(), getHeight());
-		g.setColor(Color.black);
-		
-		//System.out.println("[Staff - paintComponent] w = " + getWidth());
-
+    private int calculateSize()
+    {
 		if ( acc != null)
 			alterationWidth = acc.getNumber() * 12;
 		else
@@ -213,9 +202,9 @@ public class Staff extends JPanel
         firstNoteXPos = clefWidth + alterationWidth + alterationWidth + timeSignWidth + notesShift;
 
         scoreLineWidth = clefWidth + alterationWidth + timeSignWidth;
-        int yPos = scoreYpos;
-        int vXPos = scoreLineWidth + ((timeSignNumerator/timeDivision) * noteDistance);
         
+        int vxPos = scoreLineWidth + ((timeSignNumerator/timeDivision) * noteDistance);
+
         if (inlineMode == false)
         {
         	if (forcedNumberOfMeasures == -1)
@@ -236,6 +225,26 @@ public class Staff extends JPanel
         {
         	scoreLineWidth = getWidth();
         }
+        return vxPos;
+    }
+    
+    
+    // Draw staff. Includes clefs, alterations, time signature
+ 	protected void paintComponent(Graphics g) 
+ 	{
+ 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+ 		super.paintComponent(g);
+ 		if (globalScale != 1.0)
+			((Graphics2D) g).scale(globalScale, globalScale);
+ 		
+ 		g.setColor(Color.white);
+ 		g.fillRect(0, 0, getWidth(), getHeight());
+		g.setColor(Color.black);
+		
+		//System.out.println("[Staff - paintComponent] w = " + getWidth());
+
+        int yPos = scoreYpos;
+        int vXPos = calculateSize();
         
         for (int r = 0; r < numberOfRows; r++) 
         {

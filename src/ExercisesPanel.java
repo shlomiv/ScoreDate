@@ -147,7 +147,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		exerciseTitle.setBounds(350, 10, getWidth() - 360, 30);
 
 		int panelsWidth = getWidth() - 360;
-		int panelsHeight = getHeight() - 150;
+		int panelsHeight = getHeight() - 95;
 		int scaledWidth = (int)(panelsWidth * 1.66) - 10;
 		int scaledHeight = (int)(panelsHeight * 1.66);
 
@@ -463,11 +463,12 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		leftPanel.setBounds(5, 10, 330, getHeight() - 20);
 		exercisesList.setBounds(0, 0, 290, getHeight() - 120);
 		treeScrollPanel.setBounds(10, 85, 310, getHeight() - 110);
-		//exercisesList.scrollPathToVisible(exercisesList.getSelectionPath());
+		exercisesList.scrollPathToVisible(exercisesList.getSelectionPath());
+		treeScrollPanel.getHorizontalScrollBar().setValue(0);
 
 		exerciseTitle.setBounds(350, 10, getWidth() - 360, 30);
 		int panelsWidth = getWidth() - 355;
-		int panelsHeight = getHeight() - 100;
+		int panelsHeight = getHeight() - 95;
 		int totalStaffHeight = (int)(scoreStaff.getStaffHeight() / 1.66) - 20;
 		int scaledWidth = (int)(panelsWidth * 1.66) - 10;
 		//int scaledHeight = (int)(totalStaffHeight * 1.66);

@@ -87,14 +87,14 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		setAlwaysOnTop(true);
 		setTitle(title);
         setLayout(null);
-		setSize(700, 380);
+		setSize(700, 570);
         setResizable(false);
         setLocationRelativeTo(null); // Center the window on the display
         
         JPanel backPanel = new JPanel();
         backPanel.setLayout(null);
         backPanel.setBackground(Color.white);
-        backPanel.setBounds(0, 0, 700, 380);
+        backPanel.setBounds(0, 0, 700, 550);
         
         RoundPanel notesPanel = new RoundPanel(Color.decode("0xFFFFFF"), Color.decode("0xA2DDFF"));
         notesPanel.setLayout(null);
@@ -263,11 +263,9 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
  		notesPanel.add(playBtn);
         
         layers = new JLayeredPane();
-		//layers.setPreferredSize( new Dimension(panelsWidth, staffHeight));
-		layers.setPreferredSize(new Dimension(670, 145));
 		layers.setBackground(Color.white);
 		
-		int staffW = 670;
+		int staffW = 680;
 
 		if (currExercise.type == 0)
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, true, true);
@@ -278,48 +276,49 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			double lastTS = currExercise.notes.get(currExercise.notes.size() - 1).timestamp;
 			double lastDur = currExercise.notes.get(currExercise.notes.size() - 1).duration;
         	measuresNumber = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
-			staffW = (scoreStaff.getNotesDistance() * timeNumerator) * (measuresNumber + 2);
 			System.out.println("Existing exercise. Notes: " + currExercise.notes.size() + ", staffW: " + staffW);
-			layers.setPreferredSize(new Dimension(staffW, 145));
-			layers.setBounds(0, 0, staffW, 145);
 			System.out.println("Measures: " + measuresNumber + ", last timestamp: " + lastTS);
 			measureCounter = timeNumerator - (lastTS + lastDur - (timeNumerator * (measuresNumber - 1)));
 			timeCounter = lastTS + lastDur;
 			System.out.println("Calculated measure counter: " + measureCounter);
+			scoreStaff.setMeasuresNumber(measuresNumber);
 			removeNoteButton.setEnabled(true);
         }
-		scoreStaff.setBounds(0, 0, staffW, 145);
-        scoreStaff.setOpaque(true);
+		
         scoreStaff.setClef(currExercise.clefMask);
         scoreStaff.setTimeSignature(timeNumerator, timeDenominator);
-       	scoreStaff.setMeasuresNumber(measuresNumber);
+        scoreStaff.setOpaque(true);
+        scoreStaff.setBounds(0, 0, staffW, 335); // temporary call mainly to set width and perform correct height calculation
+       	System.out.println("Staff height: " + scoreStaff.getStaffHeight());
+       	scoreStaff.setBounds(0, 0, staffW, scoreStaff.getStaffHeight());
 
         notesEditLayer = new NotesPanel(appFont, appPrefs, currExercise.notes, false);
-		notesEditLayer.setBounds(0, 0, staffW, 145);
+		notesEditLayer.setBounds(0, 0, staffW, scoreStaff.getStaffHeight());
 		notesEditLayer.setOpaque(false);
 		notesEditLayer.setClef(currExercise.clefMask);
 		if (e.type != 1)
 			notesEditLayer.setEditMode(true, false);
 		else
 			notesEditLayer.setEditMode(true, true);
-		notesEditLayer.setStaffWidth(staffW /*scoreStaff.getStaffWidth()*/);
+		notesEditLayer.setStaffWidth(scoreStaff.getStaffWidth());
 		notesEditLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
 		notesEditLayer.setNotesPositions();
 		if (currExercise.notes.size() > 0)
 			notesEditLayer.setEditNoteIndex(currExercise.notes.size() - 1);
 		notesEditLayer.addPropertyChangeListener(this);
-		
+
+		layers.setPreferredSize(new Dimension(staffW, scoreStaff.getStaffHeight()));
         layers.add(scoreStaff, new Integer(1));
         layers.add(notesEditLayer, new Integer(2));
         
-        scoreScrollPanel = new JScrollPane(layers);
-        scoreScrollPanel.setBounds(10, 120, 676, 166);
-        scoreScrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scoreScrollPanel = new JScrollPane(layers, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scoreScrollPanel.setBounds(10, 120, 676, 335);
+        scoreScrollPanel.validate();
         
         finishButton = new RoundedButton(appBundle.getString("_exFinished"), appBundle, Color.decode("0x0E9B20"));
         finishButton.setBackground(Color.decode("0x13DC2E"));
         finishButton.setFont(new Font("Arial", Font.BOLD, 20));
-        finishButton.setBounds(490, 295, 190, 40);
+        finishButton.setBounds(490, 475, 190, 40);
         finishButton.addActionListener(this);
 
         backPanel.add(notesPanel);

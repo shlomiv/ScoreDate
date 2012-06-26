@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,6 +35,11 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 
+/*
+ * 
+ *                EXERCISE WIZARD - FIRST STEP DIALOG
+ * 
+ */
 public class ExerciseWizard extends JDialog
 {
 	private static final long serialVersionUID = 2656910435412692590L;
@@ -102,6 +108,11 @@ public class ExerciseWizard extends JDialog
 	}
 }
 
+/*
+ * 
+ *                  EXERCISE WIZARD - SECOND STEP DIALOG
+ * 
+ */
 class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListener
 {
 	private static final long serialVersionUID = 4264234519336822654L;
@@ -114,6 +125,8 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 	JTextField titleTextField;
 	JComboBox accCB;
 	JRadioButton trebleClefCB, bassClefCB, altoClefCB, tenorClefCB;
+	JCheckBox secondClefCB;
+	JRadioButton trebleClefCB2, bassClefCB2, altoClefCB2, tenorClefCB2;
 
 	JRadioButton fourfourButton, twofourButton, threefourButton, sixeightButton;
 	
@@ -172,11 +185,11 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
         	RoundPanel clefsPanel = new RoundPanel(Color.decode("0xFFFFFF"), Color.decode("0xA2DDFF"));
         	clefsPanel.setLayout(null);
         	clefsPanel.setBackground(Color.white);
-        	clefsPanel.setBounds(5, tmpYpos, 585, 90);
+        	clefsPanel.setBounds(5, tmpYpos, 585, 150);
         
         	JLabel clefLabel = new JLabel(appBundle.getString("_menuClef") + "  ");
         	clefLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        	clefLabel.setBounds(10, 30, 570, 25);
+        	clefLabel.setBounds(10, 60, 570, 25);
         
         	ButtonGroup clefsGroup = new ButtonGroup();
         	trebleClefCB = new JRadioButton("G");
@@ -198,13 +211,46 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 			clefsGroup.add(altoClefCB);
 			clefsGroup.add(tenorClefCB);
 			
+			secondClefCB = new JCheckBox();
+			secondClefCB.setBounds(230, 60, 70, 80);
+			secondClefCB.addActionListener(this);
+			
+        	ButtonGroup clefsGroup2 = new ButtonGroup();
+        	trebleClefCB2 = new JRadioButton("G");
+        	trebleClefCB2.setFont(appFont.deriveFont(50f));
+        	trebleClefCB2.setBounds(270, 60, 70, 80);
+        	trebleClefCB2.setSelected(true);
+        	trebleClefCB2.setEnabled(false);
+        	bassClefCB2 = new JRadioButton("?");
+	        bassClefCB2.setFont(appFont.deriveFont(50f));
+	        bassClefCB2.setBounds(340, 60, 70, 80);
+	        bassClefCB2.setEnabled(false);
+	        altoClefCB2 = new JRadioButton("" + (char)0xBF);
+	        altoClefCB2.setFont(appFont.deriveFont(50f));
+	        altoClefCB2.setBounds(410, 60, 70, 80);
+	        altoClefCB2.setEnabled(false);
+	        tenorClefCB2 = new JRadioButton("" + (char)0xBF);
+	        tenorClefCB2.setFont(appFont.deriveFont(50f));
+	        tenorClefCB2.setBounds(480, 55, 70, 80);
+	        tenorClefCB2.setEnabled(false);
+			
+			clefsGroup2.add(trebleClefCB2);
+			clefsGroup2.add(bassClefCB2);
+			clefsGroup2.add(altoClefCB2);
+			clefsGroup2.add(tenorClefCB2);
+			
 			clefsPanel.add(clefLabel);
 			clefsPanel.add(trebleClefCB);
 			clefsPanel.add(bassClefCB);
 			clefsPanel.add(altoClefCB);
 			clefsPanel.add(tenorClefCB);
+			clefsPanel.add(secondClefCB);
+			clefsPanel.add(trebleClefCB2);
+			clefsPanel.add(bassClefCB2);
+			clefsPanel.add(altoClefCB2);
+			clefsPanel.add(tenorClefCB2);			
 	
-	        tmpYpos += 95;
+	        tmpYpos += 155;
 	        clefsActive = true;
         
 	        // ******************** ACCIDENTALS PANEL ****************************
@@ -364,7 +410,15 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 	
 	public void actionPerformed(ActionEvent ae)
 	{
-		if (ae.getSource() == nextButton)
+		if (ae.getSource() == secondClefCB)
+		{
+			boolean state = secondClefCB.isSelected();
+        	trebleClefCB2.setEnabled(state);
+	        bassClefCB2.setEnabled(state);
+	        altoClefCB2.setEnabled(state);
+	        tenorClefCB2.setEnabled(state);
+		}
+		else if (ae.getSource() == nextButton)
 		{
 			String exTitle = titleTextField.getText();
 			if (exTitle.equals(""))
@@ -373,14 +427,29 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 			currExercise.setTitle(exTitle);
 			if (currExercise.type != 1)
 			{
+				int clefMask = 0;
 				if (trebleClefCB.isSelected() == true)
-					currExercise.setClefMask(appPrefs.TREBLE_CLEF);
+					clefMask = appPrefs.TREBLE_CLEF;
 				else if (bassClefCB.isSelected() == true)
-					currExercise.setClefMask(appPrefs.BASS_CLEF);
+					clefMask = appPrefs.BASS_CLEF;
 				else if (altoClefCB.isSelected() == true)
-					currExercise.setClefMask(appPrefs.ALTO_CLEF);
+					clefMask = appPrefs.ALTO_CLEF;
 				else if (tenorClefCB.isSelected() == true)
-					currExercise.setClefMask(appPrefs.TENOR_CLEF);
+					clefMask = appPrefs.TENOR_CLEF;
+
+				if (secondClefCB.isSelected() == true)
+				{
+					if (trebleClefCB2.isSelected() == true)
+						clefMask |= appPrefs.TREBLE_CLEF;
+					else if (bassClefCB2.isSelected() == true)
+						clefMask |= appPrefs.BASS_CLEF;
+					else if (altoClefCB2.isSelected() == true)
+						clefMask |= appPrefs.ALTO_CLEF;
+					else if (tenorClefCB2.isSelected() == true)
+						clefMask |= appPrefs.TENOR_CLEF;
+				}
+
+				currExercise.setClefMask(clefMask);
 
 				int accIdx = accCB.getSelectedIndex();
 				if (accIdx <= 0) currExercise.acc.setTypeAndCount("", 0);

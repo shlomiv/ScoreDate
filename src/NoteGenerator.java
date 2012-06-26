@@ -161,6 +161,21 @@ public class NoteGenerator
     		
     	return height;
     }
+    
+    public int getRowsDistanceFromClefs(int clMask)
+    {
+    	int clefsNum = 0;
+    	if ((clMask & appPrefs.TREBLE_CLEF) > 0)
+    		clefsNum++;
+    	if ((clMask & appPrefs.BASS_CLEF) > 0)
+    		clefsNum++;
+    	if ((clMask & appPrefs.ALTO_CLEF) > 0)
+    		clefsNum++;
+    	if ((clMask & appPrefs.TENOR_CLEF) > 0)
+    		clefsNum++;
+
+    	return clefsNum * 90;
+    }
     /* ************************************************************** */
 
     public void reset()

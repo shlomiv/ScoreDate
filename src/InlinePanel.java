@@ -129,7 +129,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		inlineStaff.setClef(clefMask);
 		inlineStaff.setOpaque(true);
 		
-		notesLayer = new NotesPanel(appFont, appPrefs, gameNotes, true);
+		notesLayer = new NotesPanel(appFont, appPrefs, gameNotes, null, true);
 		notesLayer.setPreferredSize( new Dimension(panelsWidth, staffHeight));
 		notesLayer.setBounds(0, 0, panelsWidth, staffHeight);
 		notesLayer.setOpaque(false);
@@ -676,7 +676,7 @@ public class InlinePanel extends JPanel implements ActionListener
 						needNewNote = false;
 						if (gameSubType == appPrefs.NOTE_CHORDS)
 						{
-							int chordType = inlineNG.getRandomChordorInterval(gameNotes, noteXStartPos, true, -1);
+							int chordType = inlineNG.getRandomChordOrInterval(gameNotes, noteXStartPos, true, -1);
 							if (gameType == appPrefs.INLINE_LEARN_NOTES)
 								setLearningInfo(true, chordType);
 							if (gameType != appPrefs.INLINE_MORE_NOTES)
@@ -685,7 +685,7 @@ public class InlinePanel extends JPanel implements ActionListener
 						}
 						else if (gameSubType == appPrefs.NOTE_INTERVALS)
 						{
-							int intervalType = inlineNG.getRandomChordorInterval(gameNotes, noteXStartPos, false, gameInterval);
+							int intervalType = inlineNG.getRandomChordOrInterval(gameNotes, noteXStartPos, false, gameInterval);
 							if (gameType == appPrefs.INLINE_LEARN_NOTES)
 								setLearningInfo(true, intervalType);
 							if (gameType != appPrefs.INLINE_MORE_NOTES)
@@ -696,9 +696,9 @@ public class InlinePanel extends JPanel implements ActionListener
 						{
 							Note newNote;
 							if (gameSubType == appPrefs.NOTE_ACCIDENTALS)
-								newNote = inlineNG.getRandomNote(0, true);
+								newNote = inlineNG.getRandomNote(0, true, -1);
 							else
-								newNote = inlineNG.getRandomNote(0, false);
+								newNote = inlineNG.getRandomNote(0, false, -1);
 							newNote.duration = 0; // set duration to 0 not to mess up X position
 							newNote.xpos = noteXStartPos;
 							gameNotes.add(newNote);

@@ -531,8 +531,8 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 					if (needNewNote == true && timeoutCounter > pauseBetweenNotes)
 					{
 						Note newNote = null;
-						if (gameSubType == 2) newNote = earNG.getRandomNote(0, true); // alterations only on advanced game
-						else newNote = earNG.getRandomNote(0, false);
+						if (gameSubType == 2) newNote = earNG.getRandomNote(0, true, -1); // alterations only on advanced game
+						else newNote = earNG.getRandomNote(0, false, -1);
 						
 						gameNotes.add(newNote);
 						appMidi.playNote(newNote.pitch, 90);

@@ -619,6 +619,8 @@ public class MidiController
 			 }
 
 			 String textb = "nOn";
+			 if (cNote.secondRow == true)
+				 textb = "n2On";
 			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 			 tick+=(int)((cNote.duration)*ppq);
 			 
@@ -635,6 +637,8 @@ public class MidiController
 			 }
 
 			 textb = "nOff";
+			 if (cNote.secondRow == true)
+				 textb = "n2Off";
   			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 		 }
 		 String textend = "end";

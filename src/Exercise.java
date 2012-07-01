@@ -47,11 +47,13 @@ public class Exercise
 	int speed;
 	int randomize;
 	Vector<Note> notes;
+	Vector<Note> notes2;
 	
 	public Exercise(Preferences p)
 	{
 		appPrefs = p;
 		notes = new Vector<Note>();
+		notes2 = new Vector<Note>();
 		reset();
 	}
 	
@@ -65,6 +67,7 @@ public class Exercise
 		speed = 60;
 		randomize = 0;
 		notes.clear();
+		notes2.clear();
 	}
 	
 	public void setType(int t)

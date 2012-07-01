@@ -94,7 +94,7 @@ public class NoteGenerator
         initLists();
     }
     
-    public void initLists()
+    private void initLists()
     {
     	int pitch = baseNote; // starts from C0
     	for (int i = 0; i < 6; i++) // 6 octaves, from C0 to C6
@@ -175,6 +175,13 @@ public class NoteGenerator
     		clefsNum++;
 
     	return clefsNum * 90;
+    }
+    
+    public int getClefsNumber()
+    {
+    	if (addRangeIndex != -1)
+    		return 2;
+    	return 1;
     }
     /* ************************************************************** */
 
@@ -423,11 +430,21 @@ public class NoteGenerator
 		return 71;
     }
     
-    public Note getRandomNote(int forcedType, boolean altered)
+    public Note getRandomNote(int forcedType, boolean altered, int forcedClef)
     {
     	int randIdx = 0;
     	if (randomEnabled == true)
-    		randIdx = (int) (randomPitchList.size() * Math.random());
+    	{
+    		if (forcedClef == -1 || addRangeIndex == -1)
+    			randIdx = (int) (randomPitchList.size() * Math.random());
+    		else
+    		{
+    			if (forcedClef == 1)
+    				randIdx = (int)(addRangeIndex * Math.random());
+    			else if (forcedClef == 2)
+    				randIdx = (int)((randomPitchList.size() - addRangeIndex) * Math.random()) + addRangeIndex;
+    		}
+    	}
     	else
     	{
     		randIdx = notesListIndex;
@@ -519,7 +536,7 @@ public class NoteGenerator
     	return randNote;
     }
     
-    public void getRandomSequence(Vector<Note> seq, int measuresNumber, boolean isRhythm)
+    public void getRandomSequence(Vector<Note> seq, int measuresNumber, boolean isRhythm, int forcedClef)
     {
     	double measureCounter = 0;
     	double timeCounter = 0;
@@ -533,7 +550,7 @@ public class NoteGenerator
     		eighthPresent = false;
     		while (measureCounter != 0)
     		{
-    			Note tmpNote = getRandomNote(-1, false);
+    			Note tmpNote = getRandomNote(-1, false, forcedClef);
     			if (tmpNote.type == 4) // triplet
     			{
     				if (measureCounter < 1 || eighthPresent == true)
@@ -619,7 +636,7 @@ public class NoteGenerator
     	}
     }
     
-    public int getRandomChordorInterval(Vector<Note> seq, int xpos, boolean chord, int intervalDegree)
+    public int getRandomChordOrInterval(Vector<Note> seq, int xpos, boolean chord, int intervalDegree)
     {
     	char notesWanted = 1;
     	//int randType = (int)(Math.random() * 4); // 0 major, 1 minor, 2 diminished, 3 augmented
@@ -635,7 +652,7 @@ public class NoteGenerator
     	}
     	
     	int[] addNotes = { 0, 0 };
-    	Note baseNote = getRandomNote(0, false);
+    	Note baseNote = getRandomNote(0, false, -1);
     	
     	System.out.println("[getRandomChordorInterval] randType: " + randType);
     	

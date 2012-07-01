@@ -162,7 +162,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		scoreStaff.setMeasuresNumber(10);
 		scoreStaff.setOpaque(true);
 
-		notesLayer = new NotesPanel(appFont, appPrefs, null, false);
+		notesLayer = new NotesPanel(appFont, appPrefs, null, null, false);
 		notesLayer.setPreferredSize( new Dimension(scaledWidth, scaledHeight));
 		notesLayer.setBounds(10, 0, scaledWidth, scaledHeight);
 		notesLayer.setScale(0.6);

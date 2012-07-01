@@ -185,7 +185,7 @@ public class Staff extends JPanel
     public int getStaffHeight()
     {
     	calculateSize();
-    	return (numberOfRows * rowsDistance) + scoreYpos;
+    	return (numberOfRows * rowsDistance) + (scoreYpos * 2);
     }
     
     public void setScale(double factor)

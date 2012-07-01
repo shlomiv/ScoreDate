@@ -35,7 +35,8 @@ public class NotesPanel extends JPanel implements MouseListener
 	private static final long serialVersionUID = -1735923156425027329L;
 	Font appFont;
 	Preferences appPrefs;
-	private Vector<Note> notes;
+	private Vector<Note> notes; // first clef notes
+	private Vector<Note> notes2; // second clef notes
 	
     private int clefMask = 1;
     private Vector<Integer> clefs = new Vector<Integer>();    
@@ -49,24 +50,26 @@ public class NotesPanel extends JPanel implements MouseListener
 	int tmpX = 0;
 
 	private boolean inlineMode = false;
-	private int singleNoteIndex = -1; // force the painting of a single note
-	
+	private int singleNoteIndex = -1; // force the painting of a single note (first clef)
+	private int singleNote2Index = -1; // force the painting of a single note (second clef)
+
 	private JLabel learningText;
-	
+
 	// edit mode, activated from the exercise panel
 	boolean editMode = false;
 	boolean editModeRhythm = false;
 	int editNoteIndex = -1;
 	int editNoteSelX = -1, editNoteSelY = -1, editNoteSelW = -1, editNoteSelH = -1;
 	NoteGenerator editNG;
-	
+
 	private double globalScale = 1.0;
-	
-	public NotesPanel(Font f, Preferences p, Vector<Note> n, boolean inline)
+
+	public NotesPanel(Font f, Preferences p, Vector<Note> n, Vector<Note> n2, boolean inline)
 	{
 		appFont = f;
 		appPrefs = p;
 		notes = n;
+		notes2 = n2;
 		inlineMode = inline;
 		globalScale = 1.0;
 		
@@ -161,6 +164,18 @@ public class NotesPanel extends JPanel implements MouseListener
     		setSingleNotePosition(notes.get(i), true);
     		//System.out.println("[Note: #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
     	}
+    	
+    	if (notes2 == null)
+    		return;
+
+    	tmpX = firstNoteXPos;
+    	tmpY = 0;
+
+    	for (int i = 0; i < notes2.size(); i++)
+    	{
+    		setSingleNotePosition(notes2.get(i), true);
+    		//System.out.println("[Note: #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
+    	}
     }
     
     public void setSingleNotePosition(Note note, boolean setXpos)
@@ -240,12 +255,22 @@ public class NotesPanel extends JPanel implements MouseListener
    		learningText.setVisible(enable); 	
     }
 
-    public void highlightNote(int index, boolean enable)
+    public void highlightNote(int index, int clef, boolean enable)
     {
-    	singleNoteIndex = index;
-    	notes.get(index).highlight = enable;
-    	repaint();
-    	singleNoteIndex = -1;
+    	if (clef == 1)
+    	{
+    		singleNoteIndex = index;
+    		notes.get(index).highlight = enable;
+    		repaint();
+    		singleNoteIndex = -1;
+    	}
+    	else if (clef == 2)
+    	{
+    		singleNote2Index = index;
+    		notes2.get(index).highlight = enable;
+    		repaint();
+    		singleNote2Index = -1;
+    	}
     }
     
     public void mouseClicked(MouseEvent e) 
@@ -335,11 +360,13 @@ public class NotesPanel extends JPanel implements MouseListener
     	//System.out.println("Mouse exited");
     }
     
-    private void drawNote(Graphics g, int index) 
+    private void drawNote(Graphics g, int index, int clef) 
     {
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     	String symbol = "";
-		Note note = notes.get(index);
+		Note note = null;
+		if (clef == 1) note = notes.get(index);
+		else if (clef == 2) note = notes2.get(index);
 		int type = note.type;
 
 		if (editMode == true && index == editNoteIndex)
@@ -424,6 +451,7 @@ public class NotesPanel extends JPanel implements MouseListener
 
 		g.drawString(symbol, note.xpos, note.ypos);
 		
+/*
 		// double clef ? Must draw a pause on the other clef
 		if (inlineMode == false && clefs.size() == 2)
 		{
@@ -451,7 +479,7 @@ public class NotesPanel extends JPanel implements MouseListener
 			}
 			g.drawString(symbol, note.xpos, yPos);
 		}
-
+*/
 		// draw alteration symbol if required
 		if (note.altType != 0)
 		{
@@ -516,17 +544,29 @@ public class NotesPanel extends JPanel implements MouseListener
 		if (globalScale != 1.0)
 			((Graphics2D) g).scale(globalScale, globalScale);
 
-    	if (singleNoteIndex == -1)
+    	if (singleNoteIndex == -1 && singleNote2Index == -1)
     	{
         	g.setColor(Color.black);
         	if (notes == null)
         		return;
     		for (int i = 0; i < notes.size(); i++)
     		{
-    			drawNote(g, i);
+    			drawNote(g, i, 1);
     		}
+
+        	if (notes2 == null)
+        		return;
+    		for (int i = 0; i < notes2.size(); i++)
+    		{
+    			drawNote(g, i, 2);
+    		}    		
     	}
     	else
-    		drawNote(g, singleNoteIndex);
+    	{
+    		if (singleNote2Index == -1)
+    			drawNote(g, singleNoteIndex, 1);
+    		else
+    			drawNote(g, singleNoteIndex, 2);
+    	}
  	}
 }

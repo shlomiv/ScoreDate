@@ -60,7 +60,8 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 	private Accidentals scoreAccidentals;
 	private NoteGenerator scoreNG;
 	private Statistics stats;
-	Vector<Note> gameNotes = new Vector<Note>(); // array of random notes composing the game 
+	Vector<Note> gameNotes = new Vector<Note>(); // array of random notes (1st clef) composing the game
+	Vector<Note> gameNotes2 = new Vector<Note>(); // array of random notes (2nd clef) composing the game
 	Vector<Integer> userNotes = new Vector<Integer>(); // array of notes hit by the user
 
 	// Graphics metrics 
@@ -86,7 +87,8 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 	private boolean gameStarted = false; // variable to control thread job
 	private int gameType = -1; // type of game. See prefernces for values
 	private long startTime; // timestamp of cursor at the beginning of a row
-	private int currentNoteIndex = -1; // index of the currently playing note
+	private int currentNoteIndex = -1; // index of the currently playing note (first clef)
+	private int currentNote2Index = -1; // index of the currently playing note (second clef)
 	private int cursorStartX; // X start position of cursor for each row
 	private int cursorX; // X position of cursor during game
 	private int cursorY; // Y position of cursor during game
@@ -154,7 +156,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		staffLayer.setBounds(0, 0, panelsWidth, staffHeight);
 		staffLayer.setOpaque(true);
 		
-		notesLayer = new NotesPanel(appFont, appPrefs, gameNotes, false);
+		notesLayer = new NotesPanel(appFont, appPrefs, gameNotes, gameNotes2, false);
 		notesLayer.setPreferredSize( new Dimension(panelsWidth, staffHeight));
 		notesLayer.setBounds(0, 0, panelsWidth, staffHeight);
 		notesLayer.setOpaque(false);
@@ -258,7 +260,11 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 
 	public void createNewSequence()
 	{
-		scoreNG.getRandomSequence(gameNotes, staffLayer.getMeasuresTotalNumber(), isRhythm);
+		gameNotes.clear();
+		gameNotes2.clear();
+		scoreNG.getRandomSequence(gameNotes, staffLayer.getMeasuresTotalNumber(), isRhythm, 1);
+		if (scoreNG.getClefsNumber() == 2)
+			scoreNG.getRandomSequence(gameNotes2, staffLayer.getMeasuresTotalNumber(), isRhythm, 2);
 		notesLayer.setNotesPositions();
 	}
 
@@ -443,7 +449,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
         {
         	if (gameType == appPrefs.SCORE_GAME_LISTEN)
         	{
-        		notesLayer.highlightNote(currentNoteIndex, true);
+        		notesLayer.highlightNote(currentNoteIndex, 1, true);
 	        	if (scoreScrollPanel.getVerticalScrollBar().isVisible() == true)
 	        	{
 	        		int scrollAmount = scoreScrollPanel.getVerticalScrollBar().getMaximum() + rowsDistance - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount();
@@ -456,8 +462,29 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
         else if ("nOff".equals(strData))
         {
         	if (gameType == appPrefs.SCORE_GAME_LISTEN)
-        		notesLayer.highlightNote(currentNoteIndex, false);
+        		notesLayer.highlightNote(currentNoteIndex, 1, false);
         	currentNoteIndex++;
+        	gameBar.progress.setValue((currentNoteIndex * 100) / gameNotes.size());
+        }
+        else if ("n2On".equals(strData))
+        {
+        	if (gameType == appPrefs.SCORE_GAME_LISTEN)
+        	{
+        		notesLayer.highlightNote(currentNote2Index, 2, true);
+	        	if (scoreScrollPanel.getVerticalScrollBar().isVisible() == true)
+	        	{
+	        		int scrollAmount = scoreScrollPanel.getVerticalScrollBar().getMaximum() + rowsDistance - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount();
+	        		int newPos = (scrollAmount * ((currentNoteIndex * 100) / gameNotes.size())) / 100;
+	        		//System.out.println("Scrollbar amount: " + newPos);
+	        		scoreScrollPanel.getVerticalScrollBar().setValue(newPos);
+	        	}
+        	}
+        }
+        else if ("n2Off".equals(strData))
+        {
+        	if (gameType == appPrefs.SCORE_GAME_LISTEN)
+        		notesLayer.highlightNote(currentNote2Index, 2, false);
+        	currentNote2Index++;
         	gameBar.progress.setValue((currentNoteIndex * 100) / gameNotes.size());
         }
         else if ("end".equals(strData))
@@ -510,7 +537,16 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
             	handleAsyncMIDIevent(meta);
             }
 		});
-	    playback = appMidi.createPlayback(appPrefs, currentSpeed, gameNotes, timeDivision, playOnly, timeNumerator);
+		if (scoreNG.getClefsNumber() == 2)
+		{
+			// on double clef, create a single sequence for playback
+			Vector<Note> tmpSequence = gameNotes;
+			tmpSequence.addAll(gameNotes2);
+			playback = appMidi.createPlayback(appPrefs, currentSpeed, tmpSequence, timeDivision, playOnly, timeNumerator);
+		}
+		else
+			playback = appMidi.createPlayback(appPrefs, currentSpeed, gameNotes, timeDivision, playOnly, timeNumerator);
+
 		playback.addMetaEventListener(new MetaEventListener() {
           public void meta(MetaMessage meta) 
           {
@@ -519,6 +555,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		});
 		
 		currentNoteIndex = 0;
+		currentNote2Index = 0;
 		metronome.start();
 		playback.start();
 	}
@@ -531,8 +568,10 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		appMidi.stopMetronome();
 		if (gameType == appPrefs.SCORE_GAME_LISTEN)
 		{
-			notesLayer.highlightNote(currentNoteIndex, false);
+			notesLayer.highlightNote(currentNoteIndex, 1, false);
 			currentNoteIndex = -1;
+			notesLayer.highlightNote(currentNote2Index, 2, false);
+			currentNote2Index = -1;			
 		}
 		gameBar.scoreCnt.setText("");
 		gameBar.progress.setValue(0);

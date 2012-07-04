@@ -126,7 +126,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		inlineStaff = new Staff(appFont, appBundle, appPrefs, inlineAccidentals, true, true);
 		inlineStaff.setPreferredSize( new Dimension(panelsWidth, staffHeight));
 		inlineStaff.setBounds(0, 0, panelsWidth, staffHeight);
-		inlineStaff.setClef(clefMask);
+		inlineStaff.setClefs(clefMask);
 		inlineStaff.setOpaque(true);
 		
 		notesLayer = new NotesPanel(appFont, appPrefs, gameNotes, null, true);
@@ -186,14 +186,14 @@ public class InlinePanel extends JPanel implements ActionListener
 			higherPitch = inlineNG.getSecondHighPitch();
 			piano.setNewBound(lowerPitch, higherPitch);
 
-			inlineStaff.setClef(inlineNG.getClefMask());
-			notesLayer.setClef(inlineNG.getClefMask());
+			inlineStaff.setClefs(inlineNG.getClefMask());
+			notesLayer.setClefs(inlineNG.getClefMask());
 			rowsDistance = inlineNG.getRowsDistance();
 		}
 		else
 		{
-			inlineStaff.setClef(currEx.clefMask);
-			notesLayer.setClef(currEx.clefMask);
+			inlineStaff.setClefs(currEx.clefMask);
+			notesLayer.setClefs(currEx.clefMask);
 			if (currEx.randomize == 1)
 				inlineNG.setNotesList(currEx.notes, true);
 			else

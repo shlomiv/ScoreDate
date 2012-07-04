@@ -29,7 +29,6 @@ import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
 public class NotesPanel extends JPanel implements MouseListener
 {
 	private static final long serialVersionUID = -1735923156425027329L;
@@ -52,6 +51,7 @@ public class NotesPanel extends JPanel implements MouseListener
 	private boolean inlineMode = false;
 	private int singleNoteIndex = -1; // force the painting of a single note (first clef)
 	private int singleNote2Index = -1; // force the painting of a single note (second clef)
+	private int selectedClef = 1; 
 
 	private JLabel learningText;
 
@@ -90,7 +90,7 @@ public class NotesPanel extends JPanel implements MouseListener
     	rowsDistance = dist;
     }
 
-    public void setClef(int type)
+    public void setClefs(int type)
     {
     	clefMask = type;
     	clefs.clear();
@@ -107,6 +107,13 @@ public class NotesPanel extends JPanel implements MouseListener
 		learningText.setFont(ltf);
 		
     	repaint();
+    }
+    
+    public int getClef(int idx)
+    {
+    	if (idx < 0 || idx >= clefs.size())
+    		return 0;
+    	return clefs.get(idx);
     }
     
     public void setFirstNoteXPosition(int xpos)
@@ -146,11 +153,12 @@ public class NotesPanel extends JPanel implements MouseListener
     	editNG = ng;
     }
     
-    public void setNotesSequence(Vector<Note> n)
+    public void setNotesSequence(Vector<Note> n, Vector<Note> n2)
     {
-    	notes = n;
+    	if (n != null) notes = n;
+    	if (n2 != null) notes2 = n2;
     }
-    
+
     public void setNotesPositions()
     {
     	tmpX = firstNoteXPos;
@@ -162,7 +170,7 @@ public class NotesPanel extends JPanel implements MouseListener
     	for (int i = 0; i < notes.size(); i++)
     	{
     		setSingleNotePosition(notes.get(i), true);
-    		//System.out.println("[Note: #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
+    		//System.out.println("[Note(1): #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
     	}
     	
     	if (notes2 == null)
@@ -174,7 +182,7 @@ public class NotesPanel extends JPanel implements MouseListener
     	for (int i = 0; i < notes2.size(); i++)
     	{
     		setSingleNotePosition(notes2.get(i), true);
-    		//System.out.println("[Note: #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
+    		//System.out.println("[Note(2): #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
     	}
     }
     
@@ -284,21 +292,53 @@ public class NotesPanel extends JPanel implements MouseListener
 		if (editMode == false || editModeRhythm == true)
 			return;
 		
+		if (clefs.size() > 1)
+		{
+			int selY = editNoteSelY;
+			int selH = editNoteSelH;
+			
+			if (notes.size() == 0 && notes2.size() == 0)
+			{
+				selY = (selectedClef - 1) * (rowsDistance / 2);
+				selH = rowsDistance / 2;
+			}
+			int newClef = selectedClef;
+			if (selectedClef == 1 && mouseY >= selY + selH && mouseY < selY + (selH * 2))
+				newClef = 2;
+			else if (selectedClef == 2 && mouseY < selY && mouseY >= selY - selH)
+				newClef = 1;
+			if (newClef != selectedClef)
+			{
+				this.firePropertyChange("newSelectedClef", selectedClef, newClef);
+				selectedClef = newClef;
+				repaint();
+			}
+		}
+		
+		Vector<Note>tmpNotes = null;
+		if (selectedClef == 1)
+			tmpNotes = notes;
+		else if (selectedClef == 2)
+			tmpNotes = notes2;
+		
 		if (editNoteIndex != -1 && mouseX >= editNoteSelX && mouseX < editNoteSelX + editNoteSelW && 
 			mouseY >= editNoteSelY && mouseY < editNoteSelY + editNoteSelH)
 		{
 			//if (mouseY > 128) return;
 			// clicked over the currently selected note. Act on the pitch
-			Note tmpNote = notes.get(editNoteIndex);
+			Note tmpNote = tmpNotes.get(editNoteIndex);
 			int origLevel = tmpNote.level;
 			int newLevel = (mouseY - editNoteSelY - 4) / 5;
 			if (newLevel != origLevel)
 			{
 				tmpNote.level = (mouseY - editNoteSelY - 4) / 5;
 				tmpX = tmpNote.xpos; // must 'rewind' xpos to avoid wrong check for second line
-				tmpY = editNoteSelY;
+				if (selectedClef == 1)
+					tmpY = editNoteSelY;
+				else if (selectedClef == 2)
+					tmpY = editNoteSelY - (rowsDistance/2);
 				setSingleNotePosition(tmpNote, false); // do not touch X position !
-				tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(0), tmpNote.level); // retrieve the base pitch of this level and clef
+				tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(selectedClef - 1), tmpNote.level); // retrieve the base pitch of this level and clef
 				tmpNote.pitch = editNG.getAlteredFromBase(tmpNote.pitch); // retrieve a new pitch if it is altered
 				if (tmpNote.altType != 0)
 					this.firePropertyChange("levelWasAltered", origLevel, newLevel);
@@ -315,9 +355,14 @@ public class NotesPanel extends JPanel implements MouseListener
 			// look for a note to select
 			int lookupX = firstNoteXPos, lookupY = 0;
 			
-			for (int i = 0; i < notes.size(); i++)
+			if (tmpNotes.size() == 0)
 			{
-				Note tmpNote = notes.get(i);
+				setEditNoteIndex(-1);
+				return;
+			}
+			for (int i = 0; i < tmpNotes.size(); i++)
+			{
+				Note tmpNote = tmpNotes.get(i);
 
 				//System.out.println("#" + i + ": ypos: " + tmpNote.ypos + ", floor: " + (int)Math.floor((double)tmpNote.ypos / rowsDistance));
 				System.out.println("#" + i + ": nX: " + (lookupX - 5) + ", nY: " + lookupY + ", nX1: " + (int)(lookupX + (tmpNote.duration * noteDistance)) + ", nY1: " + (tmpY + rowsDistance));
@@ -369,13 +414,18 @@ public class NotesPanel extends JPanel implements MouseListener
 		else if (clef == 2) note = notes2.get(index);
 		int type = note.type;
 
-		if (editMode == true && index == editNoteIndex)
+		if (editMode == true && clef == selectedClef && index == editNoteIndex)
 		{
 			// gotta find the original note Y base position :'(
-			int lookupX = firstNoteXPos, lookupY = 0; 
+			Vector<Note>tmpNotes = notes;
+			if (clef == 2)
+				tmpNotes = notes2;
+
+			int lookupX = firstNoteXPos;
+			int lookupY = (clef - 1) * (rowsDistance / 2);
 			for (int i = 0; i < editNoteIndex; i++)
 			{
-				lookupX += (notes.get(i).duration * noteDistance);
+				lookupX += (tmpNotes.get(i).duration * noteDistance);
 				if (lookupX >= staffWidth)
 				{
 					lookupX = firstNoteXPos;
@@ -388,6 +438,12 @@ public class NotesPanel extends JPanel implements MouseListener
 			editNoteSelW = (int)(note.duration * noteDistance);
 			editNoteSelH = 130;
 			g.fillRoundRect(editNoteSelX, editNoteSelY, editNoteSelW, editNoteSelH, 10, 10);
+			if (clefs.size() > 1)
+			{
+				// highlight the current clef
+				g.setColor(new Color(0x00, 0xFF, 0x00, 0x1F));
+				g.fillRoundRect(0, editNoteSelY + 5, firstNoteXPos - 5, editNoteSelH - 10, 10, 10);
+			}
 		}
 
 		if (note.highlight == true)
@@ -547,19 +603,24 @@ public class NotesPanel extends JPanel implements MouseListener
     	if (singleNoteIndex == -1 && singleNote2Index == -1)
     	{
         	g.setColor(Color.black);
-        	if (notes == null)
-        		return;
-    		for (int i = 0; i < notes.size(); i++)
+        	if (notes != null)
+        	{
+        		for (int i = 0; i < notes.size(); i++)
+        			drawNote(g, i, 1);
+        	}
+        	if (notes2 != null)
+        	{
+        		for (int i = 0; i < notes2.size(); i++)
+        			drawNote(g, i, 2);
+        	}
+    		if (editMode == true && editNoteIndex == -1 && clefs.size() > 1)
     		{
-    			drawNote(g, i, 1);
+    			g.setColor(new Color(0x00, 0xFF, 0x00, 0x1F));
+    			if (selectedClef == 1)
+    				g.fillRoundRect(0, 5, firstNoteXPos - 5, 120, 10, 10);
+    			else if (selectedClef == 2)
+    				g.fillRoundRect(0, rowsDistance/2, firstNoteXPos - 5, 120, 10, 10);
     		}
-
-        	if (notes2 == null)
-        		return;
-    		for (int i = 0; i < notes2.size(); i++)
-    		{
-    			drawNote(g, i, 2);
-    		}    		
     	}
     	else
     	{

@@ -100,7 +100,7 @@ public class Staff extends JPanel
     	rowsDistance = dist;
     }
     
-    public void setClef(int type)
+    public void setClefs(int type)
     {
     	clefMask = type;
     	clefs.clear();
@@ -111,6 +111,11 @@ public class Staff extends JPanel
     	if ((clefMask & appPrefs.TENOR_CLEF) > 0) clefs.add(appPrefs.TENOR_CLEF);
 
     	repaint();
+    }
+    
+    public int getRowsDistance()
+    {
+    	return clefs.size() * 90;
     }
     
     public void setAccidentals(Accidentals a)

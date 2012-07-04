@@ -1,3 +1,6 @@
+July ??, 2012 - version 3.2
+- NEW: increased exercise editor size. Now it can be scrolled vertically 
+
 June 21st, 2012 - version 3.1
 
 - NEW: exercises bigger than the window size can now be scrolled

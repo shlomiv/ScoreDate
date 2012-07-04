@@ -26,6 +26,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
@@ -351,7 +352,10 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		{
 			if (isPlaying == false)
 			{
-				playback = appMidi.createPlayback(appPrefs, selectedExercise.speed, selectedExercise.notes, timeDenominator / 4, true, 0);
+				Vector<Note> tmpSequence = new Vector<Note>(); 
+				tmpSequence.addAll(selectedExercise.notes);
+				tmpSequence.addAll(selectedExercise.notes2);
+				playback = appMidi.createPlayback(appPrefs, selectedExercise.speed, tmpSequence, timeDenominator / 4, true, 0);
 				playback.addMetaEventListener(new MetaEventListener() {
 			          public void meta(MetaMessage meta) 
 			          {
@@ -413,7 +417,8 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         selectedExercise.loadFromFile(nInfo.filePath);
         
         exerciseTitle.setText(selectedExercise.title);
-        scoreStaff.setClef(selectedExercise.clefMask);
+        scoreStaff.setClefs(selectedExercise.clefMask);
+        scoreStaff.setRowsDistance(scoreStaff.getRowsDistance());
         scoreStaff.setAccidentals(selectedExercise.acc);
         timeNumerator = 4;
         timeDenominator = 4;
@@ -428,10 +433,11 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         scoreStaff.setMeasuresNumber((int)Math.ceil(totalDuration / (timeNumerator / (timeDenominator / 4))));
         playbackSpeed = selectedExercise.speed;
         
-        notesLayer.setClef(selectedExercise.clefMask);
+        notesLayer.setClefs(selectedExercise.clefMask);
+        notesLayer.setRowsDistance(scoreStaff.getRowsDistance());
         notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
         notesLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
-        notesLayer.setNotesSequence(selectedExercise.notes);
+        notesLayer.setNotesSequence(selectedExercise.notes, selectedExercise.notes2);
         notesLayer.setNotesPositions();
         listenBtn.setEnabled(true);
     

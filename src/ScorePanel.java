@@ -201,18 +201,18 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 				rowsDistance = 90;
 			staffLayer.setRowsDistance(rowsDistance);
 			notesLayer.setRowsDistance(rowsDistance);
-			staffLayer.setClef(scoreNG.getClefMask());
-			notesLayer.setClef(scoreNG.getClefMask());
+			staffLayer.setClefs(scoreNG.getClefMask());
+			notesLayer.setClefs(scoreNG.getClefMask());
 			System.out.println("Staff width = " + staffLayer.getStaffWidth());
 			System.out.println("rowsDistance = " + rowsDistance);
 			tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
 		}
 		else
 		{
-			staffLayer.setRowsDistance(rowsDistance);
-			notesLayer.setRowsDistance(rowsDistance);
-			staffLayer.setClef(currEx.clefMask);
-			notesLayer.setClef(currEx.clefMask);
+			staffLayer.setClefs(currEx.clefMask);
+			notesLayer.setClefs(currEx.clefMask);
+			staffLayer.setRowsDistance(staffLayer.getRowsDistance());
+			notesLayer.setRowsDistance(staffLayer.getRowsDistance());
 			tsIdx = currEx.timeSign;
 		}
 		
@@ -243,12 +243,12 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		else
 		{
 			gameNotes = currEx.notes;
+			gameNotes2 = currEx.notes2;
 			double totalDuration = currEx.notes.get(currEx.notes.size() - 1).timestamp + currEx.notes.get(currEx.notes.size() - 1).duration;
 	        staffLayer.setMeasuresNumber((int)Math.ceil(totalDuration / (timeNumerator / (timeDenominator / 4))));
-	        notesLayer.setNotesSequence(gameNotes);
+	        notesLayer.setNotesSequence(currEx.notes, currEx.notes2);
 			notesLayer.setNotesPositions();
 		}
-		
 	}
 	
 	public void updateLanguage(ResourceBundle bundle)
@@ -537,10 +537,11 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
             	handleAsyncMIDIevent(meta);
             }
 		});
-		if (scoreNG.getClefsNumber() == 2)
+		if (gameNotes2.size() > 0)
 		{
 			// on double clef, create a single sequence for playback
-			Vector<Note> tmpSequence = gameNotes;
+			Vector<Note> tmpSequence = new Vector<Note>(); 
+			tmpSequence.addAll(gameNotes);
 			tmpSequence.addAll(gameNotes2);
 			playback = appMidi.createPlayback(appPrefs, currentSpeed, tmpSequence, timeDivision, playOnly, timeNumerator);
 		}

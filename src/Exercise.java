@@ -99,6 +99,60 @@ public class Exercise
 		speed = s;
 	}
 	
+	private void addSequence(Document d, Element root, Vector<Note> n)
+	{
+		Element exSequence = d.createElement("sequence");
+		root.appendChild(exSequence);
+		
+		for (int i = 0; i < n.size(); i++)
+		{
+			Element exNote = d.createElement("note");
+			exSequence.appendChild(exNote);
+			
+			Note tmpNote = n.get(i);
+			exNote.setAttribute("t", Integer.toString(tmpNote.type));
+			exNote.setAttribute("p", Integer.toString(tmpNote.pitch));
+			exNote.setAttribute("l", Integer.toString(tmpNote.level));
+			exNote.setAttribute("ts", Double.toString(tmpNote.timestamp));
+			exNote.setAttribute("d", Double.toString(tmpNote.duration));
+			exNote.setAttribute("c", Integer.toString(tmpNote.clef));
+			if (tmpNote.altType != 0)
+				exNote.setAttribute("a", Integer.toString(tmpNote.altType));
+/*
+			Element nType = d.createElement("t");
+			nType.appendChild(d.createTextNode(Integer.toString(tmpNote.type)));
+			exNote.appendChild(nType);		
+
+			Element nPitch = d.createElement("p");
+			nPitch.appendChild(d.createTextNode(Integer.toString(tmpNote.pitch)));
+			exNote.appendChild(nPitch);
+
+			Element nLevel = d.createElement("l");
+			nLevel.appendChild(d.createTextNode(Integer.toString(tmpNote.level)));
+			exNote.appendChild(nLevel);
+
+			Element nTime = d.createElement("ts");
+			nTime.appendChild(d.createTextNode(Double.toString(tmpNote.timestamp)));
+			exNote.appendChild(nTime);				
+
+			Element nDur = d.createElement("d");
+			nDur.appendChild(d.createTextNode(Double.toString(tmpNote.duration)));
+			exNote.appendChild(nDur);
+
+			Element nClef = d.createElement("c");
+			nClef.appendChild(d.createTextNode(Integer.toString(tmpNote.clef)));
+			exNote.appendChild(nClef);	
+
+			if (tmpNote.altType != 0)
+			{
+				Element nAlt = d.createElement("a");
+				nAlt.appendChild(d.createTextNode(Integer.toString(tmpNote.altType)));
+				exNote.appendChild(nAlt);	
+			}
+*/
+		}
+	}
+	
 	public void saveToXML()
 	{
 		try {
@@ -123,7 +177,7 @@ public class Exercise
 			// shorten way
 			// staff.setAttribute("id", "1");
 			Element exVersion = doc.createElement("version");
-			exVersion.appendChild(doc.createTextNode(Integer.toString(2))); // remember to update this value in case more tags are added
+			exVersion.appendChild(doc.createTextNode(Integer.toString(3))); // remember to update this value in case more tags are added
 			staff.appendChild(exVersion);
 
 			Element exType = doc.createElement("type");
@@ -160,46 +214,10 @@ public class Exercise
 			
 			
 			// ************************ SEQUENCE ****************************
-			Element exSequence = doc.createElement("sequence");
-			rootElement.appendChild(exSequence);
-			
-			for (int i = 0; i < notes.size(); i++)
-			{
-				Element exNote = doc.createElement("note");
-				exSequence.appendChild(exNote);
-				
-				Note tmpNote = notes.get(i);
-				Element nType = doc.createElement("t");
-				nType.appendChild(doc.createTextNode(Integer.toString(tmpNote.type)));
-				exNote.appendChild(nType);		
-
-				Element nPitch = doc.createElement("p");
-				nPitch.appendChild(doc.createTextNode(Integer.toString(tmpNote.pitch)));
-				exNote.appendChild(nPitch);
-
-				Element nLevel = doc.createElement("l");
-				nLevel.appendChild(doc.createTextNode(Integer.toString(tmpNote.level)));
-				exNote.appendChild(nLevel);
-
-				Element nTime = doc.createElement("ts");
-				nTime.appendChild(doc.createTextNode(Double.toString(tmpNote.timestamp)));
-				exNote.appendChild(nTime);				
-
-				Element nDur = doc.createElement("d");
-				nDur.appendChild(doc.createTextNode(Double.toString(tmpNote.duration)));
-				exNote.appendChild(nDur);
-
-				Element nClef = doc.createElement("c");
-				nClef.appendChild(doc.createTextNode(Integer.toString(tmpNote.clef)));
-				exNote.appendChild(nClef);	
-				
-				if (tmpNote.altType != 0)
-				{
-					Element nAlt = doc.createElement("a");
-					nAlt.appendChild(doc.createTextNode(Integer.toString(tmpNote.altType)));
-					exNote.appendChild(nAlt);	
-				}
-			}
+			if (notes.size() > 0)
+				addSequence(doc, rootElement, notes);
+			if (notes2.size() > 0)
+				addSequence(doc, rootElement, notes2);
 	 
 			// write the content into xml file
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -240,6 +258,7 @@ public class Exercise
 	  
 	public void loadFromFile(String path)
 	{
+		int version = 0;
 		int levOffset = 0; // offset to be added to notes levels
 		notes.clear();
 		try
@@ -259,7 +278,7 @@ public class Exercise
 			{
 				Element eElement = (Element) nNode;
 	 
-				int version = Integer.parseInt(getTagValue("version", eElement));
+				version = Integer.parseInt(getTagValue("version", eElement));
 				if (version < 0)
 					levOffset = 2;
 				type = Integer.parseInt(getTagValue("type", eElement));
@@ -282,7 +301,7 @@ public class Exercise
 			
 			NodeList sList = doc.getElementsByTagName("sequence");
 			// cycle through sequences
-			for (int seq = 0; seq < nList.getLength(); seq++)
+			for (int seq = 0; seq < sList.getLength(); seq++)
 			{
 			   Element sElem = (Element)sList.item(seq);
 			   NodeList notesList = sElem.getElementsByTagName("note");
@@ -292,20 +311,44 @@ public class Exercise
 				   for (int n = 0; n < notesList.getLength(); n++)
 				   {
 					   Note tmpNote;
+					   int nType = 0, nPitch = 0, nLevel = 0, nClef = 0, nAlt = 0;
+					   double nStamp = 0, nDur = 0;
 					   Element nElem = (Element)notesList.item(n);
-					   int nType = Integer.parseInt(getTagValue("t", nElem));
-					   int nPitch = Integer.parseInt(getTagValue("p", nElem));
-					   int nLevel = Integer.parseInt(getTagValue("l", nElem)) + levOffset;
-					   double nStamp = Double.parseDouble(getTagValue("ts", nElem));
-					   double nDur = Double.parseDouble(getTagValue("d", nElem));
-					   int nClef = Integer.parseInt(getTagValue("c", nElem));
-					   int nAlt = Integer.parseInt(getTagValue("a", nElem));
+					   if (version < 3)
+					   {
+						   nType = Integer.parseInt(getTagValue("t", nElem));
+						   nPitch = Integer.parseInt(getTagValue("p", nElem));
+						   nLevel = Integer.parseInt(getTagValue("l", nElem)) + levOffset;
+						   nStamp = Double.parseDouble(getTagValue("ts", nElem));
+						   nDur = Double.parseDouble(getTagValue("d", nElem));
+						   nClef = Integer.parseInt(getTagValue("c", nElem));
+						   nAlt = Integer.parseInt(getTagValue("a", nElem));
+					   }
+					   else
+					   {
+						   nType = Integer.parseInt(nElem.getAttribute("t"));
+						   nPitch = Integer.parseInt(nElem.getAttribute("p"));
+						   nLevel = Integer.parseInt(nElem.getAttribute("l")) + levOffset;
+						   nStamp = Double.parseDouble(nElem.getAttribute("ts"));
+						   nDur = Double.parseDouble(nElem.getAttribute("d"));
+						   nClef = Integer.parseInt(nElem.getAttribute("c"));
+						   String alt = nElem.getAttribute("a");
+						   if (alt != "")
+							   nAlt = Integer.parseInt(alt);
+					   }
+
 					   tmpNote = new Note(0, nClef, nLevel, nPitch, nType, false, 0);
 					   if (nAlt > -3)
 						   tmpNote.altType = nAlt;
 					   tmpNote.setTimeStamp(nStamp);
 					   tmpNote.duration = nDur;
-					   notes.add(tmpNote);
+					   if (seq == 0)
+						   notes.add(tmpNote);
+					   else if (seq == 1)
+					   {
+						   tmpNote.secondRow = true;
+						   notes2.add(tmpNote);
+					   }
 				   }
 			   }
 			   

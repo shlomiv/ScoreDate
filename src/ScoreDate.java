@@ -600,7 +600,10 @@ public class ScoreDate extends JFrame implements ActionListener
                 	  int pitch = ((ShortMessage)event).getData1();
                 	  int vel = ((ShortMessage)event).getData2();
                 	  pitch += transposition;
-                	  System.out.println("   Key pressed - Pitch: "+ pitch + " Velocity: " + vel);
+                	  if (vel == 0)
+                		  System.out.println("   Key released - Pitch: "+ pitch);
+                	  else
+                		  System.out.println("   Key pressed - Pitch: "+ pitch + " Velocity: " + vel);
 
                 	  if (inlinePanel != null && inlinePanel.isVisible() == true)
                 		  inlinePanel.noteEvent(pitch, vel, false);

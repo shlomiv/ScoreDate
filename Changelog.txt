@@ -1,5 +1,8 @@
 July ??, 2012 - version 3.2
-- NEW: increased exercise editor size. Now it can be scrolled vertically 
+- NEW: increased exercise editor size. Now it can be scrolled vertically
+- NEW: full double clef support added !
+	* Random exercises can be played with simultaneous notes on two clefs 
+	* Exercises can now be created, edited and saved with two clefs
 
 June 21st, 2012 - version 3.1
 

@@ -405,6 +405,40 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			finishButton.setEnabled(false);
 	}
 	
+	private boolean checkStaffResize(int amount)
+	{
+    	if (selectedClef == 1 && currExercise.notes2.size() == 0)
+    		return true;
+    	double lastTS, lastDur;
+    	int measures = 0, measures2 = 0;
+    	Vector<Note>tmpNotes = null;
+
+    	if (exNotes.size() > 0)
+    	{
+    		lastTS = exNotes.get(exNotes.size() - 1).timestamp;
+    		lastDur = exNotes.get(exNotes.size() - 1).duration;
+    		measures = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
+    	}
+    	
+    	if (selectedClef == 1)
+    		tmpNotes = currExercise.notes2;
+    	else
+    		tmpNotes = currExercise.notes;
+    	
+    	if (tmpNotes.size() > 0)
+    	{
+    		lastTS = tmpNotes.get(tmpNotes.size() - 1).timestamp;
+    		lastDur = tmpNotes.get(tmpNotes.size() - 1).duration;
+        	measures2 = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
+    	}
+    	
+    	if ((amount > 0 && measures >= measures2) || 
+    		(amount < 0 && measures > measures2))
+    		return true;
+
+		return false;
+	}
+	
 	private void addEditNote(double type, boolean isSilence)
 	{
 		Note tmpNote;
@@ -413,14 +447,17 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			measureCounter = timeNumerator;
 			measuresNumber++;
 			int staffW = scoreStaff.getWidth();
-			scoreStaff.setMeasuresNumber(measuresNumber);
-			int staffH = scoreStaff.getStaffHeight();
-			scoreStaff.setBounds(0, 0, staffW, staffH);
-			notesEditLayer.setBounds(0, 0, staffW, staffH);
-			layers.setPreferredSize(new Dimension(staffW, staffH));
-			layers.validate();
-			scoreScrollPanel.validate();
-			scoreScrollPanel.getVerticalScrollBar().setValue(scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount());
+			if (checkStaffResize(1) == true)
+			{
+				scoreStaff.setMeasuresNumber(measuresNumber);
+				int staffH = scoreStaff.getStaffHeight();
+				scoreStaff.setBounds(0, 0, staffW, staffH);
+				notesEditLayer.setBounds(0, 0, staffW, staffH);
+				layers.setPreferredSize(new Dimension(staffW, staffH));
+				layers.validate();
+				scoreScrollPanel.validate();
+				scoreScrollPanel.getVerticalScrollBar().setValue(scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount());
+			}
 		}
 
 		int pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), 12);
@@ -617,16 +654,21 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 				if (measuresNumber > 1)
 				{
 					measuresNumber--;
-					int staffW = scoreStaff.getWidth();
-					staffW -= (scoreStaff.getNotesDistance() * timeNumerator);
-					scoreStaff.setBounds(0, 0, staffW, scoreStaff.getHeight());
-					scoreStaff.setMeasuresNumber(measuresNumber);
-					notesEditLayer.setBounds(0, 0, staffW, notesEditLayer.getHeight());
-					notesEditLayer.setStaffWidth(scoreStaff.getStaffWidth());
-					layers.setPreferredSize(new Dimension(staffW, layers.getHeight()));
-					layers.setBounds(0, 0, staffW, layers.getHeight());
-					scoreScrollPanel.getHorizontalScrollBar().setValue(scoreScrollPanel.getHorizontalScrollBar().getMaximum());
-					scoreScrollPanel.repaint();
+					// check if it is necessary to resize the staff layer
+					if (checkStaffResize(-1) == true)
+					{
+						int staffW = scoreStaff.getWidth();
+						staffW -= (scoreStaff.getNotesDistance() * timeNumerator);
+						scoreStaff.setBounds(0, 0, staffW, scoreStaff.getHeight());
+						scoreStaff.setMeasuresNumber(measuresNumber);
+						notesEditLayer.setBounds(0, 0, staffW, notesEditLayer.getHeight());
+						notesEditLayer.setStaffWidth(scoreStaff.getStaffWidth());
+						layers.setPreferredSize(new Dimension(staffW, layers.getHeight()));
+						layers.validate();
+						//layers.setBounds(0, 0, staffW, layers.getHeight());
+						//scoreScrollPanel.getHorizontalScrollBar().setValue(scoreScrollPanel.getHorizontalScrollBar().getMaximum());
+						scoreScrollPanel.validate();
+					}
 				}
 			}
 			exNotes.removeElementAt(lastIdx);
@@ -637,7 +679,10 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 				notesEditLayer.setEditNoteIndex(lastIdx);
 			}
 			else
+			{
 				removeNoteButton.setEnabled(false);
+				notesEditLayer.setEditNoteIndex(-1);
+			}
 
 			notesEditLayer.setNotesPositions();
 			layers.repaint();

@@ -131,7 +131,7 @@ public class Staff extends JPanel
     	repaint();
     }
     
-    public int getMeasuresTotalNumber()
+    public int getMeasuresNumber()
     {
     	if (forcedNumberOfMeasures == -1)
     	{

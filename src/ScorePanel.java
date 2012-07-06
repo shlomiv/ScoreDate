@@ -96,7 +96,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 	
 	// Variables to check notes validity
 	private int accuracy = 24; // a note is valid within 24 pixels around the note X position 
-	private int releaseXpos; // on key press, save the release X position for key release check
+	//private int releaseXpos; // on key press, save the release X position for key release check
 	
 	private boolean exerciseMode = false;
 	private Exercise currEx = null;
@@ -211,8 +211,9 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		{
 			staffLayer.setClefs(currEx.clefMask);
 			notesLayer.setClefs(currEx.clefMask);
-			staffLayer.setRowsDistance(staffLayer.getRowsDistance());
-			notesLayer.setRowsDistance(staffLayer.getRowsDistance());
+			rowsDistance = staffLayer.getRowsDistance();
+			staffLayer.setRowsDistance(rowsDistance);
+			notesLayer.setRowsDistance(rowsDistance);
 			tsIdx = currEx.timeSign;
 		}
 		
@@ -262,9 +263,9 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 	{
 		gameNotes.clear();
 		gameNotes2.clear();
-		scoreNG.getRandomSequence(gameNotes, staffLayer.getMeasuresTotalNumber(), isRhythm, 1);
+		scoreNG.getRandomSequence(gameNotes, staffLayer.getMeasuresNumber(), isRhythm, 1);
 		if (scoreNG.getClefsNumber() == 2)
-			scoreNG.getRandomSequence(gameNotes2, staffLayer.getMeasuresTotalNumber(), isRhythm, 2);
+			scoreNG.getRandomSequence(gameNotes2, staffLayer.getMeasuresNumber(), isRhythm, 2);
 		notesLayer.setNotesPositions();
 	}
 
@@ -320,85 +321,103 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 				stats.storeData(2);
 		}
 	}
-
-	private void checkNote(int currPos, int pitch, boolean press)
+	
+	private void checkNote(int cursorPos, int pitch, boolean press)
 	{
+		int delta1 = -1, delta2 = -1;
 		if (currentNoteIndex < 0 || currentNoteIndex >= gameNotes.size())
 			return;
+		// find the closest pitch against current clefs notes
+		delta1 = Math.abs(pitch - gameNotes.get(currentNoteIndex).pitch);
+		if (gameNotes2.size() > 0 && currentNote2Index != -1)
+			delta2 = Math.abs(pitch - gameNotes2.get(currentNote2Index).pitch);
+		if (delta2 == -1 || delta1 < delta2)
+			checkAnswer(cursorPos, currentNoteIndex, gameNotes, pitch, press, false);
+		else
+			checkAnswer(cursorPos, currentNote2Index, gameNotes2, pitch, press, true);
+	}
+
+	private void checkAnswer(int cursorPos, int noteIdx, Vector<Note> n, int pitch, boolean press, boolean secondClef)
+	{
+		if (noteIdx < 0 || noteIdx >= n.size())
+			return;
+		
+		int answerY = cursorY;
+		if (secondClef == true)
+			answerY += rowsDistance / 2;
 
 		// adjust X position if latency is on
 		if (latency > 0)
-			currPos -= ((staffLayer.getNotesDistance() * latency) / (60000 / currentSpeed));
+			cursorPos -= ((staffLayer.getNotesDistance() * latency) / (60000 / currentSpeed));
 
 		if (press == true) // check key press
 		{
-			if (gameNotes.size() == 0) return; // security check
-			int lookupIndex = currentNoteIndex;
-			int noteMargin = gameNotes.get(lookupIndex).xpos - (accuracy / 2);
+			if (n.size() == 0) return; // security check
+			int lookupIndex = noteIdx;
+			int noteMargin = n.get(lookupIndex).xpos - (accuracy / 2);
 			boolean noteFound = false;
 
 			// check against current note X position + margins
-			if (currPos > noteMargin && currPos < noteMargin + accuracy)
+			if (cursorPos > noteMargin && cursorPos < noteMargin + accuracy)
 				noteFound = true;
 
 			// maybe the user pressed the key too early. Check on the next note
-			if (noteFound == false && lookupIndex < gameNotes.size())
+			if (noteFound == false && lookupIndex < n.size())
 			{
 				lookupIndex++;
-				if (gameNotes.size() == 0 || lookupIndex >= gameNotes.size()) 
+				if (n.size() == 0 || lookupIndex >= n.size()) 
 					return; // security check
-				noteMargin = gameNotes.get(lookupIndex).xpos - (accuracy / 2);
+				noteMargin = n.get(lookupIndex).xpos - (accuracy / 2);
 					
-				if (currPos > noteMargin && currPos < noteMargin + accuracy)
+				if (cursorPos > noteMargin && cursorPos < noteMargin + accuracy)
 					noteFound = true;
 			}
 			
 			// still not found ? Display a warning
 			if (noteFound == false)
 			{
-				answersLayer.drawAnswer(2, currPos, cursorY);
-				lookupIndex = currentNoteIndex;
+				answersLayer.drawAnswer(2, cursorPos, answerY);
+				lookupIndex = noteIdx;
 			}
 			else
 			{
-				if (gameNotes.size() == 0) return; // security check
+				if (n.size() == 0) return; // security check
 
-				if ((pitch == gameNotes.get(lookupIndex).pitch || 
+				if ((pitch == n.get(lookupIndex).pitch || 
 					gameType == appPrefs.RHTYHM_GAME_USER) && // any pitch is OK for rhythm game 
-					gameNotes.get(lookupIndex).type != 5)  
+					n.get(lookupIndex).type != 5)  
 					{
-						answersLayer.drawAnswer(1, currPos, cursorY); // pitch and rhythm correct
+						answersLayer.drawAnswer(1, cursorPos, answerY); // pitch and rhythm correct
 						updateGameStats(1);
 					}
 				else
 				{
-					answersLayer.drawAnswer(0, currPos, cursorY); // wrong pitch
+					answersLayer.drawAnswer(0, cursorPos, answerY); // wrong pitch
 					updateGameStats(0);
 				}
 			}
 
-			if (gameNotes.size() == 0)return; // security check
-			// is last note of array or last note of the row ?
-			if (lookupIndex == gameNotes.size() - 1 || gameNotes.get(lookupIndex + 1).xpos < noteMargin)
-				releaseXpos = staffLayer.getStaffWidth() - (accuracy / 2);
-			else
-				releaseXpos = gameNotes.get(lookupIndex + 1).xpos - (accuracy / 2);
-			
-			if (gameNotes.size() == 0) return; // security check
-		    System.out.println("[checkNote] noteIdx: " + currentNoteIndex + 
-					   ", xpos: " + gameNotes.get(currentNoteIndex).xpos +
-					   ", cursor: " + currPos +
-			           ", noteMargin: " + noteMargin + 
-					   ", releaseXpos: " + releaseXpos);
+			if (n.size() == 0) return; // security check
+		    System.out.println("[checkNote *pressed*] noteIdx: " + noteIdx + 
+					   ", xpos: " + n.get(noteIdx).xpos +
+					   ", cursor: " + cursorPos +
+			           ", noteMargin: " + noteMargin);
 		}
 		else // check release
 		{
-			System.out.println("[checkNote *release*] currPos: " +  currPos + ", noteXpos: " + gameNotes.get(currentNoteIndex).xpos);
+			int idx = noteIdx;
+			/* at high speed, it might happen that two notes get overlapped, so look at the previous one */
+			if (idx > 0 && pitch != n.get(idx).pitch) 
+				idx--;
+			int releaseXpos = n.get(idx).xpos + (int)(72 * n.get(idx).duration) + (accuracy / 2);
+			System.out.println("[checkNote *release*] cursorPos: " +  cursorPos + 
+						", noteXpos: " + n.get(idx).xpos + ", releaseXpos: " + releaseXpos);
 			 
-			if (((currPos < releaseXpos && currPos > cursorStartX + accuracy) || 
-				 currPos > releaseXpos + accuracy) && currPos > gameNotes.get(currentNoteIndex).xpos + accuracy)
+			if (((cursorPos < releaseXpos - (accuracy * 2) && cursorPos > cursorStartX + accuracy) || cursorPos > releaseXpos) && 
+				  cursorPos > n.get(idx).xpos + accuracy)
+			//if (cursorPos < releaseXpos - (accuracy * 2) || cursorPos > releaseXpos)
 			{
-				answersLayer.drawAnswer(2, currPos, cursorY);
+				answersLayer.drawAnswer(2, cursorPos, answerY);
 				updateGameStats(2);
 			}
 		}
@@ -500,6 +519,8 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			if (gameType != appPrefs.SCORE_GAME_LISTEN)
 				gameFinished();
 			gameType = appPrefs.GAME_STOPPED;
+			currentNoteIndex = -1;
+			currentNote2Index = -1;
         }
 	}
 	
@@ -530,7 +551,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/stop.png")).getImage());
 		sBar.playBtn.repaint();
 		currentSpeed = sBar.tempoSlider.getValue();
-		metronome = appMidi.createMetronome(appPrefs, currentSpeed, staffLayer.getMeasuresTotalNumber(), timeNumerator, timeDivision);
+		metronome = appMidi.createMetronome(appPrefs, currentSpeed, staffLayer.getMeasuresNumber(), timeNumerator, timeDivision);
 		metronome.addMetaEventListener(new MetaEventListener() {
             public void meta(MetaMessage meta) 
             {

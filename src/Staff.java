@@ -192,7 +192,7 @@ public class Staff extends JPanel
     	calculateSize();
     	return (numberOfRows * rowsDistance) + (scoreYpos * 2);
     }
-    
+
     public void setScale(double factor)
     {
     	globalScale = factor;

@@ -194,10 +194,11 @@ public class InlinePanel extends JPanel implements ActionListener
 		{
 			inlineStaff.setClefs(currEx.clefMask);
 			notesLayer.setClefs(currEx.clefMask);
+			rowsDistance = inlineStaff.getRowsDistance();
 			if (currEx.randomize == 1)
-				inlineNG.setNotesList(currEx.notes, true);
+				inlineNG.setNotesList(currEx.notes, currEx.notes2, true);
 			else
-				inlineNG.setNotesList(currEx.notes, false);
+				inlineNG.setNotesList(currEx.notes, currEx.notes2, false);
 		}
 
 		inlineStaff.setRowsDistance(rowsDistance);

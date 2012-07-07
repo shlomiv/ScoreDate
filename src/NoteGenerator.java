@@ -274,16 +274,43 @@ public class NoteGenerator
 		else if (tsIdx == 3) { timeSignNumerator = 6; timeSignDenominator = 8; }
     }
     
-    public void setNotesList(Vector<Note> n, boolean random)
+    public void setNotesList(Vector<Note> n, Vector<Note> n2, boolean random)
     {
-    	if (random == true)
-    		randomPitchList = n;
-    	else
+    	int idx = 0, idx2 = 0;
+    	boolean done = false;
+    	while (!done)
     	{
-    		for (int i = 0; i < n.size(); i++)
-    			if (n.get(i).type != 5)
-    				randomPitchList.add(n.get(i));
+    		double ts = -1, ts2 = -1;
+    		if (idx == n.size() && idx2 == n2.size())
+    		{
+    			done = true;
+    			continue;
+    		}
+    		if (idx < n.size())
+    		{
+    			if (n.get(idx).type == 5) { idx++; continue; }
+    			ts = n.get(idx).timestamp;
+    			ts2 = 999999;
+    		}
+    		if (idx2 < n2.size())
+    		{
+    			if (n2.get(idx2).type == 5) { idx2++; continue; }
+    			ts2 = n2.get(idx2).timestamp;
+    			if (ts == -1) ts = 999999;
+    		}
+    		System.out.println("[NG setNotesList] idx: " + idx + " (ts="+ ts + ") idx2: " + idx2 + " (ts2=" + ts2 + ")");
+    		if (ts <= ts2)
+    		{
+    			randomPitchList.add(n.get(idx));
+    			idx++;
+    		}
+    		else
+    		{
+    			randomPitchList.add(n2.get(idx2));
+    			idx2++;
+    		}
     	}
+
     	randomEnabled = random;
     	notesListIndex = 0;
     }

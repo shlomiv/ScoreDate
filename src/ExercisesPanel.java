@@ -418,7 +418,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         
         exerciseTitle.setText(selectedExercise.title);
         scoreStaff.setClefs(selectedExercise.clefMask);
-        scoreStaff.setRowsDistance(scoreStaff.getRowsDistance());
+
         scoreStaff.setAccidentals(selectedExercise.acc);
         timeNumerator = 4;
         timeDenominator = 4;
@@ -434,10 +434,11 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         playbackSpeed = selectedExercise.speed;
         
         notesLayer.setClefs(selectedExercise.clefMask);
-        notesLayer.setRowsDistance(scoreStaff.getRowsDistance());
         notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
         notesLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
         notesLayer.setNotesSequence(selectedExercise.notes, selectedExercise.notes2);
+        scoreStaff.setRowsDistance(notesLayer.getRowsDistance());
+        notesLayer.setRowsDistance(notesLayer.getRowsDistance());
         notesLayer.setNotesPositions();
         listenBtn.setEnabled(true);
     
@@ -458,7 +459,8 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         	exLineBtn.setBounds(exRhythmBtn.getX() - 120, exRhythmBtn.getY(), 200, 40);
         	exLineBtn.setVisible(true);
         }
-        editExerciseBtn.setEnabled(true);      
+        editExerciseBtn.setEnabled(true);
+        exerciseScrollPanel.getVerticalScrollBar().setValue(0);
 	}
 	
 	protected void paintComponent(Graphics g) 

@@ -112,12 +112,12 @@ public class Staff extends JPanel
 
     	repaint();
     }
-    
+/*
     public int getRowsDistance()
     {
     	return clefs.size() * 90;
     }
-    
+*/  
     public void setAccidentals(Accidentals a)
     {
     	acc = new Accidentals(a.getType(), a.getNumber(), appPrefs);
@@ -190,7 +190,7 @@ public class Staff extends JPanel
     public int getStaffHeight()
     {
     	calculateSize();
-    	return (numberOfRows * rowsDistance) + (scoreYpos * 2);
+    	return (numberOfRows * rowsDistance) + scoreYpos;
     }
 
     public void setScale(double factor)

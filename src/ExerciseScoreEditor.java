@@ -275,11 +275,14 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, true, true);
 		else
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, false, true);
-		
+
+		/*
 		if (currExercise.notes2.size() > 0)
 			exNotes = currExercise.notes2;
 		else
 			exNotes = currExercise.notes;
+		*/
+		exNotes = currExercise.notes;
 		
 		if (exNotes.size() > 0)
         {
@@ -288,7 +291,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			removeNoteButton.setEnabled(true);
         }
 
-		scoreStaff.setMeasuresNumber(measuresNumber);
+		scoreStaff.setMeasuresNumber(getTotalMeasuresNumber());
         scoreStaff.setClefs(currExercise.clefMask);
         scoreStaff.setRowsDistance(rowsDistance);
         scoreStaff.setTimeSignature(timeNumerator, timeDenominator);
@@ -354,6 +357,28 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		measureCounter = timeNumerator - (lastTS + lastDur - (timeNumerator * (measuresNumber - 1)));
 		timeCounter = lastTS + lastDur;
 		System.out.println("Calculated measure counter: " + measureCounter);
+	}
+	
+	private int getTotalMeasuresNumber()
+	{
+		int meas1 = 0, meas2 = 0;
+		double lastTS = 0;
+		double lastDur = 0;
+		if (currExercise.notes.size() > 0)
+		{
+			lastTS = currExercise.notes.get(currExercise.notes.size() - 1).timestamp;
+			lastDur = currExercise.notes.get(currExercise.notes.size() - 1).duration;
+			meas1 = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
+		}
+		if (currExercise.notes2.size() > 0)
+		{
+			lastTS = currExercise.notes2.get(currExercise.notes2.size() - 1).timestamp;
+			lastDur = currExercise.notes2.get(currExercise.notes2.size() - 1).duration;
+			meas2 = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
+		}
+		if (meas2 > meas1) return meas2;
+
+		return meas1;
 	}
 	
 	private void setButtonsState()
@@ -431,7 +456,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
     		lastDur = tmpNotes.get(tmpNotes.size() - 1).duration;
         	measures2 = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
     	}
-    	
+    	System.out.println("[checkStaffResize] measure1: " + measures + ", measures2: "+ measures2);
     	if ((amount > 0 && measures >= measures2) || 
     		(amount < 0 && measures > measures2))
     		return true;

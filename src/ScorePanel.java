@@ -211,9 +211,6 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		{
 			staffLayer.setClefs(currEx.clefMask);
 			notesLayer.setClefs(currEx.clefMask);
-			rowsDistance = staffLayer.getRowsDistance();
-			staffLayer.setRowsDistance(rowsDistance);
-			notesLayer.setRowsDistance(rowsDistance);
 			tsIdx = currEx.timeSign;
 		}
 		
@@ -248,6 +245,9 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			double totalDuration = currEx.notes.get(currEx.notes.size() - 1).timestamp + currEx.notes.get(currEx.notes.size() - 1).duration;
 	        staffLayer.setMeasuresNumber((int)Math.ceil(totalDuration / (timeNumerator / (timeDenominator / 4))));
 	        notesLayer.setNotesSequence(currEx.notes, currEx.notes2);
+			rowsDistance = notesLayer.getRowsDistance();
+			staffLayer.setRowsDistance(rowsDistance);
+			notesLayer.setRowsDistance(rowsDistance);
 			notesLayer.setNotesPositions();
 		}
 	}

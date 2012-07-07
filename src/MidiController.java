@@ -582,6 +582,7 @@ public class MidiController
 	 {
 		 final int metaType = 0x01;
 		 int tick = 0;
+		 int endtick = 0;
 		 createSequencer(0);
 
 		 int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));
@@ -624,7 +625,6 @@ public class MidiController
 			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 			 tick+=(int)((cNote.duration)*ppq);
 			 
-			 
 			 if (playOnly == true && cNote.type != 5) // do not play silence !
 			 {
 				 if (useFluidsynth == false)
@@ -640,9 +640,11 @@ public class MidiController
 			 if (cNote.secondRow == true)
 				 textb = "n2Off";
   			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
+  			 if (tick > endtick)
+  				endtick = tick;
 		 }
 		 String textend = "end";
-		 addMidiEvent(tracks[0], metaType, textend.getBytes(), tick);
+		 addMidiEvent(tracks[0], metaType, textend.getBytes(), endtick);
 
 		 sequencers[0].setTempoInBPM(BPM/timeDivision);
 

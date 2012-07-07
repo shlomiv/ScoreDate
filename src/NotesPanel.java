@@ -89,6 +89,11 @@ public class NotesPanel extends JPanel implements MouseListener
     {
     	rowsDistance = dist;
     }
+    
+    public int getRowsDistance()
+    {
+    	return rowsDistance;
+    }
 
     public void setClefs(int type)
     {
@@ -155,8 +160,45 @@ public class NotesPanel extends JPanel implements MouseListener
     
     public void setNotesSequence(Vector<Note> n, Vector<Note> n2)
     {
-    	if (n != null) notes = n;
-    	if (n2 != null) notes2 = n2;
+    	int minLev = 9;
+    	int maxLev = 17;
+    	int row1H = 0;
+    	int row2H = 0;
+    	if (n != null)
+    	{
+    		notes = n;
+    		for (int i = 0; i < n.size(); i++)
+    		{
+    			int lev = n.get(i).level;
+    			if (lev < minLev) minLev = lev;
+    			if (lev > maxLev) maxLev = lev;
+    		}
+    		System.out.println("Clef 1: minLev: " + minLev + ", maxLev: " + maxLev);
+    		row1H = 90;
+    		if (maxLev > 17) row1H += (maxLev - 17) * 5;
+    		if (minLev < 9) row1H += (9 - minLev) * 5;
+    	}
+    	minLev = 9;
+    	maxLev = 17;
+    	if (n2 != null)
+    	{
+    		notes2 = n2;
+    		if (n2.size() > 0)
+    		{
+    		  for (int i = 0; i < n2.size(); i++)
+    		  {
+    			int lev = n2.get(i).level;
+    			if (lev < minLev) minLev = lev;
+    			if (lev > maxLev) maxLev = lev;
+    		  }
+    		  System.out.println("Clef 2: minLev: " + minLev + ", maxLev: " + maxLev);
+    		  row2H = 90;
+    		  if (maxLev > 17) row2H += (maxLev - 17) * 5;
+    		  if (minLev < 9) row2H += (9 - minLev) * 5;
+    		}
+    	}
+    	rowsDistance = row1H + row2H;
+    	System.out.println("[setNotesSequence] rowsDistance set to: " + rowsDistance);
     }
 
     public void setNotesPositions()

@@ -294,7 +294,7 @@ public class Exercise
 			    System.out.println("Clef: " + clefMask);
 		        System.out.println("accType: " + acc.getType());
 			    System.out.println("accCount: " + acc.getNumber());
-			    System.out.println("Measure: " + timeSign);
+			    System.out.println("Time signature: " + timeSign);
 			    System.out.println("Speed: " + speed);
 			    System.out.println("Randomize: " + randomize);
 			}

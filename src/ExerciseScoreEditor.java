@@ -276,12 +276,6 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		else
 			scoreStaff = new Staff(appFont, appBundle, appPrefs, currExercise.acc, false, true);
 
-		/*
-		if (currExercise.notes2.size() > 0)
-			exNotes = currExercise.notes2;
-		else
-			exNotes = currExercise.notes;
-		*/
 		exNotes = currExercise.notes;
 		
 		if (exNotes.size() > 0)

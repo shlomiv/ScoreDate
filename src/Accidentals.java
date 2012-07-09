@@ -180,19 +180,19 @@ public class Accidentals {
 	    if (type.equals("b"))
 	    {
 	      if (amount >= 1) // SIb
-	        drawAlteration(g, f, xPos, yPos + 5, flat);
+	        drawAlteration(g, f, xPos, yPos + 5 + clefOffset, flat);
 	      if (amount >= 2) // MIb
-	        drawAlteration(g, f, xPos + 9, yPos - 10, flat);
+	        drawAlteration(g, f, xPos + 9, yPos - 10 + clefOffset, flat);
 	      if (amount >= 3) // LAb
-	        drawAlteration(g, f, xPos + 18, yPos + 10, flat);
+	        drawAlteration(g, f, xPos + 18, yPos + 10 + clefOffset, flat);
 	      if (amount >= 4) // REb
-	        drawAlteration(g, f, xPos + 27, yPos - 5, flat);
+	        drawAlteration(g, f, xPos + 27, yPos - 5 + clefOffset, flat);
 	      if (amount >= 5) // SOLb
-	        drawAlteration(g, f, xPos + 36, yPos + 15, flat);
+	        drawAlteration(g, f, xPos + 36, yPos + 15 + clefOffset, flat);
 	      if (amount >= 6) // DOb
-	        drawAlteration(g, f, xPos + 45, yPos, flat);
+	        drawAlteration(g, f, xPos + 45, yPos + clefOffset, flat);
 	      if (amount >= 7) // FAb
-	        drawAlteration(g, f, xPos + 54, yPos + 20, flat);
+	        drawAlteration(g, f, xPos + 54, yPos + 20 + clefOffset, flat);
 	    }
 	  }
 }

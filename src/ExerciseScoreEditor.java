@@ -370,6 +370,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			lastDur = currExercise.notes2.get(currExercise.notes2.size() - 1).duration;
 			meas2 = (int)Math.ceil((lastTS + lastDur) / timeNumerator);
 		}
+		if (meas1 == 0 && meas2 == 0) return 1;
 		if (meas2 > meas1) return meas2;
 
 		return meas1;
@@ -508,7 +509,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 					nNote.altType != 0)
 				{
 					if (nNote.altType == 2)
-						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
+						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.level);
 					else
 						tmpNote.pitch += nNote.altType;
 
@@ -551,7 +552,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		Note tmpNote = exNotes.get(idx);
 		int currentMeasure = (int)Math.floor(tmpNote.timestamp / timeNumerator);
 		System.out.println("[changeAlteration] Current Measure = " + currentMeasure);
-		int naturalPitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
+		int naturalPitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.level);
 		switch (type)
 		{
 			case 1:
@@ -587,7 +588,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 				break;
 			if (nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7)
 			{
-				nNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, nNote.level); // retrieve the base pitch of this level and clef
+				nNote.pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), nNote.level); // retrieve the base pitch of this level and clef
 				
 				if (tmpNote.altType == 0)
 					nNote.pitch = exerciseNG.getAlteredFromBase(nNote.pitch); // retrieve a new pitch if it is altered
@@ -728,7 +729,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			showNormal = true;
 		else
 		{
-			if (alt == 0 &&	exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, lev) != pitch)
+			if (alt == 0 &&	exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), lev) != pitch)
 				showNormal = true;
 		}
 		
@@ -774,7 +775,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 					nNote.altType != 0)
 				{
 					if (nNote.altType == 2)
-						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, tmpNote.level);
+						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.level);
 					else
 						tmpNote.pitch += nNote.altType;
 					break;
@@ -796,7 +797,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 					break;
 				if (nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7)
 				{
-					nNote.pitch = exerciseNG.getPitchFromClefAndLevel(currExercise.clefMask, nNote.level); // retrieve the base pitch of this level and clef
+					nNote.pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), nNote.level); // retrieve the base pitch of this level and clef
 					nNote.pitch = exerciseNG.getAlteredFromBase(nNote.pitch); // retrieve a new pitch if it is altered
 					nNote.altType = 0; 
 				}

@@ -438,7 +438,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         notesLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
         notesLayer.setNotesSequence(selectedExercise.notes, selectedExercise.notes2);
         scoreStaff.setRowsDistance(notesLayer.getRowsDistance());
-        notesLayer.setRowsDistance(notesLayer.getRowsDistance());
+        //notesLayer.setRowsDistance(notesLayer.getRowsDistance());
         notesLayer.setNotesPositions();
         listenBtn.setEnabled(true);
     

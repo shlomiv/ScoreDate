@@ -193,7 +193,6 @@ public class NotesPanel extends JPanel implements MouseListener
     		System.out.println("Clef 2: minLev: " + minLev + ", maxLev: " + maxLev);
     		if (maxLev > 17) row2H += (maxLev - 17) * 5;
     		if (minLev < 9) row2H += (9 - minLev) * 5;
-
     	}
     	rowsDistance = row1H + row2H;
     	System.out.println("[setNotesSequence] rowsDistance set to: " + rowsDistance);

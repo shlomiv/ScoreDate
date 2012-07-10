@@ -198,7 +198,8 @@ public class InlinePanel extends JPanel implements ActionListener
 				inlineNG.setNotesList(currEx.notes, currEx.notes2, true);
 			else
 				inlineNG.setNotesList(currEx.notes, currEx.notes2, false);
-			rowsDistance = inlineNG.getRowsDistance();
+			rowsDistance = inlineNG.getRowsDistanceFromClefs(currEx.clefMask);
+			System.out.println("[INLINE] rowsDistance: " + rowsDistance);
 		}
 
 		inlineStaff.setRowsDistance(rowsDistance);

@@ -146,7 +146,7 @@ public class NoteGenerator
     
     public int getRowsDistance()
     {
-    	int height = 40;
+    	int height = 90;
     	int tmpH = randomPitchList.size() * 5;
     	if (addRangeIndex != -1) // means there are 2 clefs
     	{
@@ -158,7 +158,7 @@ public class NoteGenerator
     		if (tmpH < 50) tmpH = 50;
     		height += tmpH;
     	}
-    		
+
     	return height;
     }
     

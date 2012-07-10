@@ -285,7 +285,9 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			removeNoteButton.setEnabled(true);
         }
 
-		scoreStaff.setMeasuresNumber(getTotalMeasuresNumber());
+		measuresNumber = getTotalMeasuresNumber();
+
+		scoreStaff.setMeasuresNumber(measuresNumber);
         scoreStaff.setClefs(currExercise.clefMask);
         scoreStaff.setRowsDistance(rowsDistance);
         scoreStaff.setTimeSignature(timeNumerator, timeDenominator);
@@ -307,7 +309,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		notesEditLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
 		notesEditLayer.setNotesPositions();
 		if (exNotes.size() > 0)
-			notesEditLayer.setEditNoteIndex(exNotes.size() - 1);
+			notesEditLayer.setEditNoteIndex(0);
 		notesEditLayer.addPropertyChangeListener(this);
 
 		layers.setPreferredSize(new Dimension(staffW, scoreStaff.getStaffHeight()));
@@ -666,6 +668,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		else if (ae.getSource() == removeNoteButton)
 		{
 			int lastIdx =  exNotes.size() - 1;
+			System.out.println("[remove] measureCounter: " + measureCounter + ", measuresNumber: " + measuresNumber);
 			measureCounter += exNotes.get(lastIdx).duration;
 			timeCounter -= exNotes.get(lastIdx).duration;
 			if (measureCounter == timeNumerator)
@@ -678,21 +681,19 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 					if (checkStaffResize(-1) == true)
 					{
 						int staffW = scoreStaff.getWidth();
-						staffW -= (scoreStaff.getNotesDistance() * timeNumerator);
 						scoreStaff.setBounds(0, 0, staffW, scoreStaff.getHeight());
 						scoreStaff.setMeasuresNumber(measuresNumber);
 						notesEditLayer.setBounds(0, 0, staffW, notesEditLayer.getHeight());
 						notesEditLayer.setStaffWidth(scoreStaff.getStaffWidth());
 						layers.setPreferredSize(new Dimension(staffW, layers.getHeight()));
 						layers.validate();
-						//layers.setBounds(0, 0, staffW, layers.getHeight());
-						//scoreScrollPanel.getHorizontalScrollBar().setValue(scoreScrollPanel.getHorizontalScrollBar().getMaximum());
 						scoreScrollPanel.validate();
 					}
 				}
 			}
 			exNotes.removeElementAt(lastIdx);
-
+			System.out.println("[remove] measureCounter: " + measureCounter + ", measuresNumber: " + measuresNumber);
+			
 			if (exNotes.size() > 0)
 			{
 				lastIdx--;

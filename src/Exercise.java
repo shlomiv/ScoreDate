@@ -261,6 +261,7 @@ public class Exercise
 		int version = 0;
 		int levOffset = 0; // offset to be added to notes levels
 		notes.clear();
+		notes2.clear();
 		try
 		{
 			File fXmlFile = new File(path);

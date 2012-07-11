@@ -152,18 +152,20 @@ public class NotesPanel extends JPanel implements MouseListener
     {
     	return editNoteIndex;
     }
-    
+
     public void setEditNoteGenerator(NoteGenerator ng)
     {
     	editNG = ng;
     }
-    
+
     public void setNotesSequence(Vector<Note> n, Vector<Note> n2)
     {
     	int minLev = 9;
     	int maxLev = 17;
     	int row1H = 0;
     	int row2H = 0;
+    	if (notes != null) notes.clear();
+    	if (notes2 != null) notes2.clear();
     	if (n != null)
     	{
     		notes = n;
@@ -224,7 +226,7 @@ public class NotesPanel extends JPanel implements MouseListener
     		//System.out.println("[Note(2): #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
     	}
     }
-    
+
     public void setSingleNotePosition(Note note, boolean setXpos)
     {
    		int type = note.type;
@@ -256,7 +258,7 @@ public class NotesPanel extends JPanel implements MouseListener
 			if (note.secondRow == true)
 				note.addLinesYpos+=rowsDistance/2;
 		}
-		
+
 		if (type == 0) // whole note
 			ypos++;
 		else if (type == 2 || type == 7) // quarter or dotted quarter note
@@ -285,7 +287,7 @@ public class NotesPanel extends JPanel implements MouseListener
 			else if (note.duration == 0.5)
 				ypos += 13;
 		}
-		
+
 		note.ypos = ypos + tmpY + yOffset;
 		if (inlineMode == false && setXpos == true) // the inline game controls X position itself
 		{
@@ -293,12 +295,12 @@ public class NotesPanel extends JPanel implements MouseListener
 			tmpX += (note.duration * noteDistance);
 		}
     }
-    
+
     public void setLearningTips(String tip, boolean enable)
     {
     	if (enable == true)
     		learningText.setText(tip);
-    	
+
    		learningText.setVisible(enable); 	
     }
 
@@ -319,7 +321,7 @@ public class NotesPanel extends JPanel implements MouseListener
     		singleNote2Index = -1;
     	}
     }
-    
+
     public void mouseClicked(MouseEvent e) 
 	{
 		//System.out.println("Mouse clicked (# of clicks: " + e.getClickCount() + ")");
@@ -327,15 +329,15 @@ public class NotesPanel extends JPanel implements MouseListener
     	int mouseY = e.getY();
 		System.out.println("[Edit mode] clicked X pos: " + mouseX + ", Y pos: " + mouseY);
 		//System.out.println("editNoteSelX: " + editNoteSelX + ",editNoteSelY: " + editNoteSelY + ", editNoteSelW: " + editNoteSelW + ", editNoteSelH: "+ editNoteSelH);
-		
+
 		if (editMode == false || editModeRhythm == true)
 			return;
-		
+
 		if (clefs.size() > 1)
 		{
 			int selY = editNoteSelY;
 			int selH = editNoteSelH;
-			
+
 			if (notes.size() == 0 && notes2.size() == 0)
 			{
 				selY = (selectedClef - 1) * (rowsDistance / 2);
@@ -353,13 +355,13 @@ public class NotesPanel extends JPanel implements MouseListener
 				repaint();
 			}
 		}
-		
+
 		Vector<Note>tmpNotes = null;
 		if (selectedClef == 1)
 			tmpNotes = notes;
 		else if (selectedClef == 2)
 			tmpNotes = notes2;
-		
+
 		if (editNoteIndex != -1 && mouseX >= editNoteSelX && mouseX < editNoteSelX + editNoteSelW && 
 			mouseY >= editNoteSelY && mouseY < editNoteSelY + editNoteSelH)
 		{
@@ -382,7 +384,7 @@ public class NotesPanel extends JPanel implements MouseListener
 				if (tmpNote.altType != 0)
 					this.firePropertyChange("levelWasAltered", origLevel, newLevel);
 				tmpNote.altType = 0;
-		
+
 				System.out.println("[Edit mode] note level: " + tmpNote.level + ", pitch = " + tmpNote.pitch);
 				this.firePropertyChange("levelChanged", origLevel, newLevel);
 				repaint();
@@ -393,7 +395,7 @@ public class NotesPanel extends JPanel implements MouseListener
 			System.out.println("[Edit mode] look for a note to select...");
 			// look for a note to select
 			int lookupX = firstNoteXPos, lookupY = 0;
-			
+
 			if (tmpNotes.size() == 0)
 			{
 				setEditNoteIndex(-1);
@@ -422,8 +424,8 @@ public class NotesPanel extends JPanel implements MouseListener
 				}
 			}
 		}
-		
 	}
+
 	public void mousePressed(MouseEvent e) 
 	{
 		//System.out.println("Mouse pressed; # of clicks: " + e.getClickCount());
@@ -443,7 +445,7 @@ public class NotesPanel extends JPanel implements MouseListener
     {
     	//System.out.println("Mouse exited");
     }
-    
+
     private void drawNote(Graphics g, int index, int clef) 
     {
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -497,7 +499,7 @@ public class NotesPanel extends JPanel implements MouseListener
 			for (int j = 0; j < note.addLinesNumber; j++)
 				g.drawLine(note.xpos - 5, note.addLinesYpos + (j * 10), note.xpos + addLineWidth, note.addLinesYpos + (j * 10));
 		}
-		
+
     	g.setFont(appFont.deriveFont(57f));
 		if (type == 0) symbol = "w"; // whole note
 		else if (type == 1 || type == 6)
@@ -545,36 +547,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		}
 
 		g.drawString(symbol, note.xpos, note.ypos);
-		
-/*
-		// double clef ? Must draw a pause on the other clef
-		if (inlineMode == false && clefs.size() == 2)
-		{
-			int yPos = (((int)Math.floor(note.ypos / (rowsDistance + 60)) *  rowsDistance) + 60);
-			if (note.secondRow == false)
-				yPos += (rowsDistance / 2);
 
-			System.out.println("double clef ---> note.ypos: " + note.ypos + ", rowsDistance: " + rowsDistance + ", yPos = " + yPos);
-
-			symbol = "";
-			if (note.duration == 4)
-				g.fillRect(note.xpos + (int)(noteDistance * 1.55), yPos - 5, 14, 6);
-			else if (note.duration == 2)
-				g.fillRect(note.xpos, yPos, 14, 6);
-			else if (note.duration == 1)
-			{
-				symbol = "Q";
-				yPos += 23;
-			}
-			else if (note.duration == 0.5)
-			{
-				g.setFont(appFont.deriveFont(50f));
-				symbol = "E";
-				yPos += 25;
-			}
-			g.drawString(symbol, note.xpos, yPos);
-		}
-*/
 		// draw alteration symbol if required
 		if (note.altType != 0)
 		{
@@ -634,7 +607,6 @@ public class NotesPanel extends JPanel implements MouseListener
 	protected void paintComponent(Graphics g) 
  	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		//super.paintComponent(g);
 
 		if (globalScale != 1.0)
 			((Graphics2D) g).scale(globalScale, globalScale);

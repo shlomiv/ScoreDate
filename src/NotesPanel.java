@@ -342,32 +342,31 @@ public class NotesPanel extends JPanel implements MouseListener
 			{
 				selY = (selectedClef - 1) * (rowsDistance / 2);
 				selH = rowsDistance / 2;
-			}
-			int newClef = selectedClef;
-			if (selectedClef == 1 && mouseY >= selY + selH && mouseY < selY + (selH * 2))
-				newClef = 2;
-			else if (selectedClef == 2 && mouseY < selY && mouseY >= selY - selH)
-				newClef = 1;
-			if (newClef != selectedClef)
-			{
-				this.firePropertyChange("newSelectedClef", selectedClef, newClef);
-				selectedClef = newClef;
-				repaint();
+				int newClef = selectedClef;
+				if (selectedClef == 1 && mouseY >= selY + selH && mouseY < selY + (selH * 2))
+					newClef = 2;
+				else if (selectedClef == 2 && mouseY < selY && mouseY >= selY - selH)
+					newClef = 1;
+				if (newClef != selectedClef)
+				{
+					this.firePropertyChange("newSelectedClef", selectedClef, newClef);
+					selectedClef = newClef;
+					repaint();
+				}
+				return;
 			}
 		}
 
-		Vector<Note>tmpNotes = null;
-		if (selectedClef == 1)
-			tmpNotes = notes;
-		else if (selectedClef == 2)
-			tmpNotes = notes2;
 
+		// if mouse clicked inside the current selection, then manage a pitch change
 		if (editNoteIndex != -1 && mouseX >= editNoteSelX && mouseX < editNoteSelX + editNoteSelW && 
 			mouseY >= editNoteSelY && mouseY < editNoteSelY + editNoteSelH)
 		{
-			//if (mouseY > 128) return;
-			// clicked over the currently selected note. Act on the pitch
-			Note tmpNote = tmpNotes.get(editNoteIndex);
+			Note tmpNote = null;
+			if (selectedClef == 1)
+				tmpNote = notes.get(editNoteIndex);
+			else if (selectedClef == 2)
+				tmpNote = notes2.get(editNoteIndex);
 			int origLevel = tmpNote.level;
 			int newLevel = (mouseY - editNoteSelY - 4) / 5;
 			if (newLevel != origLevel)
@@ -394,22 +393,26 @@ public class NotesPanel extends JPanel implements MouseListener
 		{
 			System.out.println("[Edit mode] look for a note to select...");
 			// look for a note to select
-			int lookupX = firstNoteXPos, lookupY = 0;
+			int lookupY = 0, tmpClef = 1, selH = rowsDistance;
+			Vector<Note>tmpNotes = notes;
+			if (clefs.size() > 1) selH = rowsDistance / 2;
 
-			if (tmpNotes.size() == 0)
+			for (int c = 0; c < clefs.size(); c++)
 			{
-				setEditNoteIndex(-1);
-				return;
-			}
-			for (int i = 0; i < tmpNotes.size(); i++)
-			{
+			  int lookupX = firstNoteXPos;
+			  for (int i = 0; i < tmpNotes.size(); i++)
+			  {
 				Note tmpNote = tmpNotes.get(i);
 
-				//System.out.println("#" + i + ": ypos: " + tmpNote.ypos + ", floor: " + (int)Math.floor((double)tmpNote.ypos / rowsDistance));
-				System.out.println("#" + i + ": nX: " + (lookupX - 5) + ", nY: " + lookupY + ", nX1: " + (int)(lookupX + (tmpNote.duration * noteDistance)) + ", nY1: " + (tmpY + rowsDistance));
+				//System.out.println("Clef: " + tmpClef + " - #" + i + ": nX: " + (lookupX - 5) + ", nY: " + lookupY + ", nX1: " + (int)(lookupX + (tmpNote.duration * noteDistance)) + ", nY1: " + (tmpY + selH));
 				if (mouseX >= lookupX - 5 && mouseX < (int)(lookupX + (tmpNote.duration * noteDistance)) && 
-					mouseY >= lookupY && mouseY < lookupY + rowsDistance)
+					mouseY >= lookupY && mouseY < lookupY + selH)
 				{
+					if (tmpClef != selectedClef)
+					{
+						this.firePropertyChange("newSelectedClef", selectedClef, tmpClef);
+						selectedClef = tmpClef;
+					}
 					System.out.println("[Edit mode] selected note #" + i + ", pitch = " + tmpNote.pitch);
 					this.firePropertyChange("selectionChanged", editNoteIndex, i);
 					setEditNoteIndex(i);
@@ -422,6 +425,27 @@ public class NotesPanel extends JPanel implements MouseListener
 					lookupX = firstNoteXPos;
 					lookupY += rowsDistance;
 				}
+			  }
+			  // haven't found anything ? Look if we clicked on an empty clef
+			  if (clefs.size() > 1)
+			  {
+				int newClef = selectedClef;
+				if (tmpClef == 1 && notes2 != null && notes2.size() == 0)
+					newClef = 2;
+				else if (tmpClef == 2 && notes != null && notes.size() == 0)
+					newClef = 1;
+				if (newClef != selectedClef)
+				{
+					this.firePropertyChange("newSelectedClef", selectedClef, newClef);
+					selectedClef = newClef;
+					setEditNoteIndex(-1);
+					repaint();
+					return;
+				}
+			  }
+			  lookupY = rowsDistance / 2;
+			  tmpClef++;
+			  tmpNotes = notes2;
 			}
 		}
 	}

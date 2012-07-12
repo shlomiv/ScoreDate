@@ -304,20 +304,20 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 			
 			fourfourButton = new JRadioButton("$"); // 4/4 symbol
 			fourfourButton.setFont(appFont.deriveFont(50f));
-			fourfourButton.setBounds(270, 0, 70, 60);
+			fourfourButton.setBounds(270, 0, 50, 60);
 			fourfourButton.setSelected(true);
 			twofourButton = new JRadioButton("@"); // 2/4 symbol
 			twofourButton.setFont(appFont.deriveFont(50f));
-			twofourButton.setBounds(320, 0, 70, 60);
+			twofourButton.setBounds(325, 0, 50, 60);
 			threefourButton = new JRadioButton("#"); // 3/4 symbol
 			threefourButton.setFont(appFont.deriveFont(50f));
-			threefourButton.setBounds(370, 0, 70, 60);
+			threefourButton.setBounds(380, 0, 50, 60);
 			sixeightButton = new JRadioButton("P"); // 6/8 symbol
 			sixeightButton.setFont(appFont.deriveFont(50f));
-			sixeightButton.setBounds(420, 0, 70, 60);
+			sixeightButton.setBounds(435, 0, 50, 60);
 			sixfourButton = new JRadioButton("^"); // 6/4 symbol
 			sixfourButton.setFont(appFont.deriveFont(50f));
-			sixfourButton.setBounds(470, 0, 70, 60);
+			sixfourButton.setBounds(490, 0, 50, 60);
 
 			rbGroup.add(fourfourButton);
 			rbGroup.add(twofourButton);

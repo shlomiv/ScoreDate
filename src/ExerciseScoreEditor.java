@@ -751,8 +751,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 	{
 		if (evt.getPropertyName() == "newSelectedClef")
 		{
-			System.out.println("-----> New selected clef !!");
 			selectedClef = Integer.parseInt(evt.getNewValue().toString());
+			System.out.println("-----> New selected clef: " + selectedClef);
 			if (selectedClef == 1)
 				exNotes = currExercise.notes;
 			else if (selectedClef == 2)

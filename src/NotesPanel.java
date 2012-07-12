@@ -36,7 +36,7 @@ public class NotesPanel extends JPanel implements MouseListener
 	Preferences appPrefs;
 	private Vector<Note> notes; // first clef notes
 	private Vector<Note> notes2; // second clef notes
-	
+
     private int clefMask = 1;
     private Vector<Integer> clefs = new Vector<Integer>();    
 	private int rowsDistance = 90; // distance in pixel between staff rows

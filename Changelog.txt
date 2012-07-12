@@ -3,6 +3,7 @@ July ??, 2012 - version 3.2
 - NEW: full double clef support added !
 	* Random exercises can be played with simultaneous notes on two clefs 
 	* Exercises can now be created, edited and saved with two clefs
+- NEW: added 6/4 time signature
 - changed: improved exercise save procedure. Less disk space is now required
 - fixed: rendering of flats on bass, alto and tenor clef
 

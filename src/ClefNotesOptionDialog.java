@@ -61,6 +61,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 	JRadioButton twofourButton;
 	JRadioButton threefourButton;
 	JRadioButton sixeightButton;
+	JRadioButton sixfourButton;
 
 	JButton okButton;
     JButton cancelButton;
@@ -297,6 +298,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		threefourButton.setFont(appFont.deriveFont(45f));
 		sixeightButton = new JRadioButton("P"); // 6/8 symbol
 		sixeightButton.setFont(appFont.deriveFont(45f));
+		sixfourButton = new JRadioButton("^"); // 6/4 symbol
+		sixfourButton.setFont(appFont.deriveFont(45f));
 		int tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
 		if (tsIdx == 0 || tsIdx == -1)
 			fourfourButton.setSelected(true);
@@ -306,16 +309,20 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			threefourButton.setSelected(true);
 		else if (tsIdx == 3)
 			sixeightButton.setSelected(true);
+		else if (tsIdx == 4)
+			sixfourButton.setSelected(true);
 		rbGroup.add(fourfourButton);
 		rbGroup.add(twofourButton);
 		rbGroup.add(threefourButton);
 		rbGroup.add(sixeightButton);
+		rbGroup.add(sixfourButton);
 		
 		tsPanel.add(timeSignLabel);
 		tsPanel.add(fourfourButton);
 		tsPanel.add(twofourButton);
 		tsPanel.add(threefourButton);
 		tsPanel.add(sixeightButton);
+		tsPanel.add(sixfourButton);
 
 		notesPanel.add(accidentalsPanel);
 		notesPanel.add(notesTypePanel);
@@ -420,6 +427,8 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 				appPrefs.setProperty("timeSignature", "2");
 			else if (sixeightButton.isSelected() == true)
 				appPrefs.setProperty("timeSignature", "3");
+			else if (sixfourButton.isSelected() == true)
+				appPrefs.setProperty("timeSignature", "4");			
 
 			appPrefs.storeProperties();
 			

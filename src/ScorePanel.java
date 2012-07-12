@@ -222,6 +222,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		else if (tsIdx == 1) timeNumerator = 2;
 		else if (tsIdx == 2) timeNumerator = 3;
 		else if (tsIdx == 3) { timeNumerator = 6; timeDenominator = 8; }
+		else if (tsIdx == 4) timeNumerator = 6;
 			
 		staffLayer.setTimeSignature(timeNumerator, timeDenominator);
 		timeDivision = timeDenominator / 4;

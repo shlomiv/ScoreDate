@@ -428,6 +428,9 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         	timeNumerator = 3;
         else if (selectedExercise.timeSign == 3)
         	{ timeNumerator = 6; timeDenominator = 8; }
+        else if (selectedExercise.timeSign == 4)
+    		{ timeNumerator = 6; timeDenominator = 4; }
+
         scoreStaff.setTimeSignature(timeNumerator, timeDenominator);
         double totalDuration = selectedExercise.notes.get(selectedExercise.notes.size() - 1).timestamp + selectedExercise.notes.get(selectedExercise.notes.size() - 1).duration;
         scoreStaff.setMeasuresNumber((int)Math.ceil(totalDuration / (timeNumerator / (timeDenominator / 4))));

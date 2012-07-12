@@ -128,7 +128,7 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 	JCheckBox secondClefCB;
 	JRadioButton trebleClefCB2, bassClefCB2, altoClefCB2, tenorClefCB2;
 
-	JRadioButton fourfourButton, twofourButton, threefourButton, sixeightButton;
+	JRadioButton fourfourButton, twofourButton, threefourButton, sixeightButton, sixfourButton;
 	
 	JLabel tempoLabel;
 	JSlider tempoSlider;
@@ -308,24 +308,30 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 			fourfourButton.setSelected(true);
 			twofourButton = new JRadioButton("@"); // 2/4 symbol
 			twofourButton.setFont(appFont.deriveFont(50f));
-			twofourButton.setBounds(340, 0, 70, 60);
+			twofourButton.setBounds(320, 0, 70, 60);
 			threefourButton = new JRadioButton("#"); // 3/4 symbol
 			threefourButton.setFont(appFont.deriveFont(50f));
-			threefourButton.setBounds(410, 0, 70, 60);
+			threefourButton.setBounds(370, 0, 70, 60);
 			sixeightButton = new JRadioButton("P"); // 6/8 symbol
 			sixeightButton.setFont(appFont.deriveFont(50f));
-			sixeightButton.setBounds(480, 0, 70, 60);
-			
+			sixeightButton.setBounds(420, 0, 70, 60);
+			sixfourButton = new JRadioButton("^"); // 6/4 symbol
+			sixfourButton.setFont(appFont.deriveFont(50f));
+			sixfourButton.setBounds(470, 0, 70, 60);
+
 			rbGroup.add(fourfourButton);
 			rbGroup.add(twofourButton);
 			rbGroup.add(threefourButton);
 			rbGroup.add(sixeightButton);
-			
+			rbGroup.add(sixfourButton);
+
 			tsPanel.add(timeSignLabel);
 			tsPanel.add(fourfourButton);
 			tsPanel.add(twofourButton);
 			tsPanel.add(threefourButton);
 			tsPanel.add(sixeightButton);
+			tsPanel.add(sixfourButton);
+
 			meausersActive = true;
         
 			backPanel.add(tsPanel);
@@ -471,6 +477,8 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 					currExercise.setMeasure(2);
 				else if (sixeightButton.isSelected() == true)
 					currExercise.setMeasure(3);
+				else if (sixfourButton.isSelected() == true)
+					currExercise.setMeasure(4);
 	        }
 			else
 			{
@@ -486,7 +494,7 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 			this.dispose();
 		}
 	}
-	
+
 	public void stateChanged(ChangeEvent e) 
 	{
 		if (e.getSource() == tempoSlider)

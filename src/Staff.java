@@ -302,6 +302,9 @@ public class Staff extends JPanel
         			t = "@";
         		if (timeSignNumerator == 6 && timeSignDenominator == 8)
         			t = "P";
+        		if (timeSignNumerator == 6 && timeSignDenominator == 4)
+        			t = "^";
+
 	    		g.setFont(appFont.deriveFont(58f));
 	    		g.drawString(t, clefWidth + alterationWidth, yPos+41);
         	}

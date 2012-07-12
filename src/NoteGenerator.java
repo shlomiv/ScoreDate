@@ -38,7 +38,7 @@ public class NoteGenerator
 	int[] intervalNoPerfect = { -2, -1 , 0, 1};
 	int[] intervalPerfect = { -2, 0, 1 };
 	char[] intervals = { 0, 1, 2, 4, 5, 7, 9, 11, 12 };
-	
+
 	int clefMask = -1;
 	boolean singleClef = false;
 	int baseRangeClef;
@@ -52,10 +52,10 @@ public class NoteGenerator
 	Vector<Integer> alteredList = new Vector<Integer>();	// list holding the whole list of alterated notes, from C0 to C6
 	Vector<Note> randomPitchList = new Vector<Note>(); // list of notes holding the user selected notes
 	Vector<Integer> notesTypeList = new Vector<Integer>(); // list of note types to facilitate random generation
-	
+
 	private boolean randomEnabled = true;
 	private int notesListIndex = 0;
-	
+
     /*                           C   D   E   F   G   A   B  */
     /*                         ---------------------------- */
     char[][] sharpsMatrix = { {  0,  2,  4,  5,  7,  9, 11 }, // offsets from the octave first note
@@ -272,6 +272,7 @@ public class NoteGenerator
 		else if (tsIdx == 1) { timeSignNumerator = 2; timeSignDenominator = 4; }
 		else if (tsIdx == 2) { timeSignNumerator = 3; timeSignDenominator = 4; }
 		else if (tsIdx == 3) { timeSignNumerator = 6; timeSignDenominator = 8; }
+		else if (tsIdx == 4) { timeSignNumerator = 6; timeSignDenominator = 4; }
     }
     
     public void setNotesList(Vector<Note> n, Vector<Note> n2, boolean random)

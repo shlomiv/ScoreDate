@@ -74,49 +74,49 @@ public class Accidentals {
 	    	tStr = DO + " Maj | " + LA + " min";
 	    else if (amount == 1)
 	    {
-	      if (type == "#")
+	      if (type.equals("#"))
 	    	tStr = SOL + " Maj | " + MI + " min";
 	      else
 	    	tStr = FA + " Maj | " + RE + " min";
 	    }
 	    if (amount == 2)
 	    {
-	      if (type == "#")
+	      if (type.equals("#"))
 	    	tStr = RE + " Maj | " + SI + " min";
 	      else
 	    	tStr = SI + "b Maj | " + SOL + " min";
 	    }
 	    if (amount == 3)
 	    {
-	      if (type == "#")
+	      if (type.equals("#"))
 	    	tStr = LA + " Maj | " + FA + "# min";
 	      else
 	    	tStr = MI + "b Maj | " + DO + " min";
 	    }
 	    if (amount == 4)
 	    {
-	      if (type == "#")
+	      if (type.equals("#"))
 	    	tStr = MI + " Maj | " + DO + "# min";
 	      else
 	    	tStr = LA + "b Maj | " + FA + " min";
 	    }
 	    if (amount == 5)
 	    {
-	      if (type == "#")
+	      if (type.equals("#"))
 	    	tStr = SI + " Maj | " + SOL + "# min";
 	      else
 	    	tStr = RE + "b Maj | " + SI + "b min";
 	    }
 	    if (amount == 6)
 	    {
-	      if (type == "#") 
+	      if (type.equals("#")) 
 	    	tStr = FA + "# Maj | " + RE + "# min";
 	      else
 	        tStr = SOL + "b Maj | " + MI + "b min";
 	    }
 	    if (amount == 7)
 	    {
-	      if (type == "#")
+	      if (type.equals("#"))
 	    	tStr = DO + "# Maj | " + LA + "# min";
 	      else
 	    	tStr = DO + "b Maj | " + LA + "b min";

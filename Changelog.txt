@@ -6,6 +6,8 @@ July ??, 2012 - version 3.2
 - NEW: added 6/4 time signature
 - changed: improved exercise save procedure. Less disk space is now required
 - fixed: rendering of flats on bass, alto and tenor clef
+- fixed: 6/8 exercise editing
+- fixed: tonality display of a saved exercise
 
 June 21st, 2012 - version 3.1
 

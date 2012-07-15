@@ -487,6 +487,7 @@ public class ScoreDate extends JFrame implements ActionListener
 						         {
 									 System.out.println("Unable to connect the device's Transmitter to the Receiver:");
 						             System.out.println(e);
+						             e.printStackTrace();
 						             midiDev.close();
 						         }
 							 }
@@ -587,7 +588,6 @@ public class ScoreDate extends JFrame implements ActionListener
 
 	 private class MidiReceiver implements Receiver 
 	 {
-
         public MidiReceiver() { }
 
         public void send(MidiMessage event, long time) 

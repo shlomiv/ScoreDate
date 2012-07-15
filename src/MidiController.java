@@ -33,10 +33,8 @@ import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 import javax.sound.midi.Transmitter;
-//import javax.sound.midi.Receiver;
 import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
-//import javax.sound.midi.Transmitter;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -144,7 +142,8 @@ public class MidiController
                if (jInstruments != null) {
                    midiSynth.loadInstrument(jInstruments[0]);
 
-               } else 
+               } 
+               else
                {
                    midierror = true;
                    System.out.println("No instruments found !!");
@@ -202,42 +201,36 @@ public class MidiController
 	                tmpDevice = MidiSystem.getMidiDevice(aInfos[i]);
 	                boolean bAllowsInput = (tmpDevice.getMaxTransmitters() != 0);
 	                //boolean bAllowsOutput = (tmpDevice.getMaxReceivers() != 0);
-	                
+
 	                if (bAllowsInput == false) // non-input devices are excluded from the list !!
 	                	continue;
 
-	                //System.out.println("[TEST] device #" + i + " bAllowsInput: " + bAllowsInput + ", name: " + aInfos[i].getName() + " (tmpIdx = " + tmpIdx + ")");
-	                
+	                System.out.println("[TEST] device #" + i + " bAllowsInput: " + bAllowsInput + ", name: " + aInfos[i].getName() + " (tmpIdx = " + tmpIdx + ")");
+
 	                if (bAllowsInput == true && tmpIdx == selectedDeviceIdx - 1) 
 	                {
 	                	System.out.println("[openDevice] Found selected device. Name: " + aInfos[i].getName());
 	                	deviceName = aInfos[i].getName();
-	                	break;
+	                	try 
+	                    {
+	                		inputDevice = MidiSystem.getMidiDevice(aInfos[i]);
+		       	            inputDevice.open();
+		       	        }
+		       	        catch (MidiUnavailableException e) 
+		       	        {
+		       	            System.out.println("Unable to open MIDI device (" + deviceName + ")");
+		       	            return null;
+	       	            }
+		                    
+	                    setNewInstrument();
+	                    return inputDevice;
 	                }
 	            }
 	            catch (MidiUnavailableException e) { e.printStackTrace(); }
 	            tmpIdx++;
 	         }
-		     
-		     if (deviceName == "")
-		     	 return null;
-
-		     System.out.println("Current device name = " + deviceName);
-
-             try 
-             {
-            	 inputDevice = MidiSystem.getMidiDevice(aInfos[tmpIdx]);
-	             inputDevice.open();
-	         }
-	         catch (MidiUnavailableException e) 
-	         {
-	             System.out.println("Unable to open MIDI device (" + deviceName + ")");
-	             return null;
-	         }
-             
-             setNewInstrument();
 	     }
-		 return inputDevice;
+		 return null;
 	 }
 	
 	 public void setNewInstrument()

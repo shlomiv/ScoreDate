@@ -194,7 +194,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		if (exerciseMode == false)
 		{
 			scoreNG.update();
-		
+
 			if (isRhythm == false)
 				rowsDistance = scoreNG.getRowsDistance();
 			else
@@ -203,8 +203,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			notesLayer.setRowsDistance(rowsDistance);
 			staffLayer.setClefs(scoreNG.getClefMask());
 			notesLayer.setClefs(scoreNG.getClefMask());
-			System.out.println("Staff width = " + staffLayer.getStaffWidth());
-			System.out.println("rowsDistance = " + rowsDistance);
+			System.out.println("[ScorePanel] Staff width: " + staffLayer.getStaffWidth() + ", rowsDistance: " + rowsDistance);
 			tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
 		}
 		else
@@ -214,20 +213,20 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			tsIdx = currEx.timeSign;
 		}
 		
-		notesLayer.setStaffWidth(staffLayer.getStaffWidth());
-		answersLayer.clearSurface();
-		
 		timeDenominator = 4;
 		if (tsIdx <= 0) timeNumerator = 4;
 		else if (tsIdx == 1) timeNumerator = 2;
 		else if (tsIdx == 2) timeNumerator = 3;
 		else if (tsIdx == 3) { timeNumerator = 6; timeDenominator = 8; }
 		else if (tsIdx == 4) timeNumerator = 6;
-			
+		else if (tsIdx == 5) { timeNumerator = 3; timeDenominator = 8; }
+
 		staffLayer.setTimeSignature(timeNumerator, timeDenominator);
 		timeDivision = timeDenominator / 4;
-
 		notesLayer.setFirstNoteXPosition(staffLayer.getFirstNoteXPosition());
+
+		notesLayer.setStaffWidth(staffLayer.getStaffWidth());
+		answersLayer.clearSurface();
 		
 		if (Integer.parseInt(appPrefs.getProperty("showBeats")) == 1)
 			answersLayer.enableCursor(true);

@@ -308,6 +308,7 @@ public class NotesPanel extends JPanel implements MouseListener
     {
     	if (clef == 1)
     	{
+    		if (notes.size() == 0) return;
     		singleNoteIndex = index;
     		notes.get(index).highlight = enable;
     		repaint();
@@ -315,6 +316,7 @@ public class NotesPanel extends JPanel implements MouseListener
     	}
     	else if (clef == 2)
     	{
+    		if (notes2.size() == 0) return;
     		singleNote2Index = index;
     		notes2.get(index).highlight = enable;
     		repaint();
@@ -661,7 +663,7 @@ public class NotesPanel extends JPanel implements MouseListener
     	{
     		if (singleNote2Index == -1)
     			drawNote(g, singleNoteIndex, 1);
-    		else
+    		else if (singleNoteIndex != -1 && singleNoteIndex < notes2.size())
     			drawNote(g, singleNoteIndex, 2);
     	}
  	}

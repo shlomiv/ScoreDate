@@ -530,7 +530,10 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 
 	    	int outIdx = 0;
 	    	if (NativeUtils.isWindows())
-	    		outIdx = portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex());
+	    	{
+	    		if (fluidsynthRadio.isSelected() == true)
+	    			outIdx = portaudioOutputIndexes.get(fluidDevComboBox.getSelectedIndex());
+	    	}
             else
             	outIdx = fluidDevComboBox.getSelectedIndex();
 			if (outDev == "-1" || 

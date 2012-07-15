@@ -146,18 +146,22 @@ public class NoteGenerator
     
     public int getRowsDistance()
     {
-    	int height = 90;
-    	int tmpH = randomPitchList.size() * 5;
-    	if (addRangeIndex != -1) // means there are 2 clefs
+    	int height = 0, levels = 0;
+
+    	if (addRangeIndex == -1) 
+    		levels = randomPitchList.size();
+    	else 
     	{
-    		if (tmpH < 100) tmpH = 100;
-    		height += tmpH + 30;
+    		int c1l = addRangeIndex;
+    		int c2l = randomPitchList.size() - addRangeIndex;
+    		if (c1l > c2l) levels = c1l;
+    		else levels = c2l;
     	}
-    	else
-    	{
-    		if (tmpH < 50) tmpH = 50;
-    		height += tmpH;
-    	}
+    	if (levels * 5 < 50) height = 90;
+    	else height = 90 + ((levels - 9) * 5);
+
+    	if (addRangeIndex != -1)
+    		height *= 2;
 
     	return height;
     }
@@ -273,8 +277,9 @@ public class NoteGenerator
 		else if (tsIdx == 2) { timeSignNumerator = 3; timeSignDenominator = 4; }
 		else if (tsIdx == 3) { timeSignNumerator = 6; timeSignDenominator = 8; }
 		else if (tsIdx == 4) { timeSignNumerator = 6; timeSignDenominator = 4; }
+		else if (tsIdx == 5) { timeSignNumerator = 3; timeSignDenominator = 8; }
     }
-    
+
     public void setNotesList(Vector<Note> n, Vector<Note> n2, boolean random)
     {
     	int idx = 0, idx2 = 0;
@@ -655,8 +660,7 @@ public class NoteGenerator
     				if (tmpNote.type == 3)
     					eighthPresent = true;
     				tmpNote.setTimeStamp(timeCounter);
-        			//System.out.println("Measure #" + i + ": timestamp: " + timeCounter);
-    				System.out.println("Random Note: #" + seq.size() + ": p: " + tmpNote.pitch + ", lev: " + tmpNote.level + ", type: " + tmpNote.type + ", ts: " + timeCounter);
+    				//System.out.println("Random Note: #" + seq.size() + ": p: " + tmpNote.pitch + ", lev: " + tmpNote.level + ", type: " + tmpNote.type + ", ts: " + timeCounter);
     				timeCounter+=tmpNote.duration;
     			}
     			//System.out.println("tempMesCnt: " + measureCounter);

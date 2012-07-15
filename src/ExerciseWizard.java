@@ -128,7 +128,7 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 	JCheckBox secondClefCB;
 	JRadioButton trebleClefCB2, bassClefCB2, altoClefCB2, tenorClefCB2;
 
-	JRadioButton fourfourButton, twofourButton, threefourButton, sixeightButton, sixfourButton;
+	JRadioButton fourfourButton, twofourButton, threefourButton, sixeightButton, sixfourButton, threeeightButton;
 	
 	JLabel tempoLabel;
 	JSlider tempoSlider;
@@ -304,26 +304,30 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 			
 			fourfourButton = new JRadioButton("$"); // 4/4 symbol
 			fourfourButton.setFont(appFont.deriveFont(50f));
-			fourfourButton.setBounds(270, 0, 50, 60);
+			fourfourButton.setBounds(250, 0, 50, 60);
 			fourfourButton.setSelected(true);
 			twofourButton = new JRadioButton("@"); // 2/4 symbol
 			twofourButton.setFont(appFont.deriveFont(50f));
-			twofourButton.setBounds(325, 0, 50, 60);
+			twofourButton.setBounds(300, 0, 50, 60);
 			threefourButton = new JRadioButton("#"); // 3/4 symbol
 			threefourButton.setFont(appFont.deriveFont(50f));
-			threefourButton.setBounds(380, 0, 50, 60);
+			threefourButton.setBounds(350, 0, 50, 60);
 			sixeightButton = new JRadioButton("P"); // 6/8 symbol
 			sixeightButton.setFont(appFont.deriveFont(50f));
-			sixeightButton.setBounds(435, 0, 50, 60);
+			sixeightButton.setBounds(400, 0, 50, 60);
 			sixfourButton = new JRadioButton("^"); // 6/4 symbol
 			sixfourButton.setFont(appFont.deriveFont(50f));
-			sixfourButton.setBounds(490, 0, 50, 60);
+			sixfourButton.setBounds(450, 0, 50, 60);
+			threeeightButton = new JRadioButton(")"); // 3/8 symbol
+			threeeightButton.setFont(appFont.deriveFont(50f));
+			threeeightButton.setBounds(500, 0, 50, 60);
 
 			rbGroup.add(fourfourButton);
 			rbGroup.add(twofourButton);
 			rbGroup.add(threefourButton);
 			rbGroup.add(sixeightButton);
 			rbGroup.add(sixfourButton);
+			rbGroup.add(threeeightButton);
 
 			tsPanel.add(timeSignLabel);
 			tsPanel.add(fourfourButton);
@@ -331,6 +335,7 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 			tsPanel.add(threefourButton);
 			tsPanel.add(sixeightButton);
 			tsPanel.add(sixfourButton);
+			tsPanel.add(threeeightButton);
 
 			meausersActive = true;
         
@@ -479,6 +484,8 @@ class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListe
 					currExercise.setMeasure(3);
 				else if (sixfourButton.isSelected() == true)
 					currExercise.setMeasure(4);
+				else if (threeeightButton.isSelected() == true)
+					currExercise.setMeasure(5);
 	        }
 			else
 			{

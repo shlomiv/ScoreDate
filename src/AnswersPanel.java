@@ -38,7 +38,7 @@ public class AnswersPanel extends JPanel
 		int tmpHeight = getHeight();
 		if (tmpWidth != currWidth || tmpHeight != currHeight)
 		{
-			System.out.println("answersLayer size changed !!");
+			//System.out.println("answersLayer size changed !!");
 			currWidth = tmpWidth;
 			currHeight = tmpHeight;
 			bImage = new BufferedImage(currWidth, currHeight, BufferedImage.TYPE_INT_ARGB);

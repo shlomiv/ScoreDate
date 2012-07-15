@@ -62,6 +62,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 	JRadioButton threefourButton;
 	JRadioButton sixeightButton;
 	JRadioButton sixfourButton;
+	JRadioButton threeeightButton;
 
 	JButton okButton;
     JButton cancelButton;
@@ -300,6 +301,9 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		sixeightButton.setFont(appFont.deriveFont(45f));
 		sixfourButton = new JRadioButton("^"); // 6/4 symbol
 		sixfourButton.setFont(appFont.deriveFont(45f));
+		threeeightButton = new JRadioButton(")"); // 3/8 symbol
+		threeeightButton.setFont(appFont.deriveFont(45f));
+		
 		int tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
 		if (tsIdx == 0 || tsIdx == -1)
 			fourfourButton.setSelected(true);
@@ -311,11 +315,14 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			sixeightButton.setSelected(true);
 		else if (tsIdx == 4)
 			sixfourButton.setSelected(true);
+		else if (tsIdx == 5)
+			threeeightButton.setSelected(true);
 		rbGroup.add(fourfourButton);
 		rbGroup.add(twofourButton);
 		rbGroup.add(threefourButton);
 		rbGroup.add(sixeightButton);
 		rbGroup.add(sixfourButton);
+		rbGroup.add(threeeightButton);
 		
 		tsPanel.add(timeSignLabel);
 		tsPanel.add(fourfourButton);
@@ -323,6 +330,7 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		tsPanel.add(threefourButton);
 		tsPanel.add(sixeightButton);
 		tsPanel.add(sixfourButton);
+		tsPanel.add(threeeightButton);
 
 		notesPanel.add(accidentalsPanel);
 		notesPanel.add(notesTypePanel);
@@ -428,7 +436,9 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 			else if (sixeightButton.isSelected() == true)
 				appPrefs.setProperty("timeSignature", "3");
 			else if (sixfourButton.isSelected() == true)
-				appPrefs.setProperty("timeSignature", "4");			
+				appPrefs.setProperty("timeSignature", "4");
+			else if (threeeightButton.isSelected() == true)
+				appPrefs.setProperty("timeSignature", "5");
 
 			appPrefs.storeProperties();
 			

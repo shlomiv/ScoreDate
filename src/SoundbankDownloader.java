@@ -1,5 +1,5 @@
 /***********************************************
-This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+This file is part of the ScoreDate project
 
 ScoreDate is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ public class SoundbankDownloader extends JDialog
 		try
 		{
 			BufferedInputStream in = new java.io.BufferedInputStream(
-					new URL("http://www.mindmatter.it/scoredate/extras/soundbank-mid.gm").openStream());
+					new URL("http://scoredate.sourceforge.net//extras/soundbank-mid.gm").openStream());
 			String jreDir = System.getProperty("java.home");
 			FileOutputStream fos = new java.io.FileOutputStream(jreDir + File.separator + "lib" + File.separator + "audio" + File.separator + "soundbank-mid.gm");
 			BufferedOutputStream bout = new BufferedOutputStream(fos,1024);

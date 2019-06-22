@@ -1,6 +1,8 @@
 (defproject score-date "0.3.3-SNAPSHOT"
   :description "score date"
-  :url "https://sourceforge.net/projects/scoredate/"
+  :url "https://sourceforge.net/projects/scoredate/" 
+  :license {:name "GPL 3.0"
+            :url "http://www.gnu.org/licenses/gpl-3.0.txt"}
   :dependencies [;;[com.google.guava/guava "14.0.1"]
 		         ;;[org.mockito/mockito-all "1.8.4"]
 		         ;;[org.apache.logging.log4j/log4j-api "2.0.2"]

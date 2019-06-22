@@ -1,8 +1,6 @@
-(defproject score-date "0.1.0-SNAPSHOT"
-  :description "an example of using LJ from clojure"
-  :url "https://github.com/vadali/clj-LJ"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+(defproject score-date "0.3.3-SNAPSHOT"
+  :description "score date"
+  :url "https://sourceforge.net/projects/scoredate/"
   :dependencies [;;[com.google.guava/guava "14.0.1"]
 		         ;;[org.mockito/mockito-all "1.8.4"]
 		         ;;[org.apache.logging.log4j/log4j-api "2.0.2"]
@@ -15,7 +13,6 @@
                  ]
 
   :main ScoreDate
-;;  :resource-paths ["src/main/config" "src/main/resources"]
   :prep-tasks [ "javac" ]
   :javac-options     ["-target" "1.6" "-source" "1.6"]
   :java-source-paths ["src"]

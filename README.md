@@ -1,6 +1,6 @@
 # ScoreDate
 
-This repo is a fork of https://sourceforge.net/projects/scoredate/ which is a fork of jalmus (svn://svn.berlios.de/jalmus/trunk) which was also forked here (https://github.com/spark404/jalmus). 
+This repo is a fork of https://sourceforge.net/projects/scoredate/ which is a fork of jalmus https://sourceforge.net/p/jalmus/code/ci/master/tree/) which was also forked here (https://github.com/spark404/jalmus). 
 
 # Changes
 1. Added [Leiningen](https://github.com/technomancy/leiningen) as a build system.

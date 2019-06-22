@@ -18,18 +18,18 @@ ScoreDate is your date with the music !
 It is an open source software written in Java that helps musicians to learn music reading. It also helps you with ear training.
 It is suitable for any skill, from beginners to professional users. From slow training to first sight reading.
 
-Features
-Notes in line exercise
-Rhythms exercise
-Score reading exercise
-Ear training exercise with 4 levels of difficulty
-Exercises - Creation, edit, save and playback
-Statistics with monthly and daily view
-Supports of 4 clefs: Violin, Bass, Alto, Tenor, with a maximum of 2 at the same time
-Supports of notes: Whole, half, dotted half, quarter, dotted quarter, eighth, triplets, pauses
-Selection of the notes range for each clef. Maximum of 4 additional lines above and below the staff
-Virtual piano, to exercise without having external devices
-Chords, intervals and accidentals exercise
-Learning mode, that shows the name of the note or the chord displayed on the staff
-Realtime playback supporting ASIO, WDMKS, DirectSound, Jack, ALSA, OSS
-Translated in 15 languages
+Features:
+* Notes in line exercise
+* Rhythms exercise
+* Score reading exercise
+* Ear training exercise with 4 levels of difficulty
+* Exercises - Creation, edit, save and playback
+* Statistics with monthly and daily view
+* Supports of 4 clefs: Violin, Bass, Alto, Tenor, with a maximum of 2 at the same time
+* Supports of notes: Whole, half, dotted half, quarter, dotted quarter, eighth, triplets, pauses
+* Selection of the notes range for each clef. Maximum of 4 additional lines above and below the staff
+* Virtual piano, to exercise without having external devices
+* Chords, intervals and accidentals exercise
+* Learning mode, that shows the name of the note or the chord displayed on the staff
+* Realtime playback supporting ASIO, WDMKS, DirectSound, Jack, ALSA, OSS
+* Translated in 15 languages

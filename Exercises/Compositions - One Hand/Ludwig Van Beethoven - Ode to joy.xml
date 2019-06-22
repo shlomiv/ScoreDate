@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<exercise>
+<header>
+<version>3</version>
+<type>2</type>
+<title>Ludwig Van Beethoven - Ode to joy</title>
+<clef>1</clef>
+<accType/>
+<accCount>0</accCount>
+<measure>0</measure>
+<speed>110</speed>
+<random>0</random>
+</header>
+<sequence>
+<note c="1" d="1.0" l="16" p="64" t="2" ts="0.0"/>
+<note c="1" d="1.0" l="16" p="64" t="2" ts="1.0"/>
+<note c="1" d="1.0" l="15" p="65" t="2" ts="2.0"/>
+<note c="1" d="1.0" l="14" p="67" t="2" ts="3.0"/>
+<note c="1" d="1.0" l="14" p="67" t="2" ts="4.0"/>
+<note c="1" d="1.0" l="15" p="65" t="2" ts="5.0"/>
+<note c="1" d="1.0" l="16" p="64" t="2" ts="6.0"/>
+<note c="1" d="1.0" l="17" p="62" t="2" ts="7.0"/>
+<note c="1" d="1.0" l="18" p="60" t="2" ts="8.0"/>
+<note c="1" d="1.0" l="18" p="60" t="2" ts="9.0"/>
+<note c="1" d="1.0" l="17" p="62" t="2" ts="10.0"/>
+<note c="1" d="1.0" l="16" p="64" t="2" ts="11.0"/>
+<note c="1" d="1.5" l="16" p="64" t="7" ts="12.0"/>
+<note c="1" d="0.5" l="17" p="62" t="3" ts="13.5"/>
+<note c="1" d="2.0" l="17" p="62" t="1" ts="14.0"/>
+<note c="1" d="1.0" l="17" p="62" t="2" ts="16.0"/>
+<note c="1" d="1.0" l="17" p="62" t="2" ts="17.0"/>
+<note c="1" d="1.0" l="16" p="64" t="2" ts="18.0"/>
+<note c="1" d="1.0" l="18" p="60" t="2" ts="19.0"/>
+<note c="1" d="1.0" l="17" p="62" t="2" ts="20.0"/>
+<note c="1" d="0.5" l="16" p="64" t="3" ts="21.0"/>
+<note c="1" d="0.5" l="15" p="65" t="3" ts="21.5"/>
+<note c="1" d="1.0" l="16" p="64" t="2" ts="22.0"/>
+<note c="1" d="1.0" l="18" p="60" t="2" ts="23.0"/>
+<note c="1" d="1.0" l="17" p="62" t="2" ts="24.0"/>
+<note c="1" d="0.5" l="16" p="64" t="3" ts="25.0"/>
+<note c="1" d="0.5" l="15" p="65" t="3" ts="25.5"/>
+<note c="1" d="1.0" l="16" p="64" t="2" ts="26.0"/>
+<note c="1" d="1.0" l="17" p="62" t="2" ts="27.0"/>
+<note c="1" d="1.0" l="18" p="60" t="2" ts="28.0"/>
+<note c="1" d="1.0" l="17" p="62" t="2" ts="29.0"/>
+<note c="1" d="2.0" l="21" p="55" t="1" ts="30.0"/>
+</sequence>
+</exercise>

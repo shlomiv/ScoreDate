@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<exercise>
+<header>
+<version>3</version>
+<type>2</type>
+<title>J.S. Bach - Minuet G Major</title>
+<clef>1</clef>
+<accType>#</accType>
+<accCount>1</accCount>
+<measure>2</measure>
+<speed>140</speed>
+<random>0</random>
+</header>
+<sequence>
+<note c="1" d="1.0" l="10" p="74" t="2" ts="0.0"/>
+<note c="1" d="0.5" l="14" p="67" t="3" ts="1.0"/>
+<note c="1" d="0.5" l="13" p="69" t="3" ts="1.5"/>
+<note c="1" d="0.5" l="12" p="71" t="3" ts="2.0"/>
+<note c="1" d="0.5" l="11" p="72" t="3" ts="2.5"/>
+<note c="1" d="1.0" l="10" p="74" t="2" ts="3.0"/>
+<note c="1" d="1.0" l="14" p="67" t="2" ts="4.0"/>
+<note c="1" d="1.0" l="14" p="67" t="2" ts="5.0"/>
+<note c="1" d="1.0" l="9" p="76" t="2" ts="6.0"/>
+<note c="1" d="0.5" l="11" p="72" t="3" ts="7.0"/>
+<note c="1" d="0.5" l="10" p="74" t="3" ts="7.5"/>
+<note c="1" d="0.5" l="9" p="76" t="3" ts="8.0"/>
+<note c="1" d="0.5" l="8" p="78" t="3" ts="8.5"/>
+<note c="1" d="1.0" l="7" p="79" t="2" ts="9.0"/>
+<note c="1" d="1.0" l="14" p="67" t="2" ts="10.0"/>
+<note c="1" d="1.0" l="14" p="67" t="2" ts="11.0"/>
+<note c="1" d="1.0" l="11" p="72" t="2" ts="12.0"/>
+<note c="1" d="0.5" l="10" p="74" t="3" ts="13.0"/>
+<note c="1" d="0.5" l="11" p="72" t="3" ts="13.5"/>
+<note c="1" d="0.5" l="12" p="71" t="3" ts="14.0"/>
+<note c="1" d="0.5" l="13" p="69" t="3" ts="14.5"/>
+<note c="1" d="1.0" l="12" p="71" t="2" ts="15.0"/>
+<note c="1" d="0.5" l="11" p="72" t="3" ts="16.0"/>
+<note c="1" d="0.5" l="12" p="71" t="3" ts="16.5"/>
+<note c="1" d="0.5" l="13" p="69" t="3" ts="17.0"/>
+<note c="1" d="0.5" l="14" p="67" t="3" ts="17.5"/>
+<note c="1" d="1.0" l="15" p="66" t="2" ts="18.0"/>
+<note c="1" d="0.5" l="14" p="67" t="3" ts="19.0"/>
+<note c="1" d="0.5" l="13" p="69" t="3" ts="19.5"/>
+<note c="1" d="0.5" l="12" p="71" t="3" ts="20.0"/>
+<note c="1" d="0.5" l="14" p="67" t="3" ts="20.5"/>
+<note c="1" d="1.0" l="13" p="69" t="2" ts="21.0"/>
+<note c="1" d="2.0" l="17" p="62" t="1" ts="22.0"/>
+</sequence>
+</exercise>

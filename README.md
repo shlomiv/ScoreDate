@@ -1,11 +1,11 @@
 # ScoreDate
 
-This repo is a fork of https://sourceforge.net/projects/scoredate/. 
+This repo is a fork of https://sourceforge.net/projects/scoredate/ which is a fork of jalmus (svn://svn.berlios.de/jalmus/trunk) which was also forked here (https://github.com/spark404/jalmus). 
 
 # Changes
 1. Added [Leiningen](https://github.com/technomancy/leiningen) as a build system.
    1. *To build* - install lein and run `lein uberjar`. 
-   2. *To run* - double click on the jar file in a graphical setting, or run `java -jar target/score-date-0.1.0-SNAPSHOT-standalone.jar`.
+   2. *To run* - double click on the jar file in a graphical setting, or run `java -jar target/score-date-0.3.3-SNAPSHOT-standalone.jar`.
                  If you put the resulting uberjar in the root folder you will also get access to the exercises.
 
 2. Fixed a bug where once a wrong note is played everything is considered "wrong"
@@ -33,3 +33,6 @@ Features:
 * Learning mode, that shows the name of the note or the chord displayed on the staff
 * Realtime playback supporting ASIO, WDMKS, DirectSound, Jack, ALSA, OSS
 * Translated in 15 languages
+
+# License
+[GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)

@@ -12,6 +12,8 @@ This repo is a fork of https://sourceforge.net/projects/scoredate/ which is a fo
 3. Deselecting "Keyboard sound" from the Midi Options menu makes the piano not play (either from the program or attached by midi).
    This helps when practicing with rhythm, as the delay does not confuse playing.
 
+# Install
+I released an unofficial 3.3 version. Simply download the jar file and untar the Exercises.tar.gz in the same directory as the jar, and double click it. See https://github.com/shlomiv/ScoreDate/releases.
 # Text from the original repo
 
 ScoreDate is your date with the music !

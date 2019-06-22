@@ -341,21 +341,29 @@ public class MidiController
 
 	 public void playNote(int pitch, int volume)
 	 {
-		 if (useFluidsynth == false)
-			 midiOutChannel.noteOn(pitch, volume);
-		 else
+	     System.out.println("keyboardsound is " + appPrefs.getProperty("keyboardsound"));
+	     if (Integer.parseInt(appPrefs.getProperty("keyboardsound")) == 0)
+		 return;
+
+	     
+	     if (useFluidsynth == false)
+		 midiOutChannel.noteOn(pitch, volume);
+	     else
 		 {
-			 //fluidSynth.send(0, ShortMessage.CONTROL_CHANGE , 0, 0);
-			 fluidSynth.send(0, ShortMessage.NOTE_ON, pitch, volume);
+		     //fluidSynth.send(0, ShortMessage.CONTROL_CHANGE , 0, 0);
+		     fluidSynth.send(0, ShortMessage.NOTE_ON, pitch, volume);
 		 }
 	 }
 	 
 	 public void stopNote(int pitch, int volume)
 	 {
-		 if (useFluidsynth == false)
-			 midiOutChannel.noteOff(pitch, volume);
-		 else
-			 fluidSynth.send(0, ShortMessage.NOTE_OFF, pitch, volume);
+	     if (Integer.parseInt(appPrefs.getProperty("keyboardsound")) == 0)
+		 return;
+
+	     if (useFluidsynth == false)
+		 midiOutChannel.noteOff(pitch, volume);
+	     else
+		 fluidSynth.send(0, ShortMessage.NOTE_OFF, pitch, volume);
 	 }
 	 
 	 private void fluidsynthAsyncMIDIevent(MetaMessage msg)

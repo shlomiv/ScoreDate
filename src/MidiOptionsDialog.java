@@ -63,7 +63,7 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 	private JComboBox inputDeviceComboBox;
 	private JButton audioTestButton;
 	
-    //private JCheckBox soundOnCheckBox;
+    private JCheckBox soundOnCheckBox;
     private JComboBox instrumentsComboBox;
     private JComboBox keyboardLengthComboBox; // virtual keyboard keys number
     private JSpinner transpositionSpinner; // MIDI IN transposition
@@ -136,23 +136,23 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
     	inputDeviceComboBox = new JComboBox();
     	inputDeviceComboBox.setBounds(180, 42, 260, 25);
     	String midiInput = appPrefs.getProperty("inputDevice");
-		if (midiInput == "-1" || midiInput.split(",")[0].equals("MIDI"))
-			midiInputRadio.setSelected(true);
-		else if (midiInput.split(",")[0].equals("Audio"))
-			audioInputRadio.setSelected(true);
-		midiInputRadio.addActionListener(this);
-		audioInputRadio.addActionListener(this);
-
-		audioTestButton = new JButton("...");
-		audioTestButton.setIcon(new ImageIcon(getClass().getResource("/resources/microphone.png")));
-		audioTestButton.setFont(new Font("Arial", Font.BOLD, 13));
-		audioTestButton.setBounds(445, 42, 45, 25);
-		audioTestButton.addActionListener(this);
-		if (audioInputRadio.isSelected() == false)
-			audioTestButton.setVisible(false);
+        if (midiInput == "-1" || midiInput.split(",")[0].equals("MIDI"))
+            midiInputRadio.setSelected(true);
+        else if (midiInput.split(",")[0].equals("Audio"))
+            audioInputRadio.setSelected(true);
+        midiInputRadio.addActionListener(this);
+        audioInputRadio.addActionListener(this);
+        
+        audioTestButton = new JButton("...");
+        audioTestButton.setIcon(new ImageIcon(getClass().getResource("/resources/microphone.png")));
+        audioTestButton.setFont(new Font("Arial", Font.BOLD, 13));
+        audioTestButton.setBounds(445, 42, 45, 25);
+        audioTestButton.addActionListener(this);
+        if (audioInputRadio.isSelected() == false)
+            audioTestButton.setVisible(false);
 
         midiInPanel.add(midiInputRadio);
-        //midiInPanel.add(audioInputRadio);    // TODO: audio unfinished business
+        midiInPanel.add(audioInputRadio);    // TODO: audio unfinished business
         midiInPanel.add(inputDeviceComboBox);
         midiInPanel.add(audioTestButton);
         tmpYpos+=85;
@@ -251,12 +251,12 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
         	keyboardLengthComboBox.setSelectedIndex(1);
         keyboardLengthComboBox.addActionListener(this);
 		
-		/*soundOnCheckBox = new JCheckBox(appBundle.getString("_notessound"), false);
+		soundOnCheckBox = new JCheckBox(appBundle.getString("_notessound"), false);
 		if (Integer.parseInt(appPrefs.getProperty("sound")) != 0)
 			soundOnCheckBox.setSelected(true);
-		 */
+		 
 
-        //soundPanel.add(soundOnCheckBox);
+        soundPanel.add(soundOnCheckBox);
         soundPanel.add(keyboardsoundCheckBox);
         soundPanel.add(instrumentsComboBox);
         soundPanel.add(keyboardLengthComboBox);
@@ -501,12 +501,12 @@ public class MidiOptionsDialog extends JDialog implements ActionListener
 			boolean newInstrument = false;
 			boolean newTranpose = false;
 
-	    	/*
+	    	
 	    	if (soundOnCheckBox.isSelected())
 	    		appPrefs.setProperty("sound", "1");
 		    else 
 		    	appPrefs.setProperty("sound", "0");
-		    */
+		    
 			String inDev = appPrefs.getProperty("inputDevice");
 			String outDev = appPrefs.getProperty("outputDevice");
 			int inputDevIdx = -1;

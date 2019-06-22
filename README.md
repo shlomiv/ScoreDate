@@ -5,7 +5,7 @@ This repo is a fork of https://sourceforge.net/projects/scoredate/.
 # Changes
 1. Added [Leiningen](https://github.com/technomancy/leiningen) as a build system.
    1. *To build* - install lein and run `lein uberjar`. 
-   2. *To run* - double click in a graphical setting, or run `java -jar score-date-0.1.0-SNAPSHOT-standalone.jar`
+   2. *To run* - double click on the jar file in a graphical setting, or run `java -jar target/score-date-0.1.0-SNAPSHOT-standalone.jar`.
                  If you put the resulting uberjar in the root folder you will also get access to the exercises.
 
 2. Fixed a bug where once a wrong note is played everything is considered "wrong"

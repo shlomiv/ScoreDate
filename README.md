@@ -10,7 +10,7 @@ This repo is a fork of https://sourceforge.net/projects/scoredate/.
 
 2. Fixed a bug where once a wrong note is played everything is considered "wrong"
 3. Deselecting "Keyboard sound" from the Midi Options menu makes the piano not play (either from the program or attached by midi).
-   This helps when practicing with rythem, as the delay does not confuse playing.
+   This helps when practicing with rhythm, as the delay does not confuse playing.
 
 # Text from the original repo
 

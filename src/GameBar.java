@@ -138,6 +138,9 @@ public class GameBar extends JPanel implements ActionListener
 	
 	protected void paintComponent(Graphics g) 
 	{
+            g.setColor(Color.white);
+            g.fillRect(0, 0, getWidth(), getHeight());
+            
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		GradientPaint vertGrad = new GradientPaint(0, 0, Color.decode("0xE7E734"), 0, getHeight() - 30, Color.decode("0xE7A935"));
 		((Graphics2D) g).setPaint(vertGrad);

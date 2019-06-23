@@ -1,5 +1,4 @@
-/***********************************************
-This file is part of the ScoreDate project
+/***********************************************This file is part of the ScoreDate project
 
 ScoreDate is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -506,10 +505,6 @@ public class InlinePanel extends JPanel implements ActionListener
 			  else
 			  {
 				appMidi.playNote(pitch, 90);
-				/*			if ((gameSubType == appPrefs.NOTE_CHORDS && userNotes.size() == 3) ||
-					gameSubType != appPrefs.NOTE_CHORDS)
-					updateGameStats(0);
-				*/
 				if ((gameSubType == appPrefs.NOTE_CHORDS && userNotes
 				     .size() == 3) ||
 				    (gameSubType == appPrefs.NOTE_INTERVALS && userNotes.size() == 2)
@@ -640,14 +635,14 @@ public class InlinePanel extends JPanel implements ActionListener
 
 	protected void paintComponent(Graphics g) 
 	{
-		g.setColor(this.getBackground());
-		g.fillRect(0, 0, getWidth(), getHeight());
-		sBar.setSize(getWidth(), sBarHeight);
-		layers.setBounds(staffHMargin, staffVMargin, getWidth() - (staffHMargin * 2), staffHeight);
-		inlineStaff.setBounds(0, 0, getWidth() - (staffHMargin * 2), staffHeight);
-		notesLayer.setBounds(0, 0, getWidth() - (staffHMargin * 2), staffHeight);
-		piano.setBounds(0, staffVMargin + staffHeight, getWidth(), pianoHeight);
-		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
+            g.setColor(this.getBackground());
+            g.fillRect(0, 0, getWidth(), getHeight());
+            sBar.setSize(getWidth(), sBarHeight);
+            layers.setBounds(staffHMargin, staffVMargin, getWidth() - (staffHMargin * 2), staffHeight);
+            inlineStaff.setBounds(0, 0, getWidth() - (staffHMargin * 2), staffHeight);
+            notesLayer.setBounds(0, 0, getWidth() - (staffHMargin * 2), staffHeight);
+            piano.setBounds(0, staffVMargin + staffHeight, getWidth(), pianoHeight);
+            gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
 	}
 	
 

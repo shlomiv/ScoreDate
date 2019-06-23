@@ -232,6 +232,9 @@ public class Piano extends JPanel
 
   protected void paintComponent(Graphics g) 
   {
+      g.setColor(Color.white);
+      g.fillRect(0, 0, getWidth(), getHeight());
+            
     Graphics2D g2 = (Graphics2D) g;
     
     int offx = 0;
